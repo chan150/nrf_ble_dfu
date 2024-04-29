@@ -1,9 +1,13 @@
+export 'dart:async';
+export 'dart:io';
+
 import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+
 
 class NrfBleDfu {
   factory NrfBleDfu() => _instance;
@@ -67,6 +71,7 @@ class NrfBleDfu {
       setOriginDevice(scanResult);
     });
     await Future.delayed(timeout);
+    subscription.cancel();
   }
 
   Future<void> stop() async {}
