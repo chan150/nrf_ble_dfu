@@ -24,7 +24,7 @@ class NrfBleDfu {
   StreamSubscription? originSubscription;
   StreamSubscription? dfuSubscription;
 
-  Future<void> findDfuFile() async {
+  Future<void> selectDfu() async {
     final result = await FilePicker.platform.pickFiles();
     if (result == null) return;
     file.path = result.paths.single;
@@ -43,9 +43,31 @@ class NrfBleDfu {
     file.binPath = list.where((e) => e.path.endsWith('bin')).singleOrNull?.path;
   }
 
-  Future<void> findOrigin() async {
-    await FlutterBluePlus.stopScan();
-    await FlutterBluePlus.startScan(timeout: const Duration(seconds: 3));
+  Future<void> setOriginDevice(ScanResult scanResult) async {
+    if (origin.device != null) return;
+    if(originScanFn(scanResult)){
+      origin.device = scanResult.device;
+      await origin.device?.connect();
+    }
   }
 
+  Future<void> setDfuDevice(ScanResult scanResult) async {
+    if (dfu.device != null) return;
+    if(dfuScanFn(scanResult)){
+      dfu.device = scanResult.device;
+      await dfu.device?.connect();
+    }
+  }
+
+  Future<void> scan() async {
+    const timeout = Duration(seconds: 3);
+    await FlutterBluePlus.startScan(timeout: timeout);
+    final subscription = FlutterBluePlus.scanResults.expand((e) => e).listen((scanResult) {
+      setOriginDevice(scanResult);
+      setOriginDevice(scanResult);
+    });
+    await Future.delayed(timeout);
+  }
+
+  Future<void> stop() async {}
 }

@@ -13,7 +13,7 @@ class DfuFileSelect extends StatelessWidget {
       builder: (context) {
         final builder = this.builder ?? (path) => Text(path ?? 'Select firmware');
         return InkWell(
-          onTap: NrfBleDfu().findDfuFile,
+          onTap: NrfBleDfu().selectDfu,
           child: builder(NrfBleDfu().file.path),
         );
       },
