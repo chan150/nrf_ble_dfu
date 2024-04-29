@@ -4,4 +4,6 @@ class NrfBleDfu {
   static final _instance = NrfBleDfu._internal();
 
   NrfBleDfu._internal();
+
+
 }
