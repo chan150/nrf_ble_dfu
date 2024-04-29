@@ -33,5 +33,5 @@ extension BluetoothCharacteristicRead on BluetoothCharacteristic {
 }
 
 extension PacketExtension on List<int> {
-  List<String> get hex => [...map((e) => e.toRadixString(16))];
+  List<String> get hex => [...map((e) => '0x${e.toRadixString(16).toUpperCase()}')];
 }
