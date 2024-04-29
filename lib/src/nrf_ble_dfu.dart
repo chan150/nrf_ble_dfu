@@ -40,7 +40,6 @@ class NrfBleDfu {
     final list = outputDir.listSync();
 
     file.datPath = list.where((e) => e.path.endsWith('dat')).singleOrNull?.path;
-
     file.binPath = list.where((e) => e.path.endsWith('bin')).singleOrNull?.path;
   }
 
