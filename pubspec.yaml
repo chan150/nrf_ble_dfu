@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_blue_plus_windows: ">=1.23.3"
+  flutter_blue_plus_windows: ">=1.23.5"
   mobx: ">=2.3.3+2"
   permission_handler: ">=11.3.1"
   flutter_mobx: ">=2.2.1+1"
