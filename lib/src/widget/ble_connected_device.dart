@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
@@ -52,39 +54,138 @@ class BleConnectedDevice extends StatelessWidget {
 
     await controlPoint.setNotifyValue(true);
 
+    /// transfer init packet
+    await _transferObject(
+      type: NrfDfuTransferType.init.code,
+      buffer: dat,
+      controlPoint: controlPoint,
+      dataPoint: dataPoint,
+    );
+
+    /// transfer firmware image
+    await _transferObject(
+      type: NrfDfuTransferType.image.code,
+      buffer: bin,
+      controlPoint: controlPoint,
+      dataPoint: dataPoint,
+    );
+  }
+
+  Future<void> _transferObject({
+    required int type,
+    required Uint8List buffer,
+    required BluetoothCharacteristic controlPoint,
+    required BluetoothCharacteristic dataPoint,
+  }) async {
     late int maxSize;
     late int offset;
-    late int type;
     late int crc;
+    int step = 0;
+
+    ///
+    late int from;
+    late int to;
+    late List<int> data;
+
+    bool isSelectCommand = true;
 
     /// https://infocenter.nordicsemi.com/index.jsp?topic=%2Fsdk_nrf5_v17.0.2%2Flib_bootloader_dfu_process.html
     await for (final event in controlPoint.lastValueStream) {
       log(event.hexString);
-      if (event.isEmpty) {
-        /// select command [06 01]
-        type = NrfDfuTransferType.init.code;
+
+      /// select command
+      /// [06 01]
+      if (isSelectCommand) {
+        isSelectCommand = false;
         controlPoint.write([
           NrfDfuOp.objectSelect.code,
-          NrfDfuTransferType.init.code,
+          type,
         ]);
         continue;
       }
 
       /// response select success: max_size offset CRC32
       /// [60 06 01 XXXXXXXX XXXXXXXX XXXXXXXX]
-      if (event[0] == NrfDfuOp.response.code) {
+      if (event.elementAtOrNull(0) == NrfDfuOp.response.code &&
+          event.elementAtOrNull(1) == NrfDfuOp.objectSelect.code &&
+          event.elementAtOrNull(2) == NrfDfuResult.success.code) {
         maxSize = event.getInt32(3);
         offset = event.getInt32(7);
         crc = event.getInt32(11);
 
-        final isInit = type == NrfDfuTransferType.init.code;
-        final isSameSize = offset == dat.length;
+        from = step * maxSize;
+        to = math.min((step + 1) * maxSize, buffer.length);
+        data = buffer.sublist(from, to);
 
-        // log((type, maxSize, offset, crc, dat.length).toString());
-        // log(crc32(dat).toString());
-        // log(crc32(bin).toString());
+        // final checkSize = offset == dat.length;
+        // final checkCrc = crc == crc32(dat);
+        // if(checkInit && checkSize && checkCrc){
+        //   log('Init packet already received');
+        // }
+
+        final sizePacket = data.length.toBytes;
+        await controlPoint.write([
+          NrfDfuOp.objectCreate.code,
+          type,
+          ...sizePacket,
+        ]);
+        continue;
+      }
+
+      /// Response Create Success
+      /// [60 01 01]
+      if (event.elementAtOrNull(0) == NrfDfuOp.response.code &&
+          event.elementAtOrNull(1) == NrfDfuOp.objectCreate.code &&
+          event.elementAtOrNull(2) == NrfDfuResult.success.code) {
+        log('========================= $step');
+        from = step * maxSize;
+        to = math.min((step + 1) * maxSize, buffer.length);
+        data = buffer.sublist(from, to);
+        for (var i = 0; i < data.length / 20; i++) {
+          final packet = data.sublist(i * 20, math.min((i + 1) * 20, data.length));
+          await dataPoint.write(packet, withoutResponse: true);
+        }
+        await controlPoint.write([NrfDfuOp.crcGet.code]);
+        step++;
+        continue;
+      }
+
+      /// Response PRN Success: offset CRC32
+      /// [60 03 01 XXXXXXXX XXXXXXXX]
+      if (event.elementAtOrNull(0) == NrfDfuOp.response.code &&
+          event.elementAtOrNull(1) == NrfDfuOp.crcGet.code &&
+          event.elementAtOrNull(2) == NrfDfuResult.success.code) {
+        offset = event.getInt32(3);
+        crc = event.getInt32(7);
+        log((crc32(buffer.sublist(0, offset)), offset, crc).toString());
+
+        /// Execute command
+        /// [04]
+        if (step + 1 < buffer.length / maxSize) {
+          log('========================= $step');
+          from = step * maxSize;
+          to = math.min((step + 1) * maxSize, buffer.length);
+          data = buffer.sublist(from, to);
+          for (var i = 0; i < data.length / 20; i++) {
+            final packet = data.sublist(i * 20, math.min((i + 1) * 20, data.length));
+            await dataPoint.write(packet, withoutResponse: true);
+          }
+          await controlPoint.write([NrfDfuOp.crcGet.code]);
+          step++;
+        } else {
+          controlPoint.write([NrfDfuOp.objectExecute.code]);
+        }
+        continue;
+      }
+
+      if (event.elementAtOrNull(0) == NrfDfuOp.response.code &&
+          event.elementAtOrNull(1) == NrfDfuOp.objectExecute.code &&
+          event.elementAtOrNull(2) == NrfDfuResult.success.code) {
         break;
       }
+
+      log('Unhandled packet');
+      break;
     }
   }
 
