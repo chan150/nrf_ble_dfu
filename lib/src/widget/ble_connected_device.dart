@@ -80,7 +80,6 @@ class BleConnectedDevice extends StatelessWidget {
     late int maxSize;
     late int offset;
     late int crc;
-    int step = 0;
 
     ///
     late int from;
@@ -88,6 +87,7 @@ class BleConnectedDevice extends StatelessWidget {
     late List<int> data;
 
     bool isSelectCommand = true;
+    int step = 0;
 
     /// https://infocenter.nordicsemi.com/index.jsp?topic=%2Fsdk_nrf5_v17.0.2%2Flib_bootloader_dfu_process.html
     await for (final event in controlPoint.lastValueStream) {
@@ -146,7 +146,6 @@ class BleConnectedDevice extends StatelessWidget {
           await dataPoint.write(packet, withoutResponse: true);
         }
         await controlPoint.write([NrfDfuOp.crcGet.code]);
-        step++;
         continue;
       }
 
@@ -157,34 +156,32 @@ class BleConnectedDevice extends StatelessWidget {
           event.elementAtOrNull(2) == NrfDfuResult.success.code) {
         offset = event.getInt32(3);
         crc = event.getInt32(7);
+
+        // TODO: should validate CRC32 function
         log((crc32(buffer.sublist(0, offset)), offset, crc).toString());
 
-        /// Execute command
-        /// [04]
-        if (step + 1 < buffer.length / maxSize) {
-          log('========================= $step');
-          from = step * maxSize;
-          to = math.min((step + 1) * maxSize, buffer.length);
-          data = buffer.sublist(from, to);
-          for (var i = 0; i < data.length / 20; i++) {
-            final packet = data.sublist(i * 20, math.min((i + 1) * 20, data.length));
-            await dataPoint.write(packet, withoutResponse: true);
-          }
-          await controlPoint.write([NrfDfuOp.crcGet.code]);
-          step++;
-        } else {
-          controlPoint.write([NrfDfuOp.objectExecute.code]);
-        }
+        controlPoint.write([NrfDfuOp.objectExecute.code]);
         continue;
       }
 
+      /// Response Execute Success
+      /// [60 04 01]
       if (event.elementAtOrNull(0) == NrfDfuOp.response.code &&
           event.elementAtOrNull(1) == NrfDfuOp.objectExecute.code &&
           event.elementAtOrNull(2) == NrfDfuResult.success.code) {
-        break;
+        if (step + 1 < buffer.length / maxSize) {
+          controlPoint.write([
+            NrfDfuOp.objectSelect.code,
+            type,
+          ]);
+          step++;
+          continue;
+        } else {
+          break;
+        }
       }
 
-      log('Unhandled packet');
+      log('Unhandled packet: $event');
       break;
     }
   }
