@@ -18,14 +18,14 @@ class NrfBleDfu {
     FlutterBluePlus.setLogLevel(LogLevel.error);
   }
 
-  final origin = BleDeviceState();
+  final entry = BleDeviceState();
   final dfu = BleDeviceState();
   final file = DfuFileState();
 
-  bool Function(ScanResult) originScanFn = (scanResult) => scanResult.device.remoteId.str == 'C6:D9:1F:BC:65:5B';
+  bool Function(ScanResult) entryScanFn = (scanResult) => scanResult.device.remoteId.str == 'C6:D9:1F:BC:65:5B';
   bool Function(ScanResult) dfuScanFn = (scanResult) => scanResult.device.remoteId.str == 'C6:D9:1F:BC:65:5C';
 
-  StreamSubscription? originSubscription;
+  StreamSubscription? entrySubscription;
   StreamSubscription? dfuSubscription;
 
   Future<void> selectDfu() async {
@@ -47,11 +47,11 @@ class NrfBleDfu {
     file.binPath = list.where((e) => e.path.endsWith('bin')).singleOrNull?.path;
   }
 
-  Future<void> setOriginDevice(ScanResult scanResult) async {
-    if (origin.device != null) return;
-    if(originScanFn(scanResult)){
-      origin.device = scanResult.device;
-      await origin.device?.connect();
+  Future<void> setEntryDevice(ScanResult scanResult) async {
+    if (entry.device != null) return;
+    if(entryScanFn(scanResult)){
+      entry.device = scanResult.device;
+      await entry.device?.connect();
     }
   }
 
@@ -67,8 +67,8 @@ class NrfBleDfu {
     const timeout = Duration(seconds: 3);
     await FlutterBluePlus.startScan(timeout: timeout);
     final subscription = FlutterBluePlus.scanResults.expand((e) => e).listen((scanResult) {
-      setOriginDevice(scanResult);
-      setOriginDevice(scanResult);
+      setEntryDevice(scanResult);
+      setEntryDevice(scanResult);
     });
     await Future.delayed(timeout);
     subscription.cancel();
