@@ -32,6 +32,8 @@ class _MyHomePageState extends State<MyHomePage> {
         children: const [
           DfuFileSelect(),
           Divider(),
+          BleConnectedDevice(),
+          Divider(),
           BleDeviceSelect(),
         ],
       ),
