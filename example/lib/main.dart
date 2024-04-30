@@ -35,6 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
           BleEntrySetup(),
           Divider(),
           BleConnectedDevice(),
+          DfuProgress(),
           Divider(),
           BleDeviceSelect(),
         ],

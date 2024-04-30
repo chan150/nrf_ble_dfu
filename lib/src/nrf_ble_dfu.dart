@@ -1,8 +1,5 @@
-export 'dart:async';
-export 'dart:io';
-
-import 'dart:math' as math;
 import 'dart:developer';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
@@ -14,6 +11,8 @@ import 'package:nrf_ble_dfu/src/state/dfu_progress_state.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
+export 'dart:async';
+export 'dart:io';
 
 class NrfBleDfu {
   factory NrfBleDfu() => _instance;
@@ -57,7 +56,7 @@ class NrfBleDfu {
 
   Future<void> setEntryDevice(ScanResult scanResult) async {
     if (entry.device != null) return;
-    if(entryScanFn(scanResult)){
+    if (entryScanFn(scanResult)) {
       entry.device = scanResult.device;
       await entry.device?.connect();
     }
@@ -65,24 +64,11 @@ class NrfBleDfu {
 
   Future<void> setDfuDevice(ScanResult scanResult) async {
     if (dfu.device != null) return;
-    if(dfuScanFn(scanResult)){
+    if (dfuScanFn(scanResult)) {
       dfu.device = scanResult.device;
       await dfu.device?.connect();
     }
   }
-
-  // Future<void> scan() async {
-  //   const timeout = Duration(seconds: 3);
-  //   await FlutterBluePlus.startScan(timeout: timeout);
-  //   final subscription = FlutterBluePlus.scanResults.expand((e) => e).listen((scanResult) {
-  //     setEntryDevice(scanResult);
-  //     setEntryDevice(scanResult);
-  //   });
-  //   await Future.delayed(timeout);
-  //   subscription.cancel();
-  // }
-  //
-  // Future<void> stop() async {}
 
   Future<void> _transferObject({
     required int type,
@@ -102,6 +88,9 @@ class NrfBleDfu {
     bool isPrepared = false;
     bool isSelectCommand = true;
     int step = 0;
+
+    NrfBleDfu().progress.fileSize = null;
+    NrfBleDfu().progress.completedSize = null;
 
     /// https://infocenter.nordicsemi.com/index.jsp?topic=%2Fsdk_nrf5_v17.0.2%2Flib_bootloader_dfu_process.html
     await for (final event in controlPoint.lastValueStream) {
@@ -131,6 +120,10 @@ class NrfBleDfu {
         to = math.min((step + 1) * maxSize, buffer.length);
         data = buffer.sublist(from, to);
 
+        /// notify progress
+        NrfBleDfu().progress.fileSize ??= buffer.length;
+        NrfBleDfu().progress.completedSize ??= 0;
+
         // final checkSize = offset == dat.length;
         // final checkCrc = crc == crc32(dat);
         // if(checkInit && checkSize && checkCrc){
@@ -151,7 +144,6 @@ class NrfBleDfu {
       if (event.elementAtOrNull(0) == NrfDfuOp.response.code &&
           event.elementAtOrNull(1) == NrfDfuOp.objectCreate.code &&
           event.elementAtOrNull(2) == NrfDfuResult.success.code) {
-        log('========================= $step');
         from = step * maxSize;
         to = math.min((step + 1) * maxSize, buffer.length);
         data = buffer.sublist(from, to);
@@ -175,7 +167,7 @@ class NrfBleDfu {
         // TODO: should validate CRC32 function
         log((_crc32(buffer.sublist(0, offset)), offset, crc).toString());
 
-        if(isPrepared) controlPoint.write([NrfDfuOp.objectExecute.code]);
+        if (isPrepared) controlPoint.write([NrfDfuOp.objectExecute.code]);
         isPrepared = false;
         continue;
       }
@@ -185,6 +177,8 @@ class NrfBleDfu {
       if (event.elementAtOrNull(0) == NrfDfuOp.response.code &&
           event.elementAtOrNull(1) == NrfDfuOp.objectExecute.code &&
           event.elementAtOrNull(2) == NrfDfuResult.success.code) {
+        NrfBleDfu().progress.completedSize = NrfBleDfu().progress.completedSize! + data.length;
+
         if (step + 1 < buffer.length / maxSize) {
           controlPoint.write([
             NrfDfuOp.objectSelect.code,
