@@ -10,6 +10,19 @@ enum NrfDfuObjType {
   final String description;
 }
 
+enum NrfDfuTransferType {
+  init(code: 0x01, description: 'Transfer of an init packet'),
+  image(code: 0x02, description: 'Transfer of a firmware image');
+
+  const NrfDfuTransferType({
+    required this.code,
+    required this.description,
+  });
+
+  final int code;
+  final String description;
+}
+
 enum NrfDfuOp {
   protocolVersion(code: 0x00, description: 'NRF_DFU_RES_CODE_INVALID'),
   objectCreate(code: 0x01, description: 'NRF_DFU_RES_CODE_SUCCESS'),

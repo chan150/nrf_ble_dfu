@@ -39,6 +39,7 @@ class _BleDeviceSelectState extends State<BleDeviceSelect> {
               subtitle: Text(item.device.remoteId.str),
               trailing: IconButton(
                 onPressed: item.device.connect,
+                tooltip: 'Connect device',
                 icon: const Icon(Icons.bluetooth),
               ),
             );
