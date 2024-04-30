@@ -5,6 +5,7 @@ import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
+import 'package:nrf_ble_dfu/src/state/dfu_entry_state.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -21,6 +22,7 @@ class NrfBleDfu {
   final entry = BleDeviceState();
   final dfu = BleDeviceState();
   final file = DfuFileState();
+  final setup = DfuEntryState();
 
   bool Function(ScanResult) entryScanFn = (scanResult) => scanResult.device.remoteId.str == 'C6:D9:1F:BC:65:5B';
   bool Function(ScanResult) dfuScanFn = (scanResult) => scanResult.device.remoteId.str == 'C6:D9:1F:BC:65:5C';

@@ -32,6 +32,22 @@ extension BluetoothCharacteristicRead on BluetoothCharacteristic {
   }
 }
 
-extension PacketExtension on List<int> {
-  List<String> get hex => [...map((e) => '0x${e.toRadixString(16).toUpperCase()}')];
+extension PacketExtensionToString on List<int> {
+  List<String> get hex => [
+        ...map(
+          (e) => '0x${e.toRadixString(16).toUpperCase().padLeft(2, '0')}',
+        ),
+      ];
+
+  String get hexString => hex.toString();
+}
+
+extension PacketExtensionFromString on String {
+  List<int> get list {
+    if (!startsWith('[')) return [];
+    if (!endsWith(']')) return [];
+    final trim = substring(1, length - 1);
+    final split = trim.split(',');
+    return [...split.map((e) => int.parse(e))];
+  }
 }

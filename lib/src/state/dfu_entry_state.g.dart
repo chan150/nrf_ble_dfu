@@ -13,22 +13,73 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
       Atom(name: 'DfuEntryStateBase.entryPacket', context: context);
 
   @override
-  ObservableList<dynamic> get entryPacket {
+  ObservableList<int> get entryPacket {
     _$entryPacketAtom.reportRead();
     return super.entryPacket;
   }
 
   @override
-  set entryPacket(ObservableList<dynamic> value) {
+  set entryPacket(ObservableList<int> value) {
     _$entryPacketAtom.reportWrite(value, super.entryPacket, () {
       super.entryPacket = value;
+    });
+  }
+
+  late final _$entryControlPointAtom =
+      Atom(name: 'DfuEntryStateBase.entryControlPoint', context: context);
+
+  @override
+  String get entryControlPoint {
+    _$entryControlPointAtom.reportRead();
+    return super.entryControlPoint;
+  }
+
+  @override
+  set entryControlPoint(String value) {
+    _$entryControlPointAtom.reportWrite(value, super.entryControlPoint, () {
+      super.entryControlPoint = value;
+    });
+  }
+
+  late final _$dfuControlPointAtom =
+      Atom(name: 'DfuEntryStateBase.dfuControlPoint', context: context);
+
+  @override
+  String get dfuControlPoint {
+    _$dfuControlPointAtom.reportRead();
+    return super.dfuControlPoint;
+  }
+
+  @override
+  set dfuControlPoint(String value) {
+    _$dfuControlPointAtom.reportWrite(value, super.dfuControlPoint, () {
+      super.dfuControlPoint = value;
+    });
+  }
+
+  late final _$dfuDataPointAtom =
+      Atom(name: 'DfuEntryStateBase.dfuDataPoint', context: context);
+
+  @override
+  String get dfuDataPoint {
+    _$dfuDataPointAtom.reportRead();
+    return super.dfuDataPoint;
+  }
+
+  @override
+  set dfuDataPoint(String value) {
+    _$dfuDataPointAtom.reportWrite(value, super.dfuDataPoint, () {
+      super.dfuDataPoint = value;
     });
   }
 
   @override
   String toString() {
     return '''
-entryPacket: ${entryPacket}
+entryPacket: ${entryPacket},
+entryControlPoint: ${entryControlPoint},
+dfuControlPoint: ${dfuControlPoint},
+dfuDataPoint: ${dfuDataPoint}
     ''';
   }
 }
