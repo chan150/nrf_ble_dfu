@@ -1,5 +1,5 @@
 name: nrf_ble_dfu
-description: "Nordic DFU via ble"
+description: "The Nordic DFU over BLE library helps enable firmware updates of BLE-connected devices over Bluetooth Low Energy (BLE) in a universal way across different platforms like Windows, Android, iOS, Linux and macOS."
 version: 0.0.1
 
 environment:

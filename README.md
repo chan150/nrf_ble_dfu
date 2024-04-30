@@ -1,39 +1,10 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+## NRF BLE DFU
+The Nordic DFU over BLE library helps enable firmware updates of BLE-connected devices over Bluetooth Low Energy (BLE) in a universal way across different platforms like Windows, Android, iOS, Linux and macOS.
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+It provides an implementation of the Nordic DFU protocol which allows performing firmware updates and installing new firmware binaries on BLE peripherals compatible with this protocol. The library handles the low-level BLE communication and data transfer needed for the firmware update process.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+Developers can use this library to add over-the-air firmware updating capabilities to their BLE applications and devices in a platform-independent manner. The same application code for initiating and performing a DFU process can work across multiple operating systems without changes.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+This makes it very convenient for developers to roll out firmware updates to devices already in the field just by having them connect over BLE. End users also get an easy way to update devices without needing special tools or cables.
 
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
-```
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+The Nordic DFU over BLE library abstracts away the differences in BLE implementations and provides a common API for firmware updates, enabling seamless development of DFU-capable products for all major platforms.
