@@ -43,6 +43,7 @@ class _BleDeviceSelectState extends State<BleDeviceSelect> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TargetChecker(item: item),
+                  CompleteChecker(item: item),
                   IconButton(
                     onPressed: item.device.connect,
                     tooltip: 'Connect device',
@@ -78,6 +79,30 @@ class TargetChecker extends StatelessObserverWidget {
       onPressed: () => targets.remove(item.device),
       tooltip: 'Remove device in targets',
       icon: const Icon(Icons.task_alt_rounded),
+    );
+  }
+}
+
+class CompleteChecker extends StatelessObserverWidget {
+  const CompleteChecker({super.key, required this.item});
+
+  final ScanResult item;
+
+  @override
+  Widget build(BuildContext context) {
+    final completed = NrfBleDfu().setup.autoDfuFinished;
+    final id = item.device.remoteId.str;
+    if (!completed.map((e)=>e.remoteId.str).contains(id)) {
+      return IconButton(
+        onPressed: () => completed.add(item.device),
+        tooltip: 'Mark device as completed',
+        icon: const Icon(Icons.playlist_add),
+      );
+    }
+    return IconButton(
+      onPressed: () => completed.remove(item.device),
+      tooltip: 'Remove device in complected',
+      icon: const Icon(Icons.playlist_add_check),
     );
   }
 }
