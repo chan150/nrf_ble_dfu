@@ -1,3 +1,6 @@
+## 0.0.8
+* Add specified-platform in `pub.dev`.
+
 ## 0.0.7
 * Fix list view scroll error in Android.
 
