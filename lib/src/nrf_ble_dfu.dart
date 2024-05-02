@@ -7,8 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
 import 'package:mobx/mobx.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
-import 'package:nrf_ble_dfu/src/state/dfu_entry_state.dart';
-import 'package:nrf_ble_dfu/src/state/dfu_progress_state.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,7 +28,7 @@ class NrfBleDfu {
   final entry = BleDeviceState();
   final dfu = BleDeviceState();
   final file = DfuFileState();
-  final setup = DfuEntryState();
+  final setup = DfuSetupState();
   final progress = DfuProgressState();
 
   Future<void> initializeSharedPreference() async {

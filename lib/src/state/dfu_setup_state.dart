@@ -1,11 +1,11 @@
 import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
 import 'package:mobx/mobx.dart';
 
-part 'dfu_entry_state.g.dart';
+part 'dfu_setup_state.g.dart';
 
-class DfuEntryState = DfuEntryStateBase with _$DfuEntryState;
+class DfuSetupState = DfuSetupStateBase with _$DfuSetupState;
 
-abstract class DfuEntryStateBase with Store {
+abstract class DfuSetupStateBase with Store {
   @observable
   ObservableList<int> entryPacket = ObservableList.of([0xBB, 0xCC, 0x01, 0xFA]);
 

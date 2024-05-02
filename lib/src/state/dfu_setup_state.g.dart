@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'dfu_entry_state.dart';
+part of 'dfu_setup_state.dart';
 
 // **************************************************************************
 // StoreGenerator
@@ -8,9 +8,9 @@ part of 'dfu_entry_state.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
-mixin _$DfuEntryState on DfuEntryStateBase, Store {
+mixin _$DfuSetupState on DfuSetupStateBase, Store {
   late final _$entryPacketAtom =
-      Atom(name: 'DfuEntryStateBase.entryPacket', context: context);
+      Atom(name: 'DfuSetupStateBase.entryPacket', context: context);
 
   @override
   ObservableList<int> get entryPacket {
@@ -26,7 +26,7 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
   }
 
   late final _$entryControlPointAtom =
-      Atom(name: 'DfuEntryStateBase.entryControlPoint', context: context);
+      Atom(name: 'DfuSetupStateBase.entryControlPoint', context: context);
 
   @override
   String get entryControlPoint {
@@ -42,7 +42,7 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
   }
 
   late final _$dfuControlPointAtom =
-      Atom(name: 'DfuEntryStateBase.dfuControlPoint', context: context);
+      Atom(name: 'DfuSetupStateBase.dfuControlPoint', context: context);
 
   @override
   String get dfuControlPoint {
@@ -58,7 +58,7 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
   }
 
   late final _$dfuDataPointAtom =
-      Atom(name: 'DfuEntryStateBase.dfuDataPoint', context: context);
+      Atom(name: 'DfuSetupStateBase.dfuDataPoint', context: context);
 
   @override
   String get dfuDataPoint {
@@ -74,7 +74,7 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
   }
 
   late final _$autoDfuTargetsAtom =
-      Atom(name: 'DfuEntryStateBase.autoDfuTargets', context: context);
+      Atom(name: 'DfuSetupStateBase.autoDfuTargets', context: context);
 
   @override
   ObservableList<BluetoothDevice> get autoDfuTargets {
@@ -90,7 +90,7 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
   }
 
   late final _$enableDfuEntryProcessAtom =
-      Atom(name: 'DfuEntryStateBase.enableDfuEntryProcess', context: context);
+      Atom(name: 'DfuSetupStateBase.enableDfuEntryProcess', context: context);
 
   @override
   bool get enableDfuEntryProcess {
@@ -107,7 +107,7 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
   }
 
   late final _$enableDfuProcessAtom =
-      Atom(name: 'DfuEntryStateBase.enableDfuProcess', context: context);
+      Atom(name: 'DfuSetupStateBase.enableDfuProcess', context: context);
 
   @override
   bool get enableDfuProcess {
@@ -123,7 +123,7 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
   }
 
   late final _$autoEntryDeviceNameAtom =
-      Atom(name: 'DfuEntryStateBase.autoEntryDeviceName', context: context);
+      Atom(name: 'DfuSetupStateBase.autoEntryDeviceName', context: context);
 
   @override
   String get autoEntryDeviceName {
@@ -139,7 +139,7 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
   }
 
   late final _$autoDfuDeviceNameAtom =
-      Atom(name: 'DfuEntryStateBase.autoDfuDeviceName', context: context);
+      Atom(name: 'DfuSetupStateBase.autoDfuDeviceName', context: context);
 
   @override
   String get autoDfuDeviceName {
