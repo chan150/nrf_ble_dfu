@@ -77,13 +77,13 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
       Atom(name: 'DfuEntryStateBase.autoDfuTargets', context: context);
 
   @override
-  ObservableList<String> get autoDfuTargets {
+  ObservableList<BluetoothDevice> get autoDfuTargets {
     _$autoDfuTargetsAtom.reportRead();
     return super.autoDfuTargets;
   }
 
   @override
-  set autoDfuTargets(ObservableList<String> value) {
+  set autoDfuTargets(ObservableList<BluetoothDevice> value) {
     _$autoDfuTargetsAtom.reportWrite(value, super.autoDfuTargets, () {
       super.autoDfuTargets = value;
     });

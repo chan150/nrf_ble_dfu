@@ -27,16 +27,18 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
+    const div = Divider(height: 0);
     return Scaffold(
       body: ListView(
         children: const [
           DfuFileSelect(),
-          Divider(),
+          div,
           BleEntrySetup(),
-          Divider(),
+          AutoBleDfu(),
+          div,
           BleConnectedDevice(),
           DfuProgress(),
-          Divider(),
+          div,
           BleDeviceSelect(),
         ],
       ),

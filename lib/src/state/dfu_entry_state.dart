@@ -1,3 +1,4 @@
+import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
 import 'package:mobx/mobx.dart';
 
 part 'dfu_entry_state.g.dart';
@@ -18,5 +19,5 @@ abstract class DfuEntryStateBase with Store {
   String dfuDataPoint = '8ec90002-f315-4f60-9fb8-838830daea50';
 
   @observable
-  ObservableList<String> autoDfuTargets = ObservableList();
+  ObservableList<BluetoothDevice> autoDfuTargets = ObservableList();
 }

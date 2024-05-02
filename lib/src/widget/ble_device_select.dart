@@ -67,15 +67,15 @@ class TargetChecker extends StatelessObserverWidget {
   Widget build(BuildContext context) {
     final targets = NrfBleDfu().setup.autoDfuTargets;
     final id = item.device.remoteId.str;
-    if (!targets.contains(id)) {
+    if (!targets.map((e)=>e.remoteId.str).contains(id)) {
       return IconButton(
-        onPressed: () => targets.add(id),
+        onPressed: () => targets.add(item.device),
         tooltip: 'Add device as target',
         icon: const Icon(Icons.circle_outlined),
       );
     }
     return IconButton(
-      onPressed: () => targets.remove(id),
+      onPressed: () => targets.remove(item.device),
       tooltip: 'Remove device in targets',
       icon: const Icon(Icons.task_alt_rounded),
     );
