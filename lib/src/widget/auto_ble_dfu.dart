@@ -8,7 +8,6 @@ class AutoBleDfu extends StatelessObserverWidget {
 
   Future<void> _autoDfu() async {
     if (!FlutterBluePlus.isScanningNow) await FlutterBluePlus.startScan();
-    print('~~~~~~');
     if (!NrfBleDfu().setup.enableTargetEntryProcess) NrfBleDfu().setup.autoDfuTargets.clear();
     final scanResults = await FlutterBluePlus.scanResults.first;
     NrfBleDfu().setup.autoDfuTargets.addAll([
@@ -30,11 +29,11 @@ class AutoBleDfu extends StatelessObserverWidget {
               ?.device;
           if (dfu == null) continue;
           await dfu.connect();
-          await NrfBleDfu().enterDfuMode(dfu);
+          await NrfBleDfu().updateFirmware(dfu);
           break;
         }
       } catch (e) {
-        debugPrint(e.toString());
+        log(e.toString());
         break;
       }
 
