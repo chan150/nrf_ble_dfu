@@ -30,16 +30,3 @@ extension PacketExtensionFromString on String {
     return [...parsed.map((e) => e!)];
   }
 }
-
-extension ListCompare on List<int> {
-  bool equals(List<int> other) {
-    if (length != other.length) {
-      return false;
-    }
-    var v = 0;
-    for (var i = 0; i < length; i++) {
-      v |= this[i] ^ other[i];
-    }
-    return v == 0;
-  }
-}

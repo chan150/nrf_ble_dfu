@@ -1,3 +1,6 @@
+## 0.0.6
+* Make manager to execute auto DFU. 
+
 ## 0.0.5
 * Grant android support. 
 

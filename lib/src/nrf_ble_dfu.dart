@@ -77,8 +77,6 @@ class NrfBleDfu {
 
     file.datPath = list.where((e) => e.path.endsWith('dat')).singleOrNull?.path;
     file.binPath = list.where((e) => e.path.endsWith('bin')).singleOrNull?.path;
-
-    NrfBleDfu().setup.autoDfuFinished.clear();
   }
 
   Future<void> _transferObject({
@@ -100,8 +98,8 @@ class NrfBleDfu {
     bool isSelectCommand = true;
     int step = 0;
 
-    NrfBleDfu().progress.fileSize = null;
-    NrfBleDfu().progress.completedSize = null;
+    progress.fileSize = null;
+    progress.completedSize = null;
 
     /// https://infocenter.nordicsemi.com/index.jsp?topic=%2Fsdk_nrf5_v17.0.2%2Flib_bootloader_dfu_process.html
     await for (final event in controlPoint.lastValueStream) {
@@ -134,8 +132,8 @@ class NrfBleDfu {
         data = buffer.sublist(from, to);
 
         /// notify progress
-        NrfBleDfu().progress.fileSize ??= buffer.length;
-        NrfBleDfu().progress.completedSize ??= 0;
+        progress.fileSize ??= buffer.length;
+        progress.completedSize ??= 0;
 
         // final checkSize = offset == dat.length;
         // final checkCrc = crc == crc32(dat);
@@ -188,7 +186,7 @@ class NrfBleDfu {
       if (event.elementAtOrNull(0) == NrfDfuOp.response.code &&
           event.elementAtOrNull(1) == NrfDfuOp.objectExecute.code &&
           event.elementAtOrNull(2) == NrfDfuResult.success.code) {
-        NrfBleDfu().progress.completedSize = NrfBleDfu().progress.completedSize! + data.length;
+        progress.completedSize = progress.completedSize! + data.length;
 
         if (step + 1 < buffer.length / maxSize) {
           await controlPoint.write([NrfDfuOp.objectSelect.code, type]);
@@ -251,7 +249,6 @@ class NrfBleDfu {
     await controlPoint.setNotifyValue(true);
 
     /// transfer init packet
-    log('${NrfDfuTransferType.init}');
     await _transferObject(
       type: NrfDfuTransferType.init.code,
       buffer: dat,
@@ -260,7 +257,6 @@ class NrfBleDfu {
     );
 
     /// transfer firmware image
-    log('${NrfDfuTransferType.image}');
     await _transferObject(
       type: NrfDfuTransferType.image.code,
       buffer: bin,
@@ -282,5 +278,50 @@ class NrfBleDfu {
       }
     }
     entry.controlPoint?.write(setup.entryPacket);
+  }
+
+  Future<void> autoDfu() async {
+    if (file.datPath == null) throw Exception('dat file not found');
+    if (file.binPath == null) throw Exception('bin file not found');
+    if (!FlutterBluePlus.isScanningNow) await FlutterBluePlus.startScan();
+    if (!setup.enableTargetEntryProcess) setup.autoDfuTargets.clear();
+    final scanResults = await FlutterBluePlus.scanResults.first;
+    setup.autoDfuTargets.addAll([
+      ...scanResults
+          .where((s) => RegExp(autoEntryDeviceName).hasMatch(s.device.platformName))
+          .map((e) => e.device)
+    ]);
+    setup.autoDfuTargets.removeAll(setup.autoDfuFinished);
+
+    late BluetoothDevice entry;
+    while (setup.autoDfuTargets.isNotEmpty) {
+      entry = setup.autoDfuTargets.first;
+      try {
+        await entry.connect();
+        await enterDfuMode(entry);
+        await for (final scanResult in FlutterBluePlus.scanResults) {
+          final dfu = scanResult
+              .where((s) => RegExp(autoDfuDeviceName).hasMatch(s.device.platformName))
+              .singleOrNull
+              ?.device;
+          if (dfu == null) continue;
+          await dfu.connect();
+          await updateFirmware(dfu);
+          break;
+        }
+      } catch (e) {
+        log(e.toString());
+        break;
+      }
+
+      setup.autoDfuTargets.remove(entry);
+      setup.autoDfuFinished.add(entry);
+    }
+  }
+
+  Future<void> refresh() async {
+    setup.autoDfuFinished.clear();
+    await FlutterBluePlus.stopScan();
+    await FlutterBluePlus.startScan();
   }
 }
