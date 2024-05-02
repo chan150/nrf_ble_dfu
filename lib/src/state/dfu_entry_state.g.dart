@@ -89,6 +89,71 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
     });
   }
 
+  late final _$enableDfuEntryProcessAtom =
+      Atom(name: 'DfuEntryStateBase.enableDfuEntryProcess', context: context);
+
+  @override
+  bool get enableDfuEntryProcess {
+    _$enableDfuEntryProcessAtom.reportRead();
+    return super.enableDfuEntryProcess;
+  }
+
+  @override
+  set enableDfuEntryProcess(bool value) {
+    _$enableDfuEntryProcessAtom.reportWrite(value, super.enableDfuEntryProcess,
+        () {
+      super.enableDfuEntryProcess = value;
+    });
+  }
+
+  late final _$enableDfuProcessAtom =
+      Atom(name: 'DfuEntryStateBase.enableDfuProcess', context: context);
+
+  @override
+  bool get enableDfuProcess {
+    _$enableDfuProcessAtom.reportRead();
+    return super.enableDfuProcess;
+  }
+
+  @override
+  set enableDfuProcess(bool value) {
+    _$enableDfuProcessAtom.reportWrite(value, super.enableDfuProcess, () {
+      super.enableDfuProcess = value;
+    });
+  }
+
+  late final _$autoEntryDeviceNameAtom =
+      Atom(name: 'DfuEntryStateBase.autoEntryDeviceName', context: context);
+
+  @override
+  String get autoEntryDeviceName {
+    _$autoEntryDeviceNameAtom.reportRead();
+    return super.autoEntryDeviceName;
+  }
+
+  @override
+  set autoEntryDeviceName(String value) {
+    _$autoEntryDeviceNameAtom.reportWrite(value, super.autoEntryDeviceName, () {
+      super.autoEntryDeviceName = value;
+    });
+  }
+
+  late final _$autoDfuDeviceNameAtom =
+      Atom(name: 'DfuEntryStateBase.autoDfuDeviceName', context: context);
+
+  @override
+  String get autoDfuDeviceName {
+    _$autoDfuDeviceNameAtom.reportRead();
+    return super.autoDfuDeviceName;
+  }
+
+  @override
+  set autoDfuDeviceName(String value) {
+    _$autoDfuDeviceNameAtom.reportWrite(value, super.autoDfuDeviceName, () {
+      super.autoDfuDeviceName = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
@@ -96,7 +161,11 @@ entryPacket: ${entryPacket},
 entryControlPoint: ${entryControlPoint},
 dfuControlPoint: ${dfuControlPoint},
 dfuDataPoint: ${dfuDataPoint},
-autoDfuTargets: ${autoDfuTargets}
+autoDfuTargets: ${autoDfuTargets},
+enableDfuEntryProcess: ${enableDfuEntryProcess},
+enableDfuProcess: ${enableDfuProcess},
+autoEntryDeviceName: ${autoEntryDeviceName},
+autoDfuDeviceName: ${autoDfuDeviceName}
     ''';
   }
 }

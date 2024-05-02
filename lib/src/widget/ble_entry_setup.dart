@@ -23,14 +23,14 @@ class BleEntrySetup extends StatelessObserverWidget {
           },
         ),
         EditableText(
-          k: 'dfuControlPoint',
-          v: NrfBleDfu().setup.dfuControlPoint,
-          updateFn: (s) => NrfBleDfu().setup.dfuControlPoint = s,
+          k: 'autoEntryDeviceName',
+          v: NrfBleDfu().autoEntryDeviceName,
+          updateFn: (s) => NrfBleDfu().autoEntryDeviceName = s,
         ),
         EditableText(
-          k: 'dfuDataPoint',
-          v: NrfBleDfu().setup.dfuDataPoint,
-          updateFn: (s) => NrfBleDfu().setup.dfuDataPoint = s,
+          k: 'autoDfuDeviceName',
+          v: NrfBleDfu().autoDfuDeviceName,
+          updateFn: (s) => NrfBleDfu().autoDfuDeviceName = s,
         ),
       ],
     );

@@ -5,11 +5,13 @@ import 'dart:typed_data';
 import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
+import 'package:mobx/mobx.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 import 'package:nrf_ble_dfu/src/state/dfu_entry_state.dart';
 import 'package:nrf_ble_dfu/src/state/dfu_progress_state.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 export 'dart:async';
 export 'dart:io';
@@ -20,14 +22,44 @@ class NrfBleDfu {
   static final _instance = NrfBleDfu._internal();
 
   NrfBleDfu._internal() {
+    initializeSharedPreference();
     FlutterBluePlus.setLogLevel(LogLevel.error);
   }
 
+  late SharedPreferences prefs;
   final entry = BleDeviceState();
   final dfu = BleDeviceState();
   final file = DfuFileState();
   final setup = DfuEntryState();
   final progress = DfuProgressState();
+
+  Future<void> initializeSharedPreference() async {
+    prefs = await SharedPreferences.getInstance();
+    setup.autoEntryDeviceName = prefs.getString('autoEntryDeviceName') ?? '';
+    setup.autoDfuDeviceName = prefs.getString('autoDfuDeviceName') ?? '';
+    await _done();
+  }
+
+  Future<void> waitForCompletion() async {
+    await asyncWhen((_) => _completed.value == true);
+    log('Completed $runtimeType');
+  }
+
+  late final _done = Action(() => _completed.value = true);
+  final _completed = Observable(false);
+
+  String get autoEntryDeviceName => setup.autoEntryDeviceName;
+  String get autoDfuDeviceName => setup.autoDfuDeviceName;
+
+  set autoEntryDeviceName(String value){
+    setup.autoEntryDeviceName = value;
+    prefs.setString('autoEntryDeviceName', value);
+  }
+
+  set autoDfuDeviceName(String value){
+    setup.autoDfuDeviceName = value;
+    prefs.setString('autoDfuDeviceName', value);
+  }
 
   Future<void> selectDfu() async {
     final result = await FilePicker.platform.pickFiles();

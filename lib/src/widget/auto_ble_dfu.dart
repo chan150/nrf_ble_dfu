@@ -9,6 +9,7 @@ class AutoBleDfu extends StatelessObserverWidget {
   Widget build(BuildContext context) {
     return Wrap(
       children: [
+        const Divider(),
         for(final item in NrfBleDfu().setup.autoDfuTargets)
           Text('${item.platformName}[${item.remoteId}]'),
       ],
