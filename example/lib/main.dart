@@ -36,6 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
           DfuFileSelect(),
           div,
           BleEntrySetup(),
+          div,
           AutoBleDfu(),
           div,
           BleConnectedDevice(),

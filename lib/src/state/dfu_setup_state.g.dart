@@ -77,48 +77,82 @@ mixin _$DfuSetupState on DfuSetupStateBase, Store {
       Atom(name: 'DfuSetupStateBase.autoDfuTargets', context: context);
 
   @override
-  ObservableList<BluetoothDevice> get autoDfuTargets {
+  ObservableSet<BluetoothDevice> get autoDfuTargets {
     _$autoDfuTargetsAtom.reportRead();
     return super.autoDfuTargets;
   }
 
   @override
-  set autoDfuTargets(ObservableList<BluetoothDevice> value) {
+  set autoDfuTargets(ObservableSet<BluetoothDevice> value) {
     _$autoDfuTargetsAtom.reportWrite(value, super.autoDfuTargets, () {
       super.autoDfuTargets = value;
     });
   }
 
-  late final _$enableDfuEntryProcessAtom =
-      Atom(name: 'DfuSetupStateBase.enableDfuEntryProcess', context: context);
+  late final _$autoDfuFinishedAtom =
+      Atom(name: 'DfuSetupStateBase.autoDfuFinished', context: context);
 
   @override
-  bool get enableDfuEntryProcess {
-    _$enableDfuEntryProcessAtom.reportRead();
-    return super.enableDfuEntryProcess;
+  ObservableSet<BluetoothDevice> get autoDfuFinished {
+    _$autoDfuFinishedAtom.reportRead();
+    return super.autoDfuFinished;
   }
 
   @override
-  set enableDfuEntryProcess(bool value) {
-    _$enableDfuEntryProcessAtom.reportWrite(value, super.enableDfuEntryProcess,
-        () {
-      super.enableDfuEntryProcess = value;
+  set autoDfuFinished(ObservableSet<BluetoothDevice> value) {
+    _$autoDfuFinishedAtom.reportWrite(value, super.autoDfuFinished, () {
+      super.autoDfuFinished = value;
     });
   }
 
-  late final _$enableDfuProcessAtom =
-      Atom(name: 'DfuSetupStateBase.enableDfuProcess', context: context);
+  late final _$enableTargetEntryProcessAtom = Atom(
+      name: 'DfuSetupStateBase.enableTargetEntryProcess', context: context);
 
   @override
-  bool get enableDfuProcess {
-    _$enableDfuProcessAtom.reportRead();
-    return super.enableDfuProcess;
+  bool get enableTargetEntryProcess {
+    _$enableTargetEntryProcessAtom.reportRead();
+    return super.enableTargetEntryProcess;
   }
 
   @override
-  set enableDfuProcess(bool value) {
-    _$enableDfuProcessAtom.reportWrite(value, super.enableDfuProcess, () {
-      super.enableDfuProcess = value;
+  set enableTargetEntryProcess(bool value) {
+    _$enableTargetEntryProcessAtom
+        .reportWrite(value, super.enableTargetEntryProcess, () {
+      super.enableTargetEntryProcess = value;
+    });
+  }
+
+  late final _$enableAutoEntryProcessAtom =
+      Atom(name: 'DfuSetupStateBase.enableAutoEntryProcess', context: context);
+
+  @override
+  bool get enableAutoEntryProcess {
+    _$enableAutoEntryProcessAtom.reportRead();
+    return super.enableAutoEntryProcess;
+  }
+
+  @override
+  set enableAutoEntryProcess(bool value) {
+    _$enableAutoEntryProcessAtom
+        .reportWrite(value, super.enableAutoEntryProcess, () {
+      super.enableAutoEntryProcess = value;
+    });
+  }
+
+  late final _$enableAutoDfuProcessAtom =
+      Atom(name: 'DfuSetupStateBase.enableAutoDfuProcess', context: context);
+
+  @override
+  bool get enableAutoDfuProcess {
+    _$enableAutoDfuProcessAtom.reportRead();
+    return super.enableAutoDfuProcess;
+  }
+
+  @override
+  set enableAutoDfuProcess(bool value) {
+    _$enableAutoDfuProcessAtom.reportWrite(value, super.enableAutoDfuProcess,
+        () {
+      super.enableAutoDfuProcess = value;
     });
   }
 
@@ -162,8 +196,10 @@ entryControlPoint: ${entryControlPoint},
 dfuControlPoint: ${dfuControlPoint},
 dfuDataPoint: ${dfuDataPoint},
 autoDfuTargets: ${autoDfuTargets},
-enableDfuEntryProcess: ${enableDfuEntryProcess},
-enableDfuProcess: ${enableDfuProcess},
+autoDfuFinished: ${autoDfuFinished},
+enableTargetEntryProcess: ${enableTargetEntryProcess},
+enableAutoEntryProcess: ${enableAutoEntryProcess},
+enableAutoDfuProcess: ${enableAutoDfuProcess},
 autoEntryDeviceName: ${autoEntryDeviceName},
 autoDfuDeviceName: ${autoDfuDeviceName}
     ''';

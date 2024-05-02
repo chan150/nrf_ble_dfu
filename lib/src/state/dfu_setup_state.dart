@@ -19,13 +19,19 @@ abstract class DfuSetupStateBase with Store {
   String dfuDataPoint = '8ec90002-f315-4f60-9fb8-838830daea50';
 
   @observable
-  ObservableList<BluetoothDevice> autoDfuTargets = ObservableList();
+  ObservableSet<BluetoothDevice> autoDfuTargets = ObservableSet();
 
   @observable
-  bool enableDfuEntryProcess = true;
+  ObservableSet<BluetoothDevice> autoDfuFinished = ObservableSet();
 
   @observable
-  bool enableDfuProcess = true;
+  bool enableTargetEntryProcess = true;
+
+  @observable
+  bool enableAutoEntryProcess = true;
+
+  @observable
+  bool enableAutoDfuProcess = true;
 
   @observable
   String autoEntryDeviceName = '';

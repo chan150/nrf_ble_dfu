@@ -76,6 +76,8 @@ class NrfBleDfu {
 
     file.datPath = list.where((e) => e.path.endsWith('dat')).singleOrNull?.path;
     file.binPath = list.where((e) => e.path.endsWith('bin')).singleOrNull?.path;
+
+    NrfBleDfu().setup.autoDfuFinished.clear();
   }
 
   Future<void> _transferObject({
