@@ -29,6 +29,12 @@ class NrfBleDfu {
   final setup = DfuEntryState();
   final progress = DfuProgressState();
 
+  bool Function(ScanResult) entryScanFn = (scanResult) => scanResult.device.remoteId.str == 'C6:D9:1F:BC:65:5B';
+  bool Function(ScanResult) dfuScanFn = (scanResult) => scanResult.device.remoteId.str == 'C6:D9:1F:BC:65:5C';
+
+  StreamSubscription? entrySubscription;
+  StreamSubscription? dfuSubscription;
+
   Future<void> selectDfu() async {
     final result = await FilePicker.platform.pickFiles();
     if (result == null) return;
@@ -46,6 +52,22 @@ class NrfBleDfu {
 
     file.datPath = list.where((e) => e.path.endsWith('dat')).singleOrNull?.path;
     file.binPath = list.where((e) => e.path.endsWith('bin')).singleOrNull?.path;
+  }
+
+  Future<void> setEntryDevice(ScanResult scanResult) async {
+    if (entry.device != null) return;
+    if (entryScanFn(scanResult)) {
+      entry.device = scanResult.device;
+      await entry.device?.connect();
+    }
+  }
+
+  Future<void> setDfuDevice(ScanResult scanResult) async {
+    if (dfu.device != null) return;
+    if (dfuScanFn(scanResult)) {
+      dfu.device = scanResult.device;
+      await dfu.device?.connect();
+    }
   }
 
   Future<void> _transferObject({

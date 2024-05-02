@@ -56,41 +56,37 @@ class EditableText extends StatelessWidget {
         showAdaptiveDialog(
           context: context,
           builder: (context) {
-            return _buildDialog(context);
+            final controller = TextEditingController(text: v);
+            return Dialog(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: controller,
+                        onEditingComplete: () => updateFn(controller.text),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        updateFn(controller.text);
+                        Navigator.of(context).pop();
+                      },
+                      icon: const Icon(Icons.check),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+              ),
+            );
           },
         );
       },
       child: Text('$k : $v'),
-    );
-  }
-
-  Dialog _buildDialog(BuildContext context) {
-    final controller = TextEditingController(text: v);
-    return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                onEditingComplete: () => updateFn(controller.text),
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                updateFn(controller.text);
-                Navigator.of(context).pop();
-              },
-              icon: const Icon(Icons.check),
-            ),
-            IconButton(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(Icons.close),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

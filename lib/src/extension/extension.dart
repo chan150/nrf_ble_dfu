@@ -1,5 +1,3 @@
-import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
-
 extension Int32ByteArray on int {
   List<int> get toBytes => [
         for (var i = 0; i < 4; i++) (this & (0xFF << (i * 8))) >> (i * 8),
@@ -12,19 +10,9 @@ extension ByteArray2Int32 on List<int> {
       ].fold(0, (l, r) => l + r);
 }
 
-extension BluetoothCharacteristicRead on BluetoothCharacteristic {
-  Future<List<int>> writeWaitForCompletion(List<int> packet) async {
-    final result = <int>[];
-    await write(packet);
-    return result;
-  }
-}
-
 extension PacketExtensionToString on List<int> {
   List<String> get hex => [
-        ...map(
-          (e) => '0x${e.toRadixString(16).toUpperCase().padLeft(2, '0')}',
-        ),
+        ...map((e) => '0x${e.toRadixString(16).toUpperCase().padLeft(2, '0')}'),
       ];
 
   String get hexString => hex.toString();
