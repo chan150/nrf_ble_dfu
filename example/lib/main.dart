@@ -31,20 +31,22 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     const div = Divider(height: 0);
-    return Scaffold(
-      body: ListView(
-        children: const [
-          DfuFileSelect(),
-          div,
-          BleEntrySetup(),
-          div,
-          AutoBleDfu(),
-          div,
-          BleConnectedDevice(),
-          DfuProgress(),
-          div,
-          BleDeviceSelect(),
-        ],
+    return SafeArea(
+      child: Scaffold(
+        body: ListView(
+          children: const [
+            DfuFileSelect(),
+            div,
+            BleEntrySetup(),
+            div,
+            AutoBleDfu(),
+            div,
+            BleConnectedDevice(),
+            DfuProgress(),
+            div,
+            BleDeviceSelect(),
+          ],
+        ),
       ),
     );
   }

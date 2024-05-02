@@ -26,7 +26,20 @@ extension PacketExtensionFromString on String {
     final trim = substring(1, length - 1);
     final split = trim.split(',');
     final parsed = split.map((e) => int.tryParse(e));
-    if(parsed.contains(null)) throw Exception('Invalid integer format');
+    if (parsed.contains(null)) throw Exception('Invalid integer format');
     return [...parsed.map((e) => e!)];
+  }
+}
+
+extension ListCompare on List<int> {
+  bool equals(List<int> other) {
+    if (length != other.length) {
+      return false;
+    }
+    var v = 0;
+    for (var i = 0; i < length; i++) {
+      v |= this[i] ^ other[i];
+    }
+    return v == 0;
   }
 }

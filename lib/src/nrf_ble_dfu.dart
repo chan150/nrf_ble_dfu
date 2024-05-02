@@ -47,14 +47,15 @@ class NrfBleDfu {
   final _completed = Observable(false);
 
   String get autoEntryDeviceName => setup.autoEntryDeviceName;
+
   String get autoDfuDeviceName => setup.autoDfuDeviceName;
 
-  set autoEntryDeviceName(String value){
+  set autoEntryDeviceName(String value) {
     setup.autoEntryDeviceName = value;
     prefs.setString('autoEntryDeviceName', value);
   }
 
-  set autoDfuDeviceName(String value){
+  set autoDfuDeviceName(String value) {
     setup.autoDfuDeviceName = value;
     prefs.setString('autoDfuDeviceName', value);
   }
@@ -104,16 +105,18 @@ class NrfBleDfu {
 
     /// https://infocenter.nordicsemi.com/index.jsp?topic=%2Fsdk_nrf5_v17.0.2%2Flib_bootloader_dfu_process.html
     await for (final event in controlPoint.lastValueStream) {
-      log(event.hexString);
+      if(event.elementAtOrNull(0) == NrfDfuOp.response.code) log(event.hexString);
 
       /// select command
       /// [06 01]
       if (isSelectCommand) {
         isSelectCommand = false;
-        controlPoint.write([
-          NrfDfuOp.objectSelect.code,
-          type,
-        ]);
+        await controlPoint.write([NrfDfuOp.objectSelect.code, type]);
+        continue;
+      }
+
+      if(event.elementAtOrNull(0) != NrfDfuOp.response.code) {
+        log('Not response packet: $event');
         continue;
       }
 
@@ -141,11 +144,7 @@ class NrfBleDfu {
         // }
 
         final sizePacket = data.length.toBytes;
-        await controlPoint.write([
-          NrfDfuOp.objectCreate.code,
-          type,
-          ...sizePacket,
-        ]);
+        await controlPoint.write([NrfDfuOp.objectCreate.code, type, ...sizePacket]);
         continue;
       }
 
@@ -161,7 +160,7 @@ class NrfBleDfu {
           final packet = data.sublist(i * 20, math.min((i + 1) * 20, data.length));
           await dataPoint.write(packet, withoutResponse: true);
         }
-        controlPoint.write([NrfDfuOp.crcGet.code]);
+        await controlPoint.write([NrfDfuOp.crcGet.code]);
         isPrepared = true;
         continue;
       }
@@ -177,7 +176,9 @@ class NrfBleDfu {
         // TODO: should validate CRC32 function
         log((_crc32(buffer.sublist(0, offset)), offset, crc).toString());
 
-        if (isPrepared) controlPoint.write([NrfDfuOp.objectExecute.code]);
+        if (isPrepared) {
+          await controlPoint.write([NrfDfuOp.objectExecute.code]);
+        }
         isPrepared = false;
         continue;
       }
@@ -190,10 +191,7 @@ class NrfBleDfu {
         NrfBleDfu().progress.completedSize = NrfBleDfu().progress.completedSize! + data.length;
 
         if (step + 1 < buffer.length / maxSize) {
-          controlPoint.write([
-            NrfDfuOp.objectSelect.code,
-            type,
-          ]);
+          await controlPoint.write([NrfDfuOp.objectSelect.code, type]);
           step++;
           continue;
         } else {
@@ -253,6 +251,7 @@ class NrfBleDfu {
     await controlPoint.setNotifyValue(true);
 
     /// transfer init packet
+    log('${NrfDfuTransferType.init}');
     await _transferObject(
       type: NrfDfuTransferType.init.code,
       buffer: dat,
@@ -261,6 +260,7 @@ class NrfBleDfu {
     );
 
     /// transfer firmware image
+    log('${NrfDfuTransferType.image}');
     await _transferObject(
       type: NrfDfuTransferType.image.code,
       buffer: bin,

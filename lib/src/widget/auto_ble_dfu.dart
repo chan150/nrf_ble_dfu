@@ -7,8 +7,8 @@ class AutoBleDfu extends StatelessObserverWidget {
   const AutoBleDfu({super.key});
 
   Future<void> _autoDfu() async {
-    if(NrfBleDfu().file.datPath == null) return;
-    if(NrfBleDfu().file.binPath == null) return;
+    if (NrfBleDfu().file.datPath == null) return;
+    if (NrfBleDfu().file.binPath == null) return;
     if (!FlutterBluePlus.isScanningNow) await FlutterBluePlus.startScan();
     if (!NrfBleDfu().setup.enableTargetEntryProcess) NrfBleDfu().setup.autoDfuTargets.clear();
     final scanResults = await FlutterBluePlus.scanResults.first;
@@ -45,8 +45,10 @@ class AutoBleDfu extends StatelessObserverWidget {
     }
   }
 
-  Future<void> _refresh()async{
+  Future<void> _refresh() async {
     NrfBleDfu().setup.autoDfuFinished.clear();
+    await FlutterBluePlus.stopScan();
+    await FlutterBluePlus.startScan();
   }
 
   @override
