@@ -32,6 +32,7 @@ class _BleDeviceSelectState extends State<BleDeviceSelect> {
 
         return ListView.builder(
           shrinkWrap: true,
+          primary: false,
           itemCount: list.length,
           itemBuilder: (context, index) {
             final item = list[index];

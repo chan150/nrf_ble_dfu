@@ -15,6 +15,7 @@ class BleConnectedDevice extends StatelessWidget {
       builder: (context, snapshot) {
         final list = snapshot.data ?? [];
         return ListView.builder(
+          primary: false,
           shrinkWrap: true,
           itemCount: list.length,
           itemBuilder: (context, index) {

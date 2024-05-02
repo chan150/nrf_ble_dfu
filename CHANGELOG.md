@@ -1,3 +1,6 @@
+## 0.0.7
+* Fix list view scroll error in Android.
+
 ## 0.0.6
 * Make manager to execute auto DFU. 
 
