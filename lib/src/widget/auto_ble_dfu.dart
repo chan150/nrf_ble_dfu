@@ -7,6 +7,8 @@ class AutoBleDfu extends StatelessObserverWidget {
   const AutoBleDfu({super.key});
 
   Future<void> _autoDfu() async {
+    if (!FlutterBluePlus.isScanningNow) await FlutterBluePlus.startScan();
+    print('~~~~~~');
     if (!NrfBleDfu().setup.enableTargetEntryProcess) NrfBleDfu().setup.autoDfuTargets.clear();
     final scanResults = await FlutterBluePlus.scanResults.first;
     NrfBleDfu().setup.autoDfuTargets.addAll([
@@ -16,17 +18,29 @@ class AutoBleDfu extends StatelessObserverWidget {
     ]);
 
     late BluetoothDevice entry;
-    while(NrfBleDfu().setup.autoDfuTargets.isNotEmpty){
+    while (NrfBleDfu().setup.autoDfuTargets.isNotEmpty) {
       entry = NrfBleDfu().setup.autoDfuTargets.first;
-      print(entry);
-      await Future.delayed(const Duration(seconds: 1));
-
+      try {
+        await entry.connect();
+        await NrfBleDfu().enterDfuMode(entry);
+        await for (final scanResult in FlutterBluePlus.scanResults) {
+          final dfu = scanResult
+              .where((s) => RegExp(NrfBleDfu().autoDfuDeviceName).hasMatch(s.device.platformName))
+              .singleOrNull
+              ?.device;
+          if (dfu == null) continue;
+          await dfu.connect();
+          await NrfBleDfu().enterDfuMode(dfu);
+          break;
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+        break;
+      }
 
       NrfBleDfu().setup.autoDfuTargets.remove(entry);
       NrfBleDfu().setup.autoDfuFinished.add(entry);
     }
-
-
   }
 
   @override
