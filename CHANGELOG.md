@@ -1,3 +1,6 @@
+## 0.0.5
+* Grant android support. 
+
 ## 0.0.4
 * Add button to mark completed devices.
 
