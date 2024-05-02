@@ -15,6 +15,7 @@ class AutoBleDfu extends StatelessObserverWidget {
           .where((s) => RegExp(NrfBleDfu().autoEntryDeviceName).hasMatch(s.device.platformName))
           .map((e) => e.device)
     ]);
+    NrfBleDfu().setup.autoDfuTargets.removeAll(NrfBleDfu().setup.autoDfuFinished);
 
     late BluetoothDevice entry;
     while (NrfBleDfu().setup.autoDfuTargets.isNotEmpty) {
@@ -42,6 +43,10 @@ class AutoBleDfu extends StatelessObserverWidget {
     }
   }
 
+  Future<void> _refresh()async{
+    NrfBleDfu().setup.autoDfuFinished.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     const div = Divider(height: 0, color: Colors.transparent);
@@ -49,7 +54,13 @@ class AutoBleDfu extends StatelessObserverWidget {
       children: [
         IconButton(
           onPressed: _autoDfu,
+          tooltip: 'Play auto DFU',
           icon: const Icon(Icons.play_arrow_sharp),
+        ),
+        IconButton(
+          onPressed: _refresh,
+          tooltip: 'Refresh finished devices',
+          icon: const Icon(Icons.refresh),
         ),
         div,
         const Text('Waiting Queue: '),
