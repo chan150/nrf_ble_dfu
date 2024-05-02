@@ -22,8 +22,11 @@ extension PacketExtensionFromString on String {
   List<int> get list {
     if (!startsWith('[')) return [];
     if (!endsWith(']')) return [];
+
     final trim = substring(1, length - 1);
     final split = trim.split(',');
-    return [...split.map((e) => int.parse(e))];
+    final parsed = split.map((e) => int.tryParse(e));
+    if(parsed.contains(null)) throw Exception('Invalid integer format');
+    return [...parsed.map((e) => e!)];
   }
 }

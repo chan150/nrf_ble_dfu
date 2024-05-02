@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 
 class BleDeviceSelect extends StatefulWidget {
   const BleDeviceSelect({super.key});
@@ -37,15 +39,45 @@ class _BleDeviceSelectState extends State<BleDeviceSelect> {
               leading: Text(item.rssi.toString()),
               title: Text(item.device.platformName),
               subtitle: Text(item.device.remoteId.str),
-              trailing: IconButton(
-                onPressed: item.device.connect,
-                tooltip: 'Connect device',
-                icon: const Icon(Icons.bluetooth),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TargetChecker(item: item),
+                  IconButton(
+                    onPressed: item.device.connect,
+                    tooltip: 'Connect device',
+                    icon: const Icon(Icons.bluetooth),
+                  ),
+                ],
               ),
             );
           },
         );
       },
+    );
+  }
+}
+
+class TargetChecker extends StatelessObserverWidget {
+  const TargetChecker({super.key, required this.item});
+
+  final ScanResult item;
+
+  @override
+  Widget build(BuildContext context) {
+    final targets = NrfBleDfu().setup.autoDfuTargets;
+    final id = item.device.remoteId.str;
+    if (!targets.contains(id)) {
+      return IconButton(
+        onPressed: () => targets.add(id),
+        tooltip: 'Add device as target',
+        icon: const Icon(Icons.circle_outlined),
+      );
+    }
+    return IconButton(
+      onPressed: () => targets.remove(id),
+      tooltip: 'Remove device in targets',
+      icon: const Icon(Icons.task_alt_rounded),
     );
   }
 }

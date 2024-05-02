@@ -16,4 +16,7 @@ abstract class DfuEntryStateBase with Store {
 
   @observable
   String dfuDataPoint = '8ec90002-f315-4f60-9fb8-838830daea50';
+
+  @observable
+  ObservableList<String> autoDfuTargets = ObservableList();
 }

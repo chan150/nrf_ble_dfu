@@ -73,13 +73,30 @@ mixin _$DfuEntryState on DfuEntryStateBase, Store {
     });
   }
 
+  late final _$autoDfuTargetsAtom =
+      Atom(name: 'DfuEntryStateBase.autoDfuTargets', context: context);
+
+  @override
+  ObservableList<String> get autoDfuTargets {
+    _$autoDfuTargetsAtom.reportRead();
+    return super.autoDfuTargets;
+  }
+
+  @override
+  set autoDfuTargets(ObservableList<String> value) {
+    _$autoDfuTargetsAtom.reportWrite(value, super.autoDfuTargets, () {
+      super.autoDfuTargets = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
 entryPacket: ${entryPacket},
 entryControlPoint: ${entryControlPoint},
 dfuControlPoint: ${dfuControlPoint},
-dfuDataPoint: ${dfuDataPoint}
+dfuDataPoint: ${dfuDataPoint},
+autoDfuTargets: ${autoDfuTargets}
     ''';
   }
 }
