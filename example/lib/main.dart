@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 
@@ -31,21 +30,20 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     const div = Divider(height: 0);
+    const children = [
+      DfuFileSelect(),
+      BleEntrySetup(),
+      AutoBleDfu(),
+      BleConnectedDevice(),
+      DfuProgress(),
+      BleDeviceSelect(),
+    ];
     return SafeArea(
       child: Scaffold(
-        body: ListView(
-          children: const [
-            DfuFileSelect(),
-            div,
-            BleEntrySetup(),
-            div,
-            AutoBleDfu(),
-            div,
-            BleConnectedDevice(),
-            DfuProgress(),
-            div,
-            BleDeviceSelect(),
-          ],
+        body: ListView.separated(
+          itemCount: children.length,
+          separatorBuilder: (_, __) => div,
+          itemBuilder: (context, index) => children[index],
         ),
       ),
     );
