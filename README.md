@@ -1,5 +1,5 @@
 ## NRF BLE DFU
-![Example](https://github.com/chan150/nrf_ble_dfu/doc/fin.png)
+![Example](https://github.com/chan150/nrf_ble_dfu/blob/master/doc/fin.png)
 
 The Nordic DFU over BLE library helps enable firmware updates of BLE-connected devices over Bluetooth Low Energy (BLE) in a universal way across different platforms like Windows, Android, iOS, Linux and macOS.
 
@@ -12,7 +12,7 @@ This makes it very convenient for developers to roll out firmware updates to dev
 The Nordic DFU over BLE library abstracts away the differences in BLE implementations and provides a common API for firmware updates, enabling seamless development of DFU-capable products for all major platforms.
 
 ## Example
-[example/lib/main.dart](https://github.com/chan150/nrf_ble_dfu/example/lib/main.dart)
+[example/lib/main.dart](https://github.com/chan150/nrf_ble_dfu/blob/master/example/lib/main.dart)
 ```dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
