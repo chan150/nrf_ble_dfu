@@ -69,7 +69,7 @@ class TargetChecker extends StatelessObserverWidget {
   Widget build(BuildContext context) {
     final targets = NrfBleDfu().setup.autoDfuTargets;
     final id = item.device.remoteId.str;
-    if (!targets.map((e)=>e.remoteId.str).contains(id)) {
+    if (!targets.map((e) => e.remoteId.str).contains(id)) {
       return IconButton(
         onPressed: () => targets.add(item.device),
         tooltip: 'Add device as target',
@@ -93,7 +93,7 @@ class CompleteChecker extends StatelessObserverWidget {
   Widget build(BuildContext context) {
     final completed = NrfBleDfu().setup.autoDfuFinished;
     final id = item.device.remoteId.str;
-    if (!completed.map((e)=>e.remoteId.str).contains(id)) {
+    if (!completed.map((e) => e.remoteId.str).contains(id)) {
       return IconButton(
         onPressed: () => completed.add(item.device),
         tooltip: 'Mark device as completed',

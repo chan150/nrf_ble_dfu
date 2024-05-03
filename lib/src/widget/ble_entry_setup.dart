@@ -57,8 +57,8 @@ class EditableText extends StatelessWidget {
     );
   }
 
-  Future<dynamic> _showDialog(BuildContext context) =>
-      showAdaptiveDialog(context: context, builder: (context) => _buildDialog(context));
+  Future<dynamic> _showDialog(BuildContext context) => showAdaptiveDialog(
+      context: context, builder: (context) => _buildDialog(context));
 
   Dialog _buildDialog(BuildContext context) {
     final controller = TextEditingController(text: v);

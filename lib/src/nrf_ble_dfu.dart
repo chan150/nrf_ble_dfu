@@ -103,7 +103,8 @@ class NrfBleDfu {
 
     /// https://infocenter.nordicsemi.com/index.jsp?topic=%2Fsdk_nrf5_v17.0.2%2Flib_bootloader_dfu_process.html
     await for (final event in controlPoint.lastValueStream) {
-      if(event.elementAtOrNull(0) == NrfDfuOp.response.code) log(event.hexString);
+      if (event.elementAtOrNull(0) == NrfDfuOp.response.code)
+        log(event.hexString);
 
       /// select command
       /// [06 01]
@@ -113,7 +114,7 @@ class NrfBleDfu {
         continue;
       }
 
-      if(event.elementAtOrNull(0) != NrfDfuOp.response.code) {
+      if (event.elementAtOrNull(0) != NrfDfuOp.response.code) {
         log('Not response packet: $event');
         continue;
       }
@@ -142,7 +143,8 @@ class NrfBleDfu {
         // }
 
         final sizePacket = data.length.toBytes;
-        await controlPoint.write([NrfDfuOp.objectCreate.code, type, ...sizePacket]);
+        await controlPoint
+            .write([NrfDfuOp.objectCreate.code, type, ...sizePacket]);
         continue;
       }
 
@@ -155,7 +157,8 @@ class NrfBleDfu {
         to = math.min((step + 1) * maxSize, buffer.length);
         data = buffer.sublist(from, to);
         for (var i = 0; i < data.length / 20; i++) {
-          final packet = data.sublist(i * 20, math.min((i + 1) * 20, data.length));
+          final packet =
+              data.sublist(i * 20, math.min((i + 1) * 20, data.length));
           await dataPoint.write(packet, withoutResponse: true);
         }
         await controlPoint.write([NrfDfuOp.crcGet.code]);
@@ -288,7 +291,8 @@ class NrfBleDfu {
     final scanResults = await FlutterBluePlus.scanResults.first;
     setup.autoDfuTargets.addAll([
       ...scanResults
-          .where((s) => RegExp(autoEntryDeviceName).hasMatch(s.device.platformName))
+          .where((s) =>
+              RegExp(autoEntryDeviceName).hasMatch(s.device.platformName))
           .map((e) => e.device)
     ]);
     setup.autoDfuTargets.removeAll(setup.autoDfuFinished);
@@ -301,7 +305,8 @@ class NrfBleDfu {
         await enterDfuMode(entry);
         await for (final scanResult in FlutterBluePlus.scanResults) {
           final dfu = scanResult
-              .where((s) => RegExp(autoDfuDeviceName).hasMatch(s.device.platformName))
+              .where((s) =>
+                  RegExp(autoDfuDeviceName).hasMatch(s.device.platformName))
               .singleOrNull
               ?.device;
           if (dfu == null) continue;

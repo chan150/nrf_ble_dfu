@@ -6,7 +6,8 @@ extension Int32ByteArray on int {
 
 extension ByteArray2Int32 on List<int> {
   int getInt32([int offset = 0]) => [
-        for (var i = 0; i < 4 && i + offset < length; i++) this[i + offset] << (i * 8),
+        for (var i = 0; i < 4 && i + offset < length; i++)
+          this[i + offset] << (i * 8),
       ].fold(0, (l, r) => l + r);
 }
 

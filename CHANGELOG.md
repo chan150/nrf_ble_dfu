@@ -1,3 +1,6 @@
+## 0.0.9
+* Run dart formatter.
+
 ## 0.0.8
 * Add specified-platform in `pub.dev`.
 

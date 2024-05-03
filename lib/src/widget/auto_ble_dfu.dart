@@ -8,7 +8,10 @@ class AutoBleDfu extends StatelessObserverWidget {
   @override
   Widget build(BuildContext context) {
     const div = Divider(height: 0, color: Colors.transparent);
-    final diff = NrfBleDfu().setup.autoDfuTargets.difference(NrfBleDfu().setup.autoDfuFinished);
+    final diff = NrfBleDfu()
+        .setup
+        .autoDfuTargets
+        .difference(NrfBleDfu().setup.autoDfuFinished);
     return Wrap(
       children: [
         IconButton(
@@ -28,7 +31,8 @@ class AutoBleDfu extends StatelessObserverWidget {
         div,
         const Text('Finished Devices: '),
         div,
-        for (final item in NrfBleDfu().setup.autoDfuFinished) Text('${item.platformName}[${item.remoteId}]'),
+        for (final item in NrfBleDfu().setup.autoDfuFinished)
+          Text('${item.platformName}[${item.remoteId}]'),
       ],
     );
   }
