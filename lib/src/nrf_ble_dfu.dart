@@ -103,8 +103,9 @@ class NrfBleDfu {
 
     /// https://infocenter.nordicsemi.com/index.jsp?topic=%2Fsdk_nrf5_v17.0.2%2Flib_bootloader_dfu_process.html
     await for (final event in controlPoint.lastValueStream) {
-      if (event.elementAtOrNull(0) == NrfDfuOp.response.code)
+      if (event.elementAtOrNull(0) == NrfDfuOp.response.code) {
         log(event.hexString);
+      }
 
       /// select command
       /// [06 01]
