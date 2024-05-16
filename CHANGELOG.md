@@ -1,3 +1,6 @@
+## 0.0.13
+* Fix typos in `nrf_dfu_op_t`. 
+
 ## 0.0.12
 * Enable to use firmware binary instead of firmware file path. 
 * Fix bug w.r.t. dfu failure in android device.

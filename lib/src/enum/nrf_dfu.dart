@@ -24,23 +24,22 @@ enum NrfDfuTransferType {
 }
 
 enum NrfDfuOp {
-  protocolVersion(code: 0x00, description: 'NRF_DFU_RES_CODE_INVALID'),
-  objectCreate(code: 0x01, description: 'NRF_DFU_RES_CODE_SUCCESS'),
+  protocolVersion(code: 0x00, description: 'NRF_DFU_OP_PROTOCOL_VERSION'),
+  objectCreate(code: 0x01, description: 'NRF_DFU_OP_OBJECT_CREATE'),
   receiptNotifSet(
-      code: 0x02, description: 'NRF_DFU_RES_CODE_OP_CODE_NOT_SUPPORTED'),
-  crcGet(code: 0x03, description: 'NRF_DFU_RES_CODE_INVALID_PARAMETER'),
+      code: 0x02, description: 'NRF_DFU_OP_RECEIPT_NOTIF_SET'),
+  crcGet(code: 0x03, description: 'NRF_DFU_OP_CRC_GET'),
   objectExecute(
-      code: 0x04, description: 'NRF_DFU_RES_CODE_INSUFFICIENT_RESOURCES'),
-  objectSelect(code: 0x06, description: 'NRF_DFU_RES_CODE_INVALID_OBJECT'),
-  mtuGet(code: 0x07, description: 'NRF_DFU_RES_CODE_UNSUPPORTED_TYPE'),
+      code: 0x04, description: 'NRF_DFU_OP_OBJECT_EXECUTE'),
+  objectSelect(code: 0x06, description: 'NRF_DFU_OP_OBJECT_SELECT'),
+  mtuGet(code: 0x07, description: 'NRF_DFU_OP_MTU_GET'),
   objectWrite(
-      code: 0x08, description: 'NRF_DFU_RES_CODE_OPERATION_NOT_PERMITTED'),
-  ping(code: 0x09, description: 'NRF_DFU_RES_CODE_OPERATION_FAILED'),
-  hardwareVersion(code: 0x0a, description: 'NRF_DFU_RES_CODE_EXT_ERROR'),
-  firmwareVersion(code: 0x0b, description: 'NRF_DFU_RES_CODE_EXT_ERROR'),
-  abort(code: 0x0c, description: 'NRF_DFU_RES_CODE_EXT_ERROR'),
-  response(code: 0x60, description: 'NRF_DFU_RES_CODE_EXT_ERROR'),
-  invalid(code: 0xff, description: 'NRF_DFU_RES_CODE_EXT_ERROR');
+      code: 0x08, description: 'NRF_DFU_OP_OBJECT_WRITE'),
+  ping(code: 0x09, description: 'NRF_DFU_OP_PING'),
+  hardwareVersion(code: 0x0a, description: 'NRF_DFU_OP_HARDWARE_VERSION'),
+  firmwareVersion(code: 0x0b, description: 'NRF_DFU_OP_FIRMWARE_VERSION'),
+  abort(code: 0x0c, description: 'NRF_DFU_OP_ABORT'),
+  response(code: 0x60, description: 'NRF_DFU_OP_RESPONSE');
 
   const NrfDfuOp({
     required this.code,
