@@ -33,8 +33,19 @@ class NrfBleDfu {
 
   Future<void> initializeSharedPreference() async {
     prefs = await SharedPreferences.getInstance();
-    setup.autoEntryDeviceName = prefs.getString('autoEntryDeviceName') ?? '';
-    setup.autoDfuDeviceName = prefs.getString('autoDfuDeviceName') ?? '';
+    setup.entryControlPoint =
+        prefs.getString('entryControlPoint') ?? setup.entryControlPoint;
+
+    final storedEntryPacket = prefs.getString('entryPacket')?.list;
+    if (storedEntryPacket?.isNotEmpty == true) {
+      setup.entryPacket.clear();
+      setup.entryPacket.addAll(storedEntryPacket ?? []);
+    }
+
+    setup.autoEntryDeviceName =
+        prefs.getString('autoEntryDeviceName') ?? setup.autoEntryDeviceName;
+    setup.autoDfuDeviceName =
+        prefs.getString('autoDfuDeviceName') ?? setup.autoDfuDeviceName;
     await _done();
   }
 
@@ -46,9 +57,26 @@ class NrfBleDfu {
   late final _done = Action(() => _completed.value = true);
   final _completed = Observable(false);
 
+  //////////////////////////////////////////
+
+  String get entryControlPoint => setup.entryControlPoint;
+
+  List<int> get entryPacket => setup.entryPacket;
+
   String get autoEntryDeviceName => setup.autoEntryDeviceName;
 
   String get autoDfuDeviceName => setup.autoDfuDeviceName;
+
+  set entryControlPoint(String value) {
+    setup.entryControlPoint = value;
+    prefs.setString('entryControlPoint', value);
+  }
+
+  set entryPacket(List<int> value) {
+    setup.entryPacket.clear();
+    setup.entryPacket.addAll(value);
+    prefs.setString('entryPacket', value.hexString);
+  }
 
   set autoEntryDeviceName(String value) {
     setup.autoEntryDeviceName = value;
@@ -59,6 +87,8 @@ class NrfBleDfu {
     setup.autoDfuDeviceName = value;
     prefs.setString('autoDfuDeviceName', value);
   }
+
+  //////////////////////////////////////////
 
   Future<void> selectDfu() async {
     final result = await FilePicker.platform.pickFiles();

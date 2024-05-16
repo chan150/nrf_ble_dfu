@@ -11,15 +11,15 @@ class BleEntrySetup extends StatelessObserverWidget {
       children: [
         EditableText(
           k: 'entryControlPoint',
-          v: NrfBleDfu().setup.entryControlPoint,
-          updateFn: (s) => NrfBleDfu().setup.entryControlPoint = s,
+          v: NrfBleDfu().entryControlPoint,
+          updateFn: (s) => NrfBleDfu().entryControlPoint = s,
         ),
         EditableText(
           k: 'entryPacket',
-          v: NrfBleDfu().setup.entryPacket.hexString,
+          v: NrfBleDfu().entryPacket.hexString,
           updateFn: (s) {
-            NrfBleDfu().setup.entryPacket.clear();
-            NrfBleDfu().setup.entryPacket.addAll(s.list);
+            NrfBleDfu().entryPacket.clear();
+            NrfBleDfu().entryPacket.addAll(s.list);
           },
         ),
         EditableText(
