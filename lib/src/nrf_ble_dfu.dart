@@ -37,7 +37,6 @@ class NrfBleDfu {
         prefs.getString('entryControlPoint') ?? setup.entryControlPoint;
 
     final storedEntryPacket = prefs.getString('entryPacket')?.list;
-    log(storedEntryPacket.toString());
     if (storedEntryPacket?.isNotEmpty == true) {
       setup.entryPacket.clear();
       setup.entryPacket.addAll(storedEntryPacket ?? []);
@@ -93,9 +92,13 @@ class NrfBleDfu {
 
   Future<void> selectDfu() async {
     final result = await FilePicker.platform.pickFiles();
-    if (result == null) return;
-    file.path = result.paths.single;
+    file.path = result?.paths.singleOrNull;
+    if(file.path == null) return;
+    final bytes = File(file.path!).readAsBytesSync();
+    await extractZip(bytes);
+  }
 
+  Future<void> extractZip(List<int> bytes) async {
     final tempDir = await getTemporaryDirectory();
     final outputPath = join(tempDir.path, "firmware_files");
     final outputDir = Directory(outputPath);
@@ -103,9 +106,9 @@ class NrfBleDfu {
     if (!outputDir.existsSync()) return;
     file.outputPath = outputPath;
 
-    await extractFileToDisk(file.path!, outputPath);
-    final list = outputDir.listSync();
+    await extractArchiveToDisk(ZipDecoder().decodeBytes(bytes), outputPath);
 
+    final list = outputDir.listSync();
     file.datPath = list.where((e) => e.path.endsWith('dat')).singleOrNull?.path;
     file.binPath = list.where((e) => e.path.endsWith('bin')).singleOrNull?.path;
   }
