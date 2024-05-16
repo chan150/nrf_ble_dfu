@@ -1,3 +1,9 @@
+## 0.0.12
+* Enable to use firmware binary instead of firmware file path. 
+
+## 0.0.11
+* Store entry setup into shared preference.
+
 ## 0.0.9
 * Run dart formatter.
 
