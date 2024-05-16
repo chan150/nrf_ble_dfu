@@ -17,10 +17,7 @@ class BleEntrySetup extends StatelessObserverWidget {
         EditableText(
           k: 'entryPacket',
           v: NrfBleDfu().entryPacket.hexString,
-          updateFn: (s) {
-            NrfBleDfu().entryPacket.clear();
-            NrfBleDfu().entryPacket.addAll(s.list);
-          },
+          updateFn: (s) => NrfBleDfu().entryPacket = s.list,
         ),
         EditableText(
           k: 'autoEntryDeviceName',

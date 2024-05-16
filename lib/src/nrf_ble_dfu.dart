@@ -37,6 +37,7 @@ class NrfBleDfu {
         prefs.getString('entryControlPoint') ?? setup.entryControlPoint;
 
     final storedEntryPacket = prefs.getString('entryPacket')?.list;
+    log(storedEntryPacket.toString());
     if (storedEntryPacket?.isNotEmpty == true) {
       setup.entryPacket.clear();
       setup.entryPacket.addAll(storedEntryPacket ?? []);
