@@ -93,7 +93,7 @@ class NrfBleDfu {
   Future<void> selectDfu() async {
     final result = await FilePicker.platform.pickFiles();
     file.path = result?.paths.singleOrNull;
-    if(file.path == null) return;
+    if (file.path == null) return;
     final bytes = File(file.path!).readAsBytesSync();
     await extractZip(bytes);
   }
@@ -235,8 +235,7 @@ class NrfBleDfu {
         }
       }
 
-      log('Unhandled packet: $event');
-      break;
+      throw Exception('Unhandled packet: $event');
     }
   }
 
@@ -263,16 +262,14 @@ class NrfBleDfu {
     final dat = File(file.datPath!).readAsBytesSync();
     final bin = File(file.binPath!).readAsBytesSync();
 
-    final cp = setup.dfuControlPoint;
-    final dp = setup.dfuDataPoint;
     final services = await device.discoverServices();
 
     for (final s in services) {
       for (final c in s.characteristics) {
-        if (c.characteristicUuid == Guid.fromString(cp)) {
+        if (c.characteristicUuid == Guid.fromString(setup.dfuControlPoint)) {
           dfu.controlPoint = c;
         }
-        if (c.characteristicUuid == Guid.fromString(dp)) {
+        if (c.characteristicUuid == Guid.fromString(setup.dfuDataPoint)) {
           dfu.dataPoint = c;
         }
       }
@@ -287,20 +284,40 @@ class NrfBleDfu {
     await controlPoint.setNotifyValue(true);
 
     /// transfer init packet
-    await _transferObject(
-      type: NrfDfuTransferType.init.code,
-      buffer: dat,
-      controlPoint: controlPoint,
-      dataPoint: dataPoint,
-    );
+    try {
+      await _transferObject(
+        type: NrfDfuTransferType.init.code,
+        buffer: dat,
+        controlPoint: controlPoint,
+        dataPoint: dataPoint,
+      );
+    } catch (_) {
+      await Future.delayed(const Duration(seconds: 1));
+      await _transferObject(
+        type: NrfDfuTransferType.init.code,
+        buffer: dat,
+        controlPoint: controlPoint,
+        dataPoint: dataPoint,
+      );
+    }
 
     /// transfer firmware image
-    await _transferObject(
-      type: NrfDfuTransferType.image.code,
-      buffer: bin,
-      controlPoint: controlPoint,
-      dataPoint: dataPoint,
-    );
+    try {
+      await _transferObject(
+        type: NrfDfuTransferType.image.code,
+        buffer: bin,
+        controlPoint: controlPoint,
+        dataPoint: dataPoint,
+      );
+    } catch (_) {
+      await Future.delayed(const Duration(seconds: 1));
+      await _transferObject(
+        type: NrfDfuTransferType.image.code,
+        buffer: bin,
+        controlPoint: controlPoint,
+        dataPoint: dataPoint,
+      );
+    }
   }
 
   Future<void> enterDfuMode(BluetoothDevice device) async {
@@ -345,6 +362,7 @@ class NrfBleDfu {
               .singleOrNull
               ?.device;
           if (dfu == null) continue;
+
           await dfu.connect();
           await updateFirmware(dfu);
           break;
@@ -360,6 +378,7 @@ class NrfBleDfu {
   }
 
   Future<void> refresh() async {
+    setup.autoDfuTargets.clear();
     setup.autoDfuFinished.clear();
     await FlutterBluePlus.stopScan();
     await FlutterBluePlus.startScan();
