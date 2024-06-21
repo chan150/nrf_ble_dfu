@@ -40,6 +40,13 @@ class _BleDeviceSelectState extends State<BleDeviceSelect> {
               leading: Text(item.rssi.toString()),
               title: Text(item.device.platformName),
               subtitle: Text(item.device.remoteId.str),
+              // subtitle: Column(
+              //   children: [
+              //     Text(item.device.remoteId.str),
+              //     Text(item.advertisementData.manufacturerData.keys.toString()),
+              //     Text(item.advertisementData.manufacturerData.values.map((e)=>e.hexString).toString()),
+              //   ],
+              // ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
