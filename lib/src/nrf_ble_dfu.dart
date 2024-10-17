@@ -137,9 +137,9 @@ class NrfBleDfu {
 
     /// https://infocenter.nordicsemi.com/index.jsp?topic=%2Fsdk_nrf5_v17.0.2%2Flib_bootloader_dfu_process.html
     await for (final event in controlPoint.lastValueStream) {
-      if (event.elementAtOrNull(0) == NrfDfuOp.response.code) {
-        log(event.hexString);
-      }
+      // if (event.elementAtOrNull(0) == NrfDfuOp.response.code) {
+      //   log(event.hexString);
+      // }
 
       /// select command
       /// [06 01]
@@ -150,7 +150,7 @@ class NrfBleDfu {
       }
 
       if (event.elementAtOrNull(0) != NrfDfuOp.response.code) {
-        log('Not response packet: $event');
+        // log('Not response packet: $event');
         continue;
       }
 
@@ -209,8 +209,8 @@ class NrfBleDfu {
         offset = event.getInt32(3);
         crc = event.getInt32(7);
 
-        // TODO: should validate CRC32 function
-        log((_crc32(buffer.sublist(0, offset)), offset, crc).toString());
+        // // TODO: should validate CRC32 function
+        // log((_crc32(buffer.sublist(0, offset)), offset, crc).toString());
 
         if (isPrepared) {
           await controlPoint.write([NrfDfuOp.objectExecute.code]);
