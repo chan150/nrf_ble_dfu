@@ -33,3 +33,4 @@ pubspec.lock
 /.flutter-plugins-dependencies
 /example/devtools_options.yaml
 /example/.android/
+/example/android/.gradle/
