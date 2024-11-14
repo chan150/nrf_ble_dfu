@@ -26,53 +26,53 @@ class BleConnectedDevice extends StatelessWidget {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    onPressed: () async {
-                      final services = await item.discoverServices();
-                      final characteristics =
-                          services.expand((s) => s.characteristics);
-
-                      final cp = characteristics
-                          .where((e) =>
-                              e.characteristicUuid.str.toUpperCase() == '2CF0')
-                          .singleOrNull;
-                      if (cp == null) return;
-                      await cp.write([0x4E, 0x45, 0x01, 0xF0]);
-
-                      final cp2 = characteristics
-                          .where((e) =>
-                              e.characteristicUuid.str.toUpperCase() == '2CF1')
-                          .singleOrNull;
-                      if (cp2 == null) return;
-                      print(await cp2.read());
-
-                      try {
-                        cp2.setNotifyValue(true);
-                      } catch (e) {
-                        print(e);
-                      }
-
-                      /// qc start
-                      await cp.write([0x4E, 0x45, 0x01, 0xA0]);
-
-                      Stream.periodic(const Duration(seconds: 5), (i) => i)
-                          .listen((e) async {
-                        final now =
-                            DateTime.now().millisecondsSinceEpoch ~/ 1000;
-                        final timeStamp = [
-                          now >> 24,
-                          (now >> 16 & 0xFF),
-                          (now >> 8 & 0xFF),
-                          (now & 0xFF),
-                        ];
-                        await cp.write([0x4E, 0x45, 0x05, 0x81, ...timeStamp]);
-                      });
-                      cp2.onValueReceived
-                          .listen((e) => print((DateTime.now(), e)));
-                    },
-                    tooltip: 'Custom button',
-                    icon: const Icon(Icons.dashboard_customize_outlined),
-                  ),
+                  // IconButton(
+                  //   onPressed: () async {
+                  //     final services = await item.discoverServices();
+                  //     final characteristics =
+                  //         services.expand((s) => s.characteristics);
+                  //
+                  //     final cp = characteristics
+                  //         .where((e) =>
+                  //             e.characteristicUuid.str.toUpperCase() == '2CF0')
+                  //         .singleOrNull;
+                  //     if (cp == null) return;
+                  //     await cp.write([0x4E, 0x45, 0x01, 0xF0]);
+                  //
+                  //     final cp2 = characteristics
+                  //         .where((e) =>
+                  //             e.characteristicUuid.str.toUpperCase() == '2CF1')
+                  //         .singleOrNull;
+                  //     if (cp2 == null) return;
+                  //     print(await cp2.read());
+                  //
+                  //     try {
+                  //       cp2.setNotifyValue(true);
+                  //     } catch (e) {
+                  //       print(e);
+                  //     }
+                  //
+                  //     /// qc start
+                  //     await cp.write([0x4E, 0x45, 0x01, 0xA0]);
+                  //
+                  //     Stream.periodic(const Duration(seconds: 5), (i) => i)
+                  //         .listen((e) async {
+                  //       final now =
+                  //           DateTime.now().millisecondsSinceEpoch ~/ 1000;
+                  //       final timeStamp = [
+                  //         now >> 24,
+                  //         (now >> 16 & 0xFF),
+                  //         (now >> 8 & 0xFF),
+                  //         (now & 0xFF),
+                  //       ];
+                  //       await cp.write([0x4E, 0x45, 0x05, 0x81, ...timeStamp]);
+                  //     });
+                  //     cp2.onValueReceived
+                  //         .listen((e) => print((DateTime.now(), e)));
+                  //   },
+                  //   tooltip: 'Custom button',
+                  //   icon: const Icon(Icons.dashboard_customize_outlined),
+                  // ),
                   IconButton(
                     onPressed: () => NrfBleDfu().enterDfuMode(item),
                     tooltip: 'Enter DFU mode',

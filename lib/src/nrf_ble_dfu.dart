@@ -33,8 +33,7 @@ class NrfBleDfu {
 
   Future<void> initializeSharedPreference() async {
     prefs = await SharedPreferences.getInstance();
-    setup.entryControlPoint =
-        prefs.getString('entryControlPoint') ?? setup.entryControlPoint;
+    setup.entryControlPoint = prefs.getString('entryControlPoint') ?? setup.entryControlPoint;
 
     final storedEntryPacket = prefs.getString('entryPacket')?.list;
     if (storedEntryPacket?.isNotEmpty == true) {
@@ -42,10 +41,8 @@ class NrfBleDfu {
       setup.entryPacket.addAll(storedEntryPacket ?? []);
     }
 
-    setup.autoEntryDeviceName =
-        prefs.getString('autoEntryDeviceName') ?? setup.autoEntryDeviceName;
-    setup.autoDfuDeviceName =
-        prefs.getString('autoDfuDeviceName') ?? setup.autoDfuDeviceName;
+    setup.autoEntryDeviceName = prefs.getString('autoEntryDeviceName') ?? setup.autoEntryDeviceName;
+    setup.autoDfuDeviceName = prefs.getString('autoDfuDeviceName') ?? setup.autoDfuDeviceName;
     await _done();
   }
 
@@ -102,13 +99,15 @@ class NrfBleDfu {
     final tempDir = await getTemporaryDirectory();
     final outputPath = join(tempDir.path, "firmware_files");
     final outputDir = Directory(outputPath);
-    await outputDir.create();
+    await outputDir.delete(recursive: true);
+    await outputDir.create(recursive: true);
     if (!outputDir.existsSync()) return;
     file.outputPath = outputPath;
 
     await extractArchiveToDisk(ZipDecoder().decodeBytes(bytes), outputPath);
 
     final list = outputDir.listSync();
+
     file.datPath = list.where((e) => e.path.endsWith('dat')).singleOrNull?.path;
     file.binPath = list.where((e) => e.path.endsWith('bin')).singleOrNull?.path;
   }
@@ -178,8 +177,7 @@ class NrfBleDfu {
         // }
 
         final sizePacket = data.length.toBytes;
-        await controlPoint
-            .write([NrfDfuOp.objectCreate.code, type, ...sizePacket]);
+        await controlPoint.write([NrfDfuOp.objectCreate.code, type, ...sizePacket]);
         continue;
       }
 
@@ -192,8 +190,7 @@ class NrfBleDfu {
         to = math.min((step + 1) * maxSize, buffer.length);
         data = buffer.sublist(from, to);
         for (var i = 0; i < data.length / 20; i++) {
-          final packet =
-              data.sublist(i * 20, math.min((i + 1) * 20, data.length));
+          final packet = data.sublist(i * 20, math.min((i + 1) * 20, data.length));
           await dataPoint.write(packet, withoutResponse: true);
         }
         await controlPoint.write([NrfDfuOp.crcGet.code]);
@@ -342,10 +339,7 @@ class NrfBleDfu {
     if (!setup.enableTargetEntryProcess) setup.autoDfuTargets.clear();
     final scanResults = await FlutterBluePlus.scanResults.first;
     setup.autoDfuTargets.addAll([
-      ...scanResults
-          .where((s) =>
-              RegExp(autoEntryDeviceName).hasMatch(s.device.platformName))
-          .map((e) => e.device)
+      ...scanResults.where((s) => RegExp(autoEntryDeviceName).hasMatch(s.device.platformName)).map((e) => e.device)
     ]);
     setup.autoDfuTargets.removeAll(setup.autoDfuFinished);
 
@@ -356,11 +350,8 @@ class NrfBleDfu {
         await entry.connect();
         await enterDfuMode(entry);
         await for (final scanResult in FlutterBluePlus.scanResults) {
-          final dfu = scanResult
-              .where((s) =>
-                  RegExp(autoDfuDeviceName).hasMatch(s.device.platformName))
-              .singleOrNull
-              ?.device;
+          final dfu =
+              scanResult.where((s) => RegExp(autoDfuDeviceName).hasMatch(s.device.platformName)).singleOrNull?.device;
           if (dfu == null) continue;
 
           await dfu.connect();
