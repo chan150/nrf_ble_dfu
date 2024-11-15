@@ -33,7 +33,8 @@ class NrfBleDfu {
 
   Future<void> initializeSharedPreference() async {
     prefs = await SharedPreferences.getInstance();
-    setup.entryControlPoint = prefs.getString('entryControlPoint') ?? setup.entryControlPoint;
+    setup.entryControlPoint =
+        prefs.getString('entryControlPoint') ?? setup.entryControlPoint;
 
     final storedEntryPacket = prefs.getString('entryPacket')?.list;
     if (storedEntryPacket?.isNotEmpty == true) {
@@ -41,8 +42,10 @@ class NrfBleDfu {
       setup.entryPacket.addAll(storedEntryPacket ?? []);
     }
 
-    setup.autoEntryDeviceName = prefs.getString('autoEntryDeviceName') ?? setup.autoEntryDeviceName;
-    setup.autoDfuDeviceName = prefs.getString('autoDfuDeviceName') ?? setup.autoDfuDeviceName;
+    setup.autoEntryDeviceName =
+        prefs.getString('autoEntryDeviceName') ?? setup.autoEntryDeviceName;
+    setup.autoDfuDeviceName =
+        prefs.getString('autoDfuDeviceName') ?? setup.autoDfuDeviceName;
     await _done();
   }
 
@@ -329,7 +332,11 @@ class NrfBleDfu {
         }
       }
     }
-    entry.controlPoint?.write(setup.entryPacket);
+    try{
+      entry.controlPoint?.write(setup.entryPacket);
+    } catch (e) {
+      log(e.toString());
+    }
   }
 
   Future<void> autoDfu() async {
