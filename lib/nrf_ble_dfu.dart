@@ -1,3 +1,3 @@
-library nrf_ble_dfu;
+library;
 
 export 'src/index.dart';
