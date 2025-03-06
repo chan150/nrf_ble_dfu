@@ -33,8 +33,7 @@ class NrfBleDfu {
 
   Future<void> initializeSharedPreference() async {
     prefs = await SharedPreferences.getInstance();
-    setup.entryControlPoint =
-        prefs.getString('entryControlPoint') ?? setup.entryControlPoint;
+    setup.entryControlPoint = prefs.getString('entryControlPoint') ?? setup.entryControlPoint;
 
     final storedEntryPacket = prefs.getString('entryPacket')?.list;
     if (storedEntryPacket?.isNotEmpty == true) {
@@ -42,10 +41,8 @@ class NrfBleDfu {
       setup.entryPacket.addAll(storedEntryPacket ?? []);
     }
 
-    setup.autoEntryDeviceName =
-        prefs.getString('autoEntryDeviceName') ?? setup.autoEntryDeviceName;
-    setup.autoDfuDeviceName =
-        prefs.getString('autoDfuDeviceName') ?? setup.autoDfuDeviceName;
+    setup.autoEntryDeviceName = prefs.getString('autoEntryDeviceName') ?? setup.autoEntryDeviceName;
+    setup.autoDfuDeviceName = prefs.getString('autoDfuDeviceName') ?? setup.autoDfuDeviceName;
     await _done();
   }
 
@@ -102,9 +99,9 @@ class NrfBleDfu {
     final tempDir = await getTemporaryDirectory();
     final outputPath = join(tempDir.path, "firmware_files");
     final outputDir = Directory(outputPath);
-    try{
+    try {
       await outputDir.delete(recursive: true);
-    } finally{
+    } finally {
       await outputDir.create(recursive: true);
     }
     if (!outputDir.existsSync()) return;
@@ -123,6 +120,7 @@ class NrfBleDfu {
     required Uint8List buffer,
     required BluetoothCharacteristic controlPoint,
     required BluetoothCharacteristic dataPoint,
+    required DfuProgressState progress,
   }) async {
     late int maxSize;
     late int offset;
@@ -258,7 +256,7 @@ class NrfBleDfu {
     return ~crc;
   }
 
-  Future<void> updateFirmware(BluetoothDevice device) async {
+  Future<void> updateFirmware(BluetoothDevice device, [DfuProgressState? progress]) async {
     if (file.datPath == null) throw Exception('dat file not found');
     if (file.binPath == null) throw Exception('bin file not found');
 
@@ -267,20 +265,22 @@ class NrfBleDfu {
 
     final services = await device.discoverServices();
 
+    BluetoothCharacteristic? controlPoint;
+    BluetoothCharacteristic? dataPoint;
+
     for (final s in services) {
       for (final c in s.characteristics) {
         if (c.characteristicUuid == Guid.fromString(setup.dfuControlPoint)) {
-          dfu.controlPoint = c;
+          controlPoint = c;
         }
         if (c.characteristicUuid == Guid.fromString(setup.dfuDataPoint)) {
-          dfu.dataPoint = c;
+          dataPoint = c;
         }
       }
     }
 
-    final controlPoint = dfu.controlPoint;
-    final dataPoint = dfu.dataPoint;
-
+    // final controlPoint = dfu.controlPoint;
+    // final dataPoint = dfu.dataPoint;
     if (controlPoint == null) throw Exception('Control point not found');
     if (dataPoint == null) throw Exception('Data point not found');
 
@@ -293,6 +293,7 @@ class NrfBleDfu {
         buffer: dat,
         controlPoint: controlPoint,
         dataPoint: dataPoint,
+        progress: progress ?? this.progress,
       );
     } catch (_) {
       await Future.delayed(const Duration(seconds: 1));
@@ -301,6 +302,7 @@ class NrfBleDfu {
         buffer: dat,
         controlPoint: controlPoint,
         dataPoint: dataPoint,
+        progress: progress ?? this.progress,
       );
     }
 
@@ -311,6 +313,7 @@ class NrfBleDfu {
         buffer: bin,
         controlPoint: controlPoint,
         dataPoint: dataPoint,
+        progress: progress ?? this.progress,
       );
     } catch (_) {
       await Future.delayed(const Duration(seconds: 1));
@@ -319,6 +322,7 @@ class NrfBleDfu {
         buffer: bin,
         controlPoint: controlPoint,
         dataPoint: dataPoint,
+        progress: progress ?? this.progress,
       );
     }
   }
@@ -335,7 +339,7 @@ class NrfBleDfu {
         }
       }
     }
-    try{
+    try {
       entry.controlPoint?.write(setup.entryPacket);
     } catch (e) {
       log(e.toString());
@@ -376,6 +380,58 @@ class NrfBleDfu {
       setup.autoDfuTargets.remove(entry);
       setup.autoDfuFinished.add(entry);
     }
+  }
+
+  Future<void> autoDfuParallel() async {
+    if (file.datPath == null) throw Exception('dat file not found');
+    if (file.binPath == null) throw Exception('bin file not found');
+    if (!FlutterBluePlus.isScanningNow) await FlutterBluePlus.startScan();
+    if (!setup.enableTargetEntryProcess) setup.autoDfuTargets.clear();
+    final scanResults = await FlutterBluePlus.scanResults.first;
+    setup.autoDfuTargets.addAll([
+      ...scanResults.where((s) => RegExp(autoEntryDeviceName).hasMatch(s.device.platformName)).map((e) => e.device)
+    ]);
+    setup.autoDfuTargets.removeAll(setup.autoDfuFinished);
+
+    await Future.wait(
+      [
+        for (final entry in setup.autoDfuTargets)
+          () async {
+            try {
+              await entry.connect();
+              await enterDfuMode(entry);
+            } catch (e) {
+              log(e.toString());
+            }
+          }(),
+      ],
+    );
+
+    final dfuDevices = <BluetoothDevice>{};
+
+    await for (final scanResult in FlutterBluePlus.scanResults.expand((e) => e).distinct()) {
+      if (RegExp(autoDfuDeviceName).hasMatch(scanResult.device.platformName)) {
+        dfuDevices.add(scanResult.device);
+      }
+
+      if (dfuDevices.length == setup.autoDfuTargets.length) break;
+    }
+
+    await Future.wait(
+      [
+        for (final device in dfuDevices)
+          () async {
+            try {
+              await device.connect();
+              await updateFirmware(device, DfuProgressState());
+            } catch (e) {
+              log(e.toString());
+            }
+          }(),
+      ],
+    );
+    setup.autoDfuFinished.addAll(setup.autoDfuTargets);
+    setup.autoDfuTargets.clear();
   }
 
   Future<void> refresh() async {

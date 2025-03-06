@@ -15,7 +15,7 @@ class AutoBleDfu extends StatelessObserverWidget {
     return Wrap(
       children: [
         IconButton(
-          onPressed: NrfBleDfu().autoDfu,
+          onPressed: NrfBleDfu().autoDfuParallel,
           tooltip: 'Play auto DFU',
           icon: const Icon(Icons.play_arrow_sharp),
         ),
