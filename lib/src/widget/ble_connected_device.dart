@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 
 class BleConnectedDevice extends StatelessWidget {
@@ -23,6 +24,15 @@ class BleConnectedDevice extends StatelessWidget {
             return ListTile(
               title: Text(item.platformName),
               subtitle: Text(item.remoteId.str),
+              leading: SizedBox(
+                width: 250,
+                height: 50,
+                child: Observer(
+                  builder: (context) {
+                    return DfuProgress(progress: NrfBleDfu().progressSet[item]);
+                  },
+                ),
+              ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

@@ -31,6 +31,8 @@ class NrfBleDfu {
   final setup = DfuSetupState();
   final progress = DfuProgressState();
 
+  final progressSet = ObservableMap<BluetoothDevice, DfuProgressState>();
+
   Future<void> initializeSharedPreference() async {
     prefs = await SharedPreferences.getInstance();
     setup.entryControlPoint = prefs.getString('entryControlPoint') ?? setup.entryControlPoint;
@@ -121,6 +123,7 @@ class NrfBleDfu {
     required BluetoothCharacteristic controlPoint,
     required BluetoothCharacteristic dataPoint,
     required DfuProgressState progress,
+    BluetoothDevice? device,
   }) async {
     late int maxSize;
     late int offset;
@@ -294,6 +297,7 @@ class NrfBleDfu {
         controlPoint: controlPoint,
         dataPoint: dataPoint,
         progress: progress ?? this.progress,
+        device: device,
       );
     } catch (_) {
       await Future.delayed(const Duration(seconds: 1));
@@ -303,6 +307,7 @@ class NrfBleDfu {
         controlPoint: controlPoint,
         dataPoint: dataPoint,
         progress: progress ?? this.progress,
+        device: device,
       );
     }
 
@@ -314,6 +319,7 @@ class NrfBleDfu {
         controlPoint: controlPoint,
         dataPoint: dataPoint,
         progress: progress ?? this.progress,
+        device: device,
       );
     } catch (_) {
       await Future.delayed(const Duration(seconds: 1));
@@ -323,6 +329,7 @@ class NrfBleDfu {
         controlPoint: controlPoint,
         dataPoint: dataPoint,
         progress: progress ?? this.progress,
+        device: device,
       );
     }
   }
@@ -417,19 +424,25 @@ class NrfBleDfu {
       if (dfuDevices.length == setup.autoDfuTargets.length) break;
     }
 
+    // final temp = <BluetoothDevice>{};
+    // temp.addAll(setup.autoDfuTargets);
+    // setup.autoDfuTargets.clear();
+    // setup.autoDfuTargets.addAll(elements);
+
     await Future.wait(
       [
         for (final device in dfuDevices)
           () async {
             try {
               await device.connect();
-              await updateFirmware(device, DfuProgressState());
+              await updateFirmware(device, progressSet[device] ??= DfuProgressState());
             } catch (e) {
               log(e.toString());
             }
           }(),
       ],
     );
+    // setup.autoDfuFinished.addAll(temp);
     setup.autoDfuFinished.addAll(setup.autoDfuTargets);
     setup.autoDfuTargets.clear();
   }
