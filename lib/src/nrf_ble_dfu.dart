@@ -214,7 +214,7 @@ class NrfBleDfu {
         crc = event.getInt32(7);
 
         // // TODO: should validate CRC32 function
-        // log((_crc32(buffer.sublist(0, offset)), offset, crc).toString());
+        // log((Crc16.getCcittFalse(buffer.sublist(0, offset)), offset, crc).toString());
 
         if (isPrepared) {
           await controlPoint.write([NrfDfuOp.objectExecute.code]);

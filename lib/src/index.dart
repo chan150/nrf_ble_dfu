@@ -1,3 +1,4 @@
+export 'crc/crc16.dart';
 export 'enum/enum.dart';
 export 'extension/extension.dart';
 export 'state/state.dart';
