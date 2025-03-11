@@ -101,8 +101,13 @@ class NrfBleDfu {
     final tempDir = await getTemporaryDirectory();
     final outputPath = join(tempDir.path, "firmware_files");
     final outputDir = Directory(outputPath);
+    // outputDir.createSync(recursive: true);
     try {
-      await outputDir.delete(recursive: true);
+      final files = outputDir.listSync();
+      for(final file in files) {
+        file.deleteSync(recursive: true);
+      }
+      // await outputDir.delete(recursive: true);
     } finally {
       await outputDir.create(recursive: true);
     }
