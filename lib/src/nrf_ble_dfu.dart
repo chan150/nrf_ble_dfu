@@ -99,6 +99,8 @@ class NrfBleDfu {
 
   Future<void> extractZip(List<int> bytes) async {
     final tempDir = await getTemporaryDirectory();
+    //     final temp = DateTime.now().millisecondsSinceEpoch.toString();
+    //     final outputPath = join(tempDir.path, temp);
     final outputPath = join(tempDir.path, "firmware_files");
     final outputDir = Directory(outputPath);
     // outputDir.createSync(recursive: true);
