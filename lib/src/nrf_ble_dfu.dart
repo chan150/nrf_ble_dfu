@@ -103,17 +103,20 @@ class NrfBleDfu {
     //     final outputPath = join(tempDir.path, temp);
     final outputPath = join(tempDir.path, "firmware_files");
     final outputDir = Directory(outputPath);
-    // outputDir.createSync(recursive: true);
-    try {
-      final files = outputDir.listSync();
-      for(final file in files) {
-        file.deleteSync(recursive: true);
-      }
-      // await outputDir.delete(recursive: true);
-    } finally {
-      await outputDir.create(recursive: true);
+    if (!outputDir.existsSync()) {
+      outputDir.createSync();
     }
-    if (!outputDir.existsSync()) return;
+    // outputDir.createSync(recursive: true);
+    // try {
+    //   final files = outputDir.listSync();
+    //   for(final file in files) {
+    //     file.deleteSync(recursive: true);
+    //   }
+    //   // await outputDir.delete(recursive: true);
+    // } finally {
+    //   await outputDir.create(recursive: true);
+    // }
+    // if (!outputDir.existsSync()) return;
     file.outputPath = outputPath;
 
     await extractArchiveToDisk(ZipDecoder().decodeBytes(bytes), outputPath);
