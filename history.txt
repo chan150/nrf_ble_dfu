@@ -1,0 +1,507 @@
+* commit 37dc505bba967d777adf054177eedabd3b4b58f2
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2025-04-22 15:13:47
+| 
+|     🔨 fix decompression issue in  android
+| 
+* commit ef24c069f04ca74139e60b5051ccb47990701103
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2025-03-28 15:33:58
+| 
+|     🔨 revert decompression file path
+| 
+* commit 15d55f59533b71febf3e9d288684feaa9e2d8c7f
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2025-03-11 15:53:04
+| 
+|     🔨 investigating an error w.r.t. extract files in android
+| 
+* commit 09ebe8f03d93bdadbffc1318553a3662cd13c679
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2025-03-07 10:46:51
+| 
+|     🔨 add crc validation
+| 
+* commit cfe255d5227136e8a187f3ed447a75da326d306c
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2025-03-07 10:18:10
+| 
+|     🔨 build example for android
+| 
+* commit b95ab9f32d4139381d04715b6fd0cf4b9b3456e0
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2025-03-06 17:56:22
+| 
+|     🔨 enable multiple dfu
+| 
+* commit 059221876b1e355ec1616b7312d99be564369f98
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2025-03-06 16:00:00
+| 
+|     🚧🔨 enable multiple dfu
+| 
+* commit 4b985464866f50b29be2442363671cb9d74216e8
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-12-02 14:09:11
+| 
+|     🔨 resolve error when deleting dfu file directory.
+| 
+* commit 27919d6b1aa9396adb0b38f14d66d9cca2e3b21b
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-11-15 16:12:02
+| 
+|     🔨 in progress, bug in GATT write
+| 
+* commit da7faa644fabd347749398920eba7014021695e4
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-11-14 18:35:25
+| 
+|     🔨 fix a bug in dfu file select
+| 
+* commit 20f99c1e65d723f775baf08ebe9e7939fec03003
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-11-14 16:14:05
+| 
+|     🔨 clean code
+| 
+* commit fdd964282d56ead125797e6d7ade002d7b6839c8
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-10-17 17:32:08
+| 
+|     ⚙ add devtool option to git
+| 
+* commit 6ec343f7ea910b0c70285f4a22e0667bd1bd04bb
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-10-17 17:30:42
+| 
+|     ⚙ remove .gradle temp
+| 
+* commit d3c1f0566a4ee0d5cf99b1102b69dd18752810d7
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-10-17 17:29:10
+| 
+|     🔨 remove debug log
+| 
+* commit e7b18d8485c039f9a307aae6817ca634217fbf46
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-10-17 17:29:01
+| 
+|     🔨 remove debug log
+| 
+* commit 08cc41312357ac4554b3a255b6b27b9ae099b748
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-06-21 16:03:15
+| 
+|     ⚙ add permission for flutter app to use bluetooth
+|   
+| * commit 71c889ed824fc52a76800037b98b45a429899055
+|/  Author: chan150 <chan150@kaist.com>
+|   Date:   2024-12-02 11:20:27
+|   
+|       🔨 clean code
+| 
+* commit 0d1f2831f815b98fb5a9d6693fb3af0bd54c5793
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-17 17:11:47
+| 
+|     ⚙ add permission for flutter app to use bluetooth
+| 
+* commit 25bc205992dfb035f97c6cf9c182159cc98b8bc5
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-17 17:10:47
+| 
+|     ⚙ arr build success + flutter app build success
+| 
+* commit a967f04772fac48a3a6bd15a2685bac11932b776
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-17 17:07:38
+| 
+|     🚧 aar build test
+| 
+* commit 109e8c0adabe498e2a6b6d0cf9ad16623e2ca443
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-17 17:05:47
+| 
+|     🚧 aar build test
+| 
+* commit d276395a26630902cf6d6fcda528badc2528eee5
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-17 17:01:11
+| 
+|     🚧 aar build test
+| 
+* commit 7f0b5b04bb603d4ad230ec0f75162b4f4fa0b239
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-17 17:00:46
+| 
+|     🚧 aar build test
+| 
+* commit e2803d84aecf29fc9129f7149e514bc9482bb6a3
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-17 16:38:51
+| 
+|     🚧 add module support to build aar
+| 
+* commit 120539b868b48d62a38e46e1ad34a4cc7d7703cc
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-17 16:26:26
+| 
+|     🚧 add module support to build aar
+| 
+* commit ebc04c8a83c82c7dc52251da8ae5a8fc8eb1d7ce
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-16 15:25:41
+| 
+|     🔨 Fix typos in `nrf_dfu_op_t`.
+| 
+* commit 7831e5faf7980f5af022d7bb357691baf54329fc
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-16 15:19:33
+| 
+|     🔨 fix bug w.r.t. dfu failure in android device
+| 
+* commit ca49da5ea4c6771ce25b3f460ec1d2d41da3d543
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-16 15:18:53
+| 
+|     🔨 fix bug w.r.t. dfu failure in android device
+| 
+* commit 29d7e103b170a97b7e4809e0f4089b407bd47603
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-16 14:45:11
+| 
+|     🔨 adding `extractZip` from byte list
+| 
+* commit 0ae3dd61a97af977008bf913d2735f89ec49516b
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-16 14:06:12
+| 
+|     🔨 fix bug to save entry packet
+| 
+* commit 027828a5063f115b0094022ae8653796525b02db
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-16 13:54:16
+| 
+|     🎯 Update CHANGELOG.md
+| 
+* commit 31126a28e51f2a7e95b68493fff6a70a7532e313
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-16 13:36:22
+| 
+|     🔨 store entry packet and control point into shared preference
+| 
+* commit 373f89c83fa0caa32e8ed97332c62d8cd3eea526
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-03 18:20:20
+| 
+|     🔨 clean code
+| 
+* commit 6c63214695a93ff071794dd74ad89355fb85f827
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-03 16:03:22
+| 
+|     ⚙ Fix full url.
+| 
+* commit 64fa40abafaa148c97f7a7126550a3651cb2e9fb
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-03 16:00:55
+| 
+|     ⚙ Update license.
+| 
+* commit 692a6c253f3fbb5bc2f86db6d93a94cf52b1070d
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-03 16:00:04
+| 
+|     ⚙ add full url link.
+| 
+* commit 6c0df7ea1dc108ec355479dc98370fa2e5bb1b8f
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-03 15:57:54
+| 
+|     ⚙ reduce image size to fit page
+|   
+*   commit f1c5a2490baec3546ea7dd17e30ab2541f6fd371
+|\  Merge: fabceba 29e9ce0
+| | Author: Himchan Park <chan150@kaist.ac.kr>
+| | Date:   2024-05-03 15:55:35
+| | 
+| |     Merge remote-tracking branch 'origin/master'
+| |     
+| |     # Conflicts:
+| |     #       README.md
+| | 
+| * commit 29e9ce0ad2e8b9be6d1cd843b0cc14431fcb6208
+| | Author: Himchan Park <chan150@kaist.ac.kr>
+| | Date:   2024-05-03 15:54:05
+| | 
+| |     ⚙ Add Example picture and code.
+| | 
+* | commit fabcebab049b98339a7c9f18620dc06a5cb3a8d8
+|/  Author: Himchan Park <chan150@kaist.ac.kr>
+|   Date:   2024-05-03 15:54:05
+|   
+|       ⚙ Add Example picture and code.
+| 
+* commit 27c527034392df982409af88e32ce095c7d6cc52
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-03 15:33:36
+| 
+|     ⚙ Upgrade `flutter_blue_plus_windows`.
+| 
+* commit 074f52bf4189f4b0887f9aac7a9c4d21a7e812b6
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-03 14:30:17
+| 
+|     🔨Run dart formatter.
+| 
+* commit 2a5ac7162fbafa6d93c924b191fdab0c1254def2
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 23:24:58
+| 
+|     ⚙️Add supported platforms.
+| 
+* commit 39a9bfbde4a8a459bc806dfa09787758489375cf
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 17:16:08
+| 
+|     🔨Fix list view scroll error in Android.
+| 
+* commit 733b39358135432e3bd338f15972c513ca8e0482
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 17:10:25
+| 
+|     🔨 Make manager to execute auto DFU.
+| 
+* commit 286bc0a8ce19ddc153b5e920370319b76e64b34d
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 16:54:37
+| 
+|     🔨 Grant android support.
+| 
+* commit d3532d8ea1aa7ec7d149ff7a08ec330bf4defa09
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 16:53:45
+| 
+|     🔨 Test pass on Android
+| 
+* commit b3f5a5dfb7be5a92be6b3572424c62917fc984b9
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 15:29:24
+| 
+|     🔨 Add button to mark completed devices.
+| 
+* commit bc243d88890d63e6355e85d9540658fdd868a83c
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 15:07:22
+| 
+|     🔨 Does not auto DFU for finished devices
+| 
+* commit 9bfd441fdb4b347bc8a7ae1c086b9e64d8d2b620
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 14:59:27
+| 
+|     🔨 publish to pub.dev
+| 
+* commit e2db9cfc81d4f68c03a5bcb934ae4ac762daa94a
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 14:53:37
+| 
+|     🚧 Complete implementation of `_autoDfu`
+| 
+* commit 8c4490442d75fc36e5a3c98aef4ec089e864abb2
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 14:37:41
+| 
+|     🚧Implement _autoDfu method in progress
+| 
+* commit ab74cdb303289548f9ab6659c598fa9dda85857b
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 13:55:26
+| 
+|     🔨 rename dfu setup state
+| 
+* commit 9efe22b8fe1e2fa15208b14b0d17d9a5b11a1de2
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 13:49:59
+| 
+|     🔨 Add `autoEntryDeviceName` and `autoDfuDeviceName`
+| 
+* commit 70e971a6e26a4dee3745772c8415b4c5ebc6f4cd
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 12:30:42
+| 
+|     🔨 Add skeleton of auto target widget
+| 
+* commit 93bde41e5e19bc1b6b334658ee71ce1be662dac7
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 11:47:48
+| 
+|     🔨 Add auto target checker
+| 
+* commit 1e851acdfc1a4eab2e2b307eb4470326cc0f8d77
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 10:58:33
+| 
+|     🔨 clean code
+| 
+* commit c262bf9287d348f86cf7db4601d9dca27776da2d
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 10:52:55
+| 
+|     🔨 clean code
+| 
+* commit c79790792753e550c04bb0139cfb370b08c0336a
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-05-02 10:47:47
+| 
+|     🔨 Add automated dfu mode entry
+| 
+* commit 55f1691eb80f669255f0be7d62cf2f5c7abed047
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-30 19:31:48
+| 
+|     🔨 publish library
+| 
+* commit 957dcbcd4ece9ed903fadf733de2fbaf82461baa
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-30 19:25:12
+| 
+|     🔨 add dfu progress widget
+| 
+* commit 313a857ea6296be43677f1da1cc6b40900287586
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-30 19:09:23
+| 
+|     🔨 add missing generated code
+| 
+* commit 09e4756e6129f178728bcc65e975580da2912646
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-30 19:08:54
+| 
+|     🔨 clean code
+| 
+* commit 9be1c02117a76c73e948cc487d290b0b6e1980e7
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-30 18:48:57
+| 
+|     🔨 _transferObject 구현 및 테스트 완료
+| 
+* commit 4dfe85f7fa05279d609321fd397f1570cc5bf5be
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-30 18:15:52
+| 
+|     🚧 _transferObject 구현 및 테스트중
+| 
+* commit 34b09a3cd4120b0aa564aaca167c5bfc5e198762
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-30 16:37:41
+| 
+|     🔨 crc32 구현중
+| 
+* commit f5915b6068fc5dcb45dc0978b512967afe465c03
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-30 14:42:14
+| 
+|     🔨 setup page
+| 
+* commit a96a42b31c15e39fb07e26a54fd9889d41c1d223
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-30 13:36:25
+| 
+|     🔨 origin => entry로 이름 변경
+| 
+* commit 3d1b59460f427a1daf87637b21f8eb5e8f9c19b7
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-30 13:30:02
+| 
+|     🔨 dfu entry state 및 connected device stream 구현 완료
+| 
+* commit 0c6137ddb0b695a901d6c3fc40e56b79b21cf817
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-30 12:48:55
+| 
+|     🔨ble connected device widget 스켈레톤
+| 
+* commit bba7c7a0e7b65476db3dad78c882a3610f74062f
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 19:00:42
+| 
+|     🔨 TODO: ble device selector 구현
+| 
+* commit ddb2fea5642d53522ad3e5df615283544343a989
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 18:58:38
+| 
+|     🔨 TODO: ble device selector 구현
+| 
+* commit a2b90479831d6467eedaf31873b2566fdc1e0534
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 17:44:04
+| 
+|     🔨 example 코드 file selector widget 추가
+| 
+* commit 6189dd20fc3eea5529c3f2513a8181f8ae266882
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 17:30:02
+| 
+|     🔨 add example
+| 
+* commit 3096fbff6aaa385d6e36bcfa7dde11925d701227
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 16:16:33
+| 
+|     🔨 add skeleton of ble uuid
+| 
+* commit cd9053819328c0fa985ccb77fe4fc1ec31556d7a
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 16:03:12
+| 
+|     🔨 make more visible for hex converter
+| 
+* commit 1f0939b5935562b39ca314b4562164007b2a2a11
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 16:01:29
+| 
+|     🔨 implement `DfuFileSelect` widget
+| 
+* commit 8a62539cd924db9867a0f5a3c51dea0025c26cd3
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 15:50:51
+| 
+|     🔨 implement `findDfuFile` method
+| 
+* commit 21ec119201d8d622b494ff6567987f7d40f3ee43
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 15:35:01
+| 
+|     🔨 add extension and enum
+| 
+* commit cbfe6f5bd0f9af9f7c63ce15f95a7f80b5d67503
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 15:33:37
+| 
+|     🔨 add state
+| 
+* commit 3dc061874b030a41e9c03cbe20c881f4fd8d3d37
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 15:29:45
+| 
+|     🔨 add manager
+| 
+* commit c669c9f3f5bb8b3d57d16ab8ddc3e759f6d239db
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 15:21:24
+| 
+|     ⚙ add library
+| 
+* commit 081117fe4b2bc7fbb43326091b2644b31f729c2a
+| Author: Himchan Park <chan150@kaist.ac.kr>
+| Date:   2024-04-29 15:20:59
+| 
+|     ⚙ add library
+| 
+* commit e5949515dbc483ec165739f7eb1839e9a197f060
+  Author: Himchan Park <chan150@kaist.ac.kr>
+  Date:   2024-04-29 15:19:06
+  
+      Initial commit
