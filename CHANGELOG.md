@@ -1,3 +1,6 @@
+## 0.0.20
+* Use `flutter_blue_plus_windows` for Windows support.
+
 ## 0.0.19
 * Fix Bluetooth connection signature mismatch.
 * Standardize on `flutter_blue_plus`.

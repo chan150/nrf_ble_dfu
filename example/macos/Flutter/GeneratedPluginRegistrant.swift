@@ -6,7 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import file_picker
-import flutter_blue_plus_darwin
+import flutter_blue_plus
 import shared_preferences_foundation
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {

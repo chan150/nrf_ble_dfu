@@ -353,7 +353,7 @@ class NrfBleDfu {
     while (setup.autoDfuTargets.isNotEmpty) {
       entry = setup.autoDfuTargets.first;
       try {
-        await entry.connect(license: License.free);
+        await entry.connect();
         await enterDfuMode(entry);
         await for (final scanResult in FlutterBluePlus.scanResults) {
           final dfu = scanResult
@@ -363,7 +363,7 @@ class NrfBleDfu {
               ?.device;
           if (dfu == null) continue;
 
-          await dfu.connect(license: License.free);
+          await dfu.connect();
           await updateFirmware(dfu);
           break;
         }
