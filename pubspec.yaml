@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_blue_plus: 
+  flutter_blue_plus_winrt: 
   mobx: 
   permission_handler: 
   flutter_mobx: 
