@@ -1,3 +1,11 @@
+## 0.0.19
+* Fix Bluetooth connection signature mismatch.
+* Standardize on `flutter_blue_plus`.
+* Update dependency constraints.
+
+## 0.0.14
+* Minor fixes and updates.
+
 ## 0.0.13
 * Fix typos in `nrf_dfu_op_t`. 
 

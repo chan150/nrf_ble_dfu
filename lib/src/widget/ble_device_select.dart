@@ -46,7 +46,8 @@ class _BleDeviceSelectState extends State<BleDeviceSelect> {
                   TargetChecker(item: item),
                   CompleteChecker(item: item),
                   IconButton(
-                    onPressed: item.device.connect,
+                    onPressed: () async =>
+                        await item.device.connect(license: License.free),
                     tooltip: 'Connect device',
                     icon: const Icon(Icons.bluetooth),
                   ),

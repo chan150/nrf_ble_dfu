@@ -1,4 +1,4 @@
-import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ble_device_state.g.dart';
