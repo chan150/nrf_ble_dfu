@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_blue_plus_windows/flutter_blue_plus_windows.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 import 'package:path/path.dart';
@@ -91,7 +91,7 @@ class NrfBleDfu {
   //////////////////////////////////////////
 
   Future<void> selectDfu() async {
-    final result = await FilePicker.platform.pickFiles();
+    final result = await FilePicker.pickFiles();
     file.path = result?.paths.singleOrNull;
     if (file.path == null) return;
     final bytes = File(file.path!).readAsBytesSync();

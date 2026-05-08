@@ -1,11 +1,11 @@
 name: nrf_ble_dfu
 description: "The Nordic DFU over BLE library helps enable firmware updates of BLE devices over Bluetooth Low Energy (BLE), for Windows, Android, iOS, Linux and macOS."
-version: 0.0.13
+version: 0.0.14
 repository: https://github.com/chan150/nrf_ble_dfu
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
-  flutter: ">=3.13.0"
+  flutter: ">=3.7.0"
 
 platforms:
   windows:
@@ -23,19 +23,20 @@ topics:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_blue_plus_windows: ">=1.23.6"
-  mobx: ">=2.3.3+2"
-  permission_handler: ">=11.3.1"
-  flutter_mobx: ">=2.2.1+1"
-  file_picker: ">=8.0.2"
-  archive: ">=3.4.10"
-  path_provider: ">=2.1.3"
-  path: ">=1.9.0"
-  shared_preferences: ">=2.2.3"
+  flutter_blue_plus: 
+  flutter_blue_plus_windows: ^1.26.1
+  mobx: 
+  permission_handler: 
+  flutter_mobx: 
+  file_picker: 
+  archive: 
+  path_provider: 
+  path: 
+  shared_preferences: 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ">=3.0.0"
-  mobx_codegen: ">=2.6.1"
-  build_runner: ">=2.4.9"
+  flutter_lints: 
+  mobx_codegen: 
+  build_runner: 
