@@ -55,11 +55,16 @@ class NrfBleDfu {
             setup.entryPacket.clear();
             setup.entryPacket.addAll(pkt.fromRawHex);
           }
-          setup.autoEntryDeviceName =
-              last['target_name'] ?? setup.autoEntryDeviceName;
           setup.autoDfuDeviceName =
               last['target_dfu_name'] ?? setup.autoDfuDeviceName;
-          
+
+          final fwPath = last['firmware_path'] as String?;
+          if (fwPath != null && File(fwPath).existsSync()) {
+            file.path = fwPath;
+            final bytes = File(fwPath).readAsBytesSync();
+            await extractZip(bytes);
+          }
+
           runInAction(() {
             selectedPresetIndex.value = last['selected_index'] as int?;
           });
@@ -70,15 +75,13 @@ class NrfBleDfu {
     }
 
     if (presets.isEmpty) {
-      for (var i = 0; i < 5; i++) {
-        presets.add(DfuPreset(
-          name: 'Preset ${i + 1}',
-          entryUuid: setup.entryControlPoint,
-          entryPkt: setup.entryPacket.rawHex,
-          targetName: setup.autoEntryDeviceName,
-          targetDfuName: setup.autoDfuDeviceName,
-        ));
-      }
+      presets.add(DfuPreset(
+        name: 'default',
+        entryUuid: '00002cf0-0000-1000-8000-00805f9b34fb',
+        entryPkt: '4E4501FA',
+        targetName: 'NLBD',
+        targetDfuName: 'NEUL_DFU',
+      ));
       savePresets();
     }
 
@@ -103,27 +106,6 @@ class NrfBleDfu {
 
   String get autoDfuDeviceName => setup.autoDfuDeviceName;
 
-  set entryControlPoint(String value) {
-    runInAction(() {
-      setup.entryControlPoint = value;
-      savePresets();
-    });
-  }
-
-  set entryPacket(List<int> value) {
-    runInAction(() {
-      setup.entryPacket.clear();
-      setup.entryPacket.addAll(value);
-      savePresets();
-    });
-  }
-
-  set autoEntryDeviceName(String value) {
-    runInAction(() {
-      setup.autoEntryDeviceName = value;
-      savePresets();
-    });
-  }
 
   set entryControlPoint(String value) {
     runInAction(() {
@@ -168,6 +150,7 @@ class NrfBleDfu {
         'target_name': autoEntryDeviceName,
         'target_dfu_name': autoDfuDeviceName,
         'selected_index': selectedPresetIndex.value,
+        'firmware_path': file.path,
       },
       presets: presets,
     );
@@ -217,12 +200,37 @@ class NrfBleDfu {
     });
   }
 
+  void addNewPreset(String name) {
+    runInAction(() {
+      presets.add(DfuPreset(
+        name: name,
+        entryUuid: entryControlPoint,
+        entryPkt: entryPacket.rawHex,
+        targetName: autoEntryDeviceName,
+        targetDfuName: autoDfuDeviceName,
+      ));
+      selectedPresetIndex.value = presets.length - 1;
+      savePresets();
+    });
+  }
+
+  void deletePreset(int index) {
+    if (index < 0 || index >= presets.length) return;
+    if (presets.length <= 1) return; // Keep at least one
+    runInAction(() {
+      presets.removeAt(index);
+      selectedPresetIndex.value = null;
+      savePresets();
+    });
+  }
+
   //////////////////////////////////////////
 
   Future<void> selectDfu() async {
-    final result = await FilePicker.pickFiles();
+    final result = await FilePicker.platform.pickFiles();
     file.path = result?.paths.singleOrNull;
     if (file.path == null) return;
+    savePresets();
     final bytes = File(file.path!).readAsBytesSync();
     await extractZip(bytes);
   }

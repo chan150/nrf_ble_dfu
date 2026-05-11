@@ -26,8 +26,8 @@ class BleEntrySetup extends StatelessWidget {
         Observer(
           builder: (_) => DfuInputField(
             k: 'Entry Packet',
-            v: dfu.entryPacket.hexString,
-            updateFn: (s) => dfu.entryPacket = s.list,
+            v: dfu.entryPacket.rawHex,
+            updateFn: (s) => dfu.entryPacket = s.fromRawHex,
           ),
         ),
         Observer(

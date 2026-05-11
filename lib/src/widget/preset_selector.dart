@@ -8,24 +8,24 @@ class PresetSelector extends StatelessObserverWidget {
   @override
   Widget build(BuildContext context) {
     final dfu = NrfBleDfu();
-    
-    // 현재 설정과 일치하는 프리셋이 있는지 확인 (단순 구현을 위해 인덱스 추적은 생략하거나 첫 매칭 사용)
-    // 여기서는 별도의 selectedIndex 없이 드롭다운 선택 시 로드만 수행하는 방식으로 구현합니다.
-    
+    final selectedIdx = dfu.selectedPresetIndex.value;
+
     return Row(
       children: [
-        const Text('Preset: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+        const Text('Preset: ',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
         const SizedBox(width: 8),
         Expanded(
           child: DropdownButton<int>(
             isExpanded: true,
-            value: dfu.selectedPresetIndex.value,
+            value: selectedIdx,
             hint: const Text('Select a preset', style: TextStyle(fontSize: 12)),
-            underline: Container(), // 하단 라인 제거
+            underline: Container(), // Removes underline
             items: List.generate(dfu.presets.length, (i) {
               return DropdownMenuItem(
                 value: i,
-                child: Text(dfu.presets[i].name, style: const TextStyle(fontSize: 12)),
+                child: Text(dfu.presets[i].name,
+                    style: const TextStyle(fontSize: 12)),
               );
             }),
             onChanged: (index) {
@@ -35,49 +35,106 @@ class PresetSelector extends StatelessObserverWidget {
             },
           ),
         ),
-        const SizedBox(width: 8),
-        // 현재 선택된(가장 최근에 로드된) 슬롯에 저장하거나 관리하는 버튼들
-        // 드롭다운 방식에서는 특정 슬롯을 선택 후 '저장' 버튼을 누르는 형태가 일반적입니다.
-        // 여기서는 편의를 위해 마지막으로 선택했던 인덱스를 알 수 없으므로, 
-        // 팝업이나 별도의 UI를 통해 저장할 슬롯을 고르게 할 수도 있지만, 
-        // 일단 드롭다운 옆에 '현재 설정을 저장'하는 공통 버튼을 두겠습니다.
-        
-        PopupMenuButton<int>(
-          icon: const Icon(Icons.save, size: 20),
-          tooltip: 'Save current to...',
-          onSelected: (i) => dfu.updatePreset(i),
-          itemBuilder: (context) => List.generate(dfu.presets.length, (i) {
-            return PopupMenuItem(
-              value: i,
-              child: Text('Save to ${dfu.presets[i].name}', style: const TextStyle(fontSize: 12)),
-            );
-          }),
-        ),
-        PopupMenuButton<int>(
-          icon: const Icon(Icons.edit, size: 20),
-          tooltip: 'Rename...',
-          onSelected: (i) => _rename(context, i),
-          itemBuilder: (context) => List.generate(dfu.presets.length, (i) {
-            return PopupMenuItem(
-              value: i,
-              child: Text('Rename ${dfu.presets[i].name}', style: const TextStyle(fontSize: 12)),
-            );
-          }),
+        const SizedBox(width: 4),
+        // Action Menu for managing presets
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.menu, size: 20),
+          tooltip: 'Preset Menu',
+          onSelected: (action) {
+            switch (action) {
+              case 'save':
+                if (selectedIdx != null) dfu.updatePreset(selectedIdx);
+                break;
+              case 'add':
+                _addNew(context);
+                break;
+              case 'rename':
+                if (selectedIdx != null) _rename(context, selectedIdx);
+                break;
+              case 'delete':
+                if (selectedIdx != null) dfu.deletePreset(selectedIdx);
+                break;
+            }
+          },
+          itemBuilder: (context) => [
+            if (selectedIdx != null)
+              PopupMenuItem(
+                value: 'save',
+                child: Row(
+                  children: [
+                    Icon(Icons.save, size: 16, color: Colors.blue.shade700),
+                    const SizedBox(width: 8),
+                    const Text('Save changes', style: TextStyle(fontSize: 12)),
+                  ],
+                ),
+              ),
+            PopupMenuItem(
+              value: 'add',
+              child: Row(
+                children: [
+                  Icon(Icons.add_circle_outline, size: 16, color: Colors.green.shade700),
+                  const SizedBox(width: 8),
+                  const Text('Save as new...', style: TextStyle(fontSize: 12)),
+                ],
+              ),
+            ),
+            if (selectedIdx != null)
+              PopupMenuItem(
+                value: 'rename',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, size: 16, color: Colors.orange.shade700),
+                    const SizedBox(width: 8),
+                    const Text('Rename...', style: TextStyle(fontSize: 12)),
+                  ],
+                ),
+              ),
+            if (selectedIdx != null && dfu.presets.length > 1)
+              PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_outline, size: 16, color: Colors.red.shade700),
+                    const SizedBox(width: 8),
+                    const Text('Delete', style: TextStyle(fontSize: 12, color: Colors.red)),
+                  ],
+                ),
+              ),
+          ],
         ),
       ],
     );
   }
 
+  void _addNew(BuildContext context) async {
+    final dfu = NrfBleDfu();
+    final controller = TextEditingController(text: 'New Preset');
+    final name = await _showNameDialog(context, 'New Preset Name', controller);
+    if (name != null && name.isNotEmpty) {
+      dfu.addNewPreset(name);
+    }
+  }
+
   void _rename(BuildContext context, int index) async {
     final dfu = NrfBleDfu();
     final controller = TextEditingController(text: dfu.presets[index].name);
-    final name = await showAdaptiveDialog<String>(
+    final name = await _showNameDialog(context, 'Rename Preset', controller);
+    if (name != null && name.isNotEmpty) {
+      dfu.renamePreset(index, name);
+    }
+  }
+
+  Future<String?> _showNameDialog(
+      BuildContext context, String title, TextEditingController controller) {
+    return showAdaptiveDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Rename Preset'),
+        title: Text(title, style: const TextStyle(fontSize: 16)),
         content: TextField(
           controller: controller,
           autofocus: true,
+          style: const TextStyle(fontSize: 14),
+          decoration: const InputDecoration(isDense: true),
         ),
         actions: [
           TextButton(
@@ -91,8 +148,5 @@ class PresetSelector extends StatelessObserverWidget {
         ],
       ),
     );
-    if (name != null && name.isNotEmpty) {
-      dfu.renamePreset(index, name);
-    }
   }
 }

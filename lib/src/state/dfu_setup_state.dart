@@ -7,10 +7,10 @@ class DfuSetupState = DfuSetupStateBase with _$DfuSetupState;
 
 abstract class DfuSetupStateBase with Store {
   @observable
-  ObservableList<int> entryPacket = ObservableList.of([0xBB, 0xCC, 0x01, 0xFA]);
+  ObservableList<int> entryPacket = ObservableList.of([0x4E, 0x45, 0x01, 0xFA]);
 
   @observable
-  String entryControlPoint = '2CF0';
+  String entryControlPoint = '00002cf0-0000-1000-8000-00805f9b34fb';
 
   @observable
   String dfuControlPoint = '8ec90001-f315-4f60-9fb8-838830daea50';
@@ -34,8 +34,8 @@ abstract class DfuSetupStateBase with Store {
   bool enableAutoDfuProcess = true;
 
   @observable
-  String autoEntryDeviceName = '';
+  String autoEntryDeviceName = 'NLBD';
 
   @observable
-  String autoDfuDeviceName = '';
+  String autoDfuDeviceName = 'NEUL_DFU';
 }
