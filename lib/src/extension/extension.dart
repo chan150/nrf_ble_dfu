@@ -39,8 +39,8 @@ extension PacketExtensionFromRawHex on String {
 
     final trim = substring(1, length - 1);
     final split = trim.split(',');
-    final parsed = split.map((e) => int.tryParse(e));
-    if (parsed.contains(null)) throw Exception('Invalid integer format');
-    return [...parsed.map((e) => e!)];
+    final parsed = split.map((e) => int.tryParse(e.trim()));
+    if (parsed.any((e) => e == null)) throw Exception('Invalid integer format');
+    return parsed.whereType<int>().toList();
   }
 }

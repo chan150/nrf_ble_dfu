@@ -22,7 +22,7 @@ class NrfBleDfu {
 
   NrfBleDfu._internal() {
     initializeSharedPreference();
-    FlutterBluePlus.setLogLevel(LogLevel.error);
+    // FlutterBluePlus.setLogLevel(LogLevel.error);
   }
 
   late SharedPreferences prefs;
@@ -64,7 +64,6 @@ class NrfBleDfu {
             final bytes = File(fwPath).readAsBytesSync();
             await extractZip(bytes);
           }
-
           runInAction(() {
             selectedPresetIndex.value = last['selected_index'] as int?;
           });
@@ -106,31 +105,6 @@ class NrfBleDfu {
 
   String get autoDfuDeviceName => setup.autoDfuDeviceName;
 
-
-  set entryControlPoint(String value) {
-    runInAction(() {
-      setup.entryControlPoint = value;
-      selectedPresetIndex.value = null; // Manual change clears selection
-      savePresets();
-    });
-  }
-
-  set entryPacket(List<int> value) {
-    runInAction(() {
-      setup.entryPacket.clear();
-      setup.entryPacket.addAll(value);
-      selectedPresetIndex.value = null;
-      savePresets();
-    });
-  }
-
-  set autoEntryDeviceName(String value) {
-    runInAction(() {
-      setup.autoEntryDeviceName = value;
-      selectedPresetIndex.value = null;
-      savePresets();
-    });
-  }
 
   set autoDfuDeviceName(String value) {
     runInAction(() {
@@ -361,7 +335,8 @@ class NrfBleDfu {
       if (event.elementAtOrNull(0) == NrfDfuOp.response.code &&
           event.elementAtOrNull(1) == NrfDfuOp.objectExecute.code &&
           event.elementAtOrNull(2) == NrfDfuResult.success.code) {
-        progress.completedSize = progress.completedSize! + data.length;
+        final current = progress.completedSize ?? 0;
+        progress.completedSize = current + data.length;
 
         if (step + 1 < buffer.length / maxSize) {
           await controlPoint.write([NrfDfuOp.objectSelect.code, type]);
@@ -393,11 +368,14 @@ class NrfBleDfu {
   }
 
   Future<void> updateFirmware(BluetoothDevice device) async {
-    if (file.datPath == null) throw Exception('dat file not found');
-    if (file.binPath == null) throw Exception('bin file not found');
-
-    final dat = File(file.datPath!).readAsBytesSync();
-    final bin = File(file.binPath!).readAsBytesSync();
+    final datPath = file.datPath;
+    final binPath = file.binPath;
+    if (datPath == null || binPath == null) {
+      log("Error: Missing dat or bin file");
+      return;
+    }
+    final dat = File(datPath).readAsBytesSync();
+    final bin = File(binPath).readAsBytesSync();
 
     final services = await device.discoverServices();
 

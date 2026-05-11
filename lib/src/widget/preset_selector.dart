@@ -8,8 +8,10 @@ class PresetSelector extends StatelessObserverWidget {
   @override
   Widget build(BuildContext context) {
     final dfu = NrfBleDfu();
-    final selectedIdx = dfu.selectedPresetIndex.value;
-
+    final storedIdx = dfu.selectedPresetIndex.value;
+    final selectedIdx = (storedIdx != null && storedIdx >= 0 && storedIdx < dfu.presets.length)
+        ? storedIdx
+        : null;
     return Row(
       children: [
         const Text('Preset: ',
