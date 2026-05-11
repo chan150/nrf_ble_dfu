@@ -1,33 +1,59 @@
 import 'dart:convert';
+import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 
 class DfuPreset {
   String name;
-  String entryControlPoint;
-  List<int> entryPacket;
-  String autoEntryDeviceName;
-  String autoDfuDeviceName;
+  String entryUuid;
+  String entryPkt; // Hex string to match Python
+  String targetName;
+  String targetDfuName;
 
   DfuPreset({
     required this.name,
-    required this.entryControlPoint,
-    required this.entryPacket,
-    required this.autoEntryDeviceName,
-    required this.autoDfuDeviceName,
+    required this.entryUuid,
+    required this.entryPkt,
+    required this.targetName,
+    required this.targetDfuName,
   });
 
   Map<String, dynamic> toJson() => {
         'name': name,
-        'entryControlPoint': entryControlPoint,
-        'entryPacket': entryPacket,
-        'autoEntryDeviceName': autoEntryDeviceName,
-        'autoDfuDeviceName': autoDfuDeviceName,
+        'entry_uuid': entryUuid,
+        'entry_pkt': entryPkt,
+        'target_name': targetName,
+        'target_dfu_name': targetDfuName,
       };
 
   factory DfuPreset.fromJson(Map<String, dynamic> json) => DfuPreset(
-        name: json['name'] as String,
-        entryControlPoint: json['entryControlPoint'] as String,
-        entryPacket: (json['entryPacket'] as List).cast<int>(),
-        autoEntryDeviceName: json['autoEntryDeviceName'] as String,
-        autoDfuDeviceName: json['autoDfuDeviceName'] as String,
+        name: json['name'] as String? ?? 'Unnamed',
+        entryUuid: json['entry_uuid'] as String? ?? '',
+        entryPkt: json['entry_pkt'] as String? ?? '',
+        targetName: json['target_name'] as String? ?? '',
+        targetDfuName: json['target_dfu_name'] as String? ?? '',
       );
+}
+
+class DfuPresetsContainer {
+  Map<String, dynamic> lastUsed;
+  List<DfuPreset> presets;
+
+  DfuPresetsContainer({
+    required this.lastUsed,
+    required this.presets,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'last_used': lastUsed,
+        'presets': presets.map((e) => e.toJson()).toList(),
+      };
+
+  factory DfuPresetsContainer.fromJson(Map<String, dynamic> json) {
+    return DfuPresetsContainer(
+      lastUsed: (json['last_used'] as Map<String, dynamic>?) ?? {},
+      presets: (json['presets'] as List<dynamic>?)
+              ?.map((e) => DfuPreset.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
 }

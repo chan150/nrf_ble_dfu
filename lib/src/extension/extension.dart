@@ -17,9 +17,22 @@ extension PacketExtensionToString on List<int> {
       ];
 
   String get hexString => hex.toString();
+
+  String get rawHex =>
+      map((e) => e.toRadixString(16).toUpperCase().padLeft(2, '0')).join();
 }
 
-extension PacketExtensionFromString on String {
+extension PacketExtensionFromRawHex on String {
+  List<int> get fromRawHex {
+    final list = <int>[];
+    for (var i = 0; i < length; i += 2) {
+      if (i + 2 <= length) {
+        list.add(int.parse(substring(i, i + 2), radix: 16));
+      }
+    }
+    return list;
+  }
+
   List<int> get list {
     if (!startsWith('[')) return [];
     if (!endsWith(']')) return [];

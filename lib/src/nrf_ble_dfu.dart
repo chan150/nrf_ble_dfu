@@ -35,36 +35,46 @@ class NrfBleDfu {
 
   Future<void> initializeSharedPreference() async {
     prefs = await SharedPreferences.getInstance();
-    setup.entryControlPoint =
-        prefs.getString('entryControlPoint') ?? setup.entryControlPoint;
 
-    final storedEntryPacket = prefs.getString('entryPacket')?.list;
-    if (storedEntryPacket?.isNotEmpty == true) {
-      setup.entryPacket.clear();
-      setup.entryPacket.addAll(storedEntryPacket ?? []);
+    // Load presets and last_used from JSON
+    final jsonStr = prefs.getString('dfu_presets');
+    if (jsonStr != null) {
+      try {
+        final container = DfuPresetsContainer.fromJson(jsonDecode(jsonStr));
+        presets.clear();
+        presets.addAll(container.presets);
+
+        // Apply last_used if exists
+        final last = container.lastUsed;
+        if (last.isNotEmpty) {
+          setup.entryControlPoint =
+              last['entry_uuid'] ?? setup.entryControlPoint;
+          final pkt = last['entry_pkt'] as String?;
+          if (pkt != null) {
+            setup.entryPacket.clear();
+            setup.entryPacket.addAll(pkt.fromRawHex);
+          }
+          setup.autoEntryDeviceName =
+              last['target_name'] ?? setup.autoEntryDeviceName;
+          setup.autoDfuDeviceName =
+              last['target_dfu_name'] ?? setup.autoDfuDeviceName;
+        }
+      } catch (e) {
+        log('Error loading presets: $e');
+      }
     }
 
-    setup.autoEntryDeviceName =
-        prefs.getString('autoEntryDeviceName') ?? setup.autoEntryDeviceName;
-    setup.autoDfuDeviceName =
-        prefs.getString('autoDfuDeviceName') ?? setup.autoDfuDeviceName;
-
-    // Load presets
-    final presetStrings = prefs.getStringList('presets') ?? [];
-    presets.clear();
-    if (presetStrings.isEmpty) {
+    if (presets.isEmpty) {
       for (var i = 0; i < 5; i++) {
         presets.add(DfuPreset(
           name: 'Preset ${i + 1}',
-          entryControlPoint: setup.entryControlPoint,
-          entryPacket: [...setup.entryPacket],
-          autoEntryDeviceName: setup.autoEntryDeviceName,
-          autoDfuDeviceName: setup.autoDfuDeviceName,
+          entryUuid: setup.entryControlPoint,
+          entryPkt: setup.entryPacket.rawHex,
+          targetName: setup.autoEntryDeviceName,
+          targetDfuName: setup.autoDfuDeviceName,
         ));
       }
-    } else {
-      presets.addAll(
-          presetStrings.map((e) => DfuPreset.fromJson(jsonDecode(e))));
+      savePresets();
     }
 
     await _done();
@@ -89,65 +99,87 @@ class NrfBleDfu {
   String get autoDfuDeviceName => setup.autoDfuDeviceName;
 
   set entryControlPoint(String value) {
-    setup.entryControlPoint = value;
-    prefs.setString('entryControlPoint', value);
+    runInAction(() {
+      setup.entryControlPoint = value;
+      savePresets();
+    });
   }
 
   set entryPacket(List<int> value) {
-    setup.entryPacket.clear();
-    setup.entryPacket.addAll(value);
-    prefs.setString('entryPacket', value.hexString);
+    runInAction(() {
+      setup.entryPacket.clear();
+      setup.entryPacket.addAll(value);
+      savePresets();
+    });
   }
 
   set autoEntryDeviceName(String value) {
-    setup.autoEntryDeviceName = value;
-    prefs.setString('autoEntryDeviceName', value);
+    runInAction(() {
+      setup.autoEntryDeviceName = value;
+      savePresets();
+    });
   }
 
   set autoDfuDeviceName(String value) {
-    setup.autoDfuDeviceName = value;
-    prefs.setString('autoDfuDeviceName', value);
+    runInAction(() {
+      setup.autoDfuDeviceName = value;
+      savePresets();
+    });
   }
 
   //////////////////////////////////////////
 
   void savePresets() {
-    final strings = presets.map((e) => jsonEncode(e.toJson())).toList();
-    prefs.setStringList('presets', strings);
+    final container = DfuPresetsContainer(
+      lastUsed: {
+        'entry_uuid': entryControlPoint,
+        'entry_pkt': entryPacket.rawHex,
+        'target_name': autoEntryDeviceName,
+        'target_dfu_name': autoDfuDeviceName,
+      },
+      presets: presets,
+    );
+    prefs.setString('dfu_presets', jsonEncode(container.toJson()));
   }
 
   void loadPreset(int index) {
     if (index < 0 || index >= presets.length) return;
-    final p = presets[index];
-    entryControlPoint = p.entryControlPoint;
-    entryPacket = p.entryPacket;
-    autoEntryDeviceName = p.autoEntryDeviceName;
-    autoDfuDeviceName = p.autoDfuDeviceName;
+    runInAction(() {
+      final p = presets[index];
+      entryControlPoint = p.entryUuid;
+      entryPacket = p.entryPkt.fromRawHex;
+      autoEntryDeviceName = p.targetName;
+      autoDfuDeviceName = p.targetDfuName;
+    });
   }
 
   void updatePreset(int index) {
     if (index < 0 || index >= presets.length) return;
-    presets[index] = DfuPreset(
-      name: presets[index].name,
-      entryControlPoint: entryControlPoint,
-      entryPacket: [...entryPacket],
-      autoEntryDeviceName: autoEntryDeviceName,
-      autoDfuDeviceName: autoDfuDeviceName,
-    );
-    savePresets();
+    runInAction(() {
+      presets[index] = DfuPreset(
+        name: presets[index].name,
+        entryUuid: entryControlPoint,
+        entryPkt: entryPacket.rawHex,
+        targetName: autoEntryDeviceName,
+        targetDfuName: autoDfuDeviceName,
+      );
+      savePresets();
+    });
   }
 
   void renamePreset(int index, String name) {
     if (index < 0 || index >= presets.length) return;
-    final p = presets[index];
-    presets[index] = DfuPreset(
-      name: name,
-      entryControlPoint: p.entryControlPoint,
-      entryPacket: p.entryPacket,
-      autoEntryDeviceName: p.autoEntryDeviceName,
-      autoDfuDeviceName: p.autoDfuDeviceName,
-    );
-    savePresets();
+    runInAction(() {
+      final p = presets[index];
+      presets[index] = DfuPreset(
+        name: name,
+        entryUuid: p.entryUuid,
+        entryPkt: p.entryPkt,
+        targetName: p.targetName,
+        targetDfuName: p.targetDfuName,
+      );
+      savePresets();
+    });
   }
 
   //////////////////////////////////////////

@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 
-class BleEntrySetup extends StatelessObserverWidget {
+class BleEntrySetup extends StatelessWidget {
   const BleEntrySetup({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final dfu = NrfBleDfu();
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -14,26 +15,34 @@ class BleEntrySetup extends StatelessObserverWidget {
         // Top: Preset Management (Dropdown Row)
         const PresetSelector(),
         const Divider(),
-        // Bottom: Configuration Inputs
-        DfuInputField(
-          k: 'Entry UUID',
-          v: NrfBleDfu().entryControlPoint,
-          updateFn: (s) => NrfBleDfu().entryControlPoint = s,
+        // Bottom: Configuration Inputs - Individually observed to prevent full rebuilds
+        Observer(
+          builder: (_) => DfuInputField(
+            k: 'Entry UUID',
+            v: dfu.entryControlPoint,
+            updateFn: (s) => dfu.entryControlPoint = s,
+          ),
         ),
-        DfuInputField(
-          k: 'Entry Packet',
-          v: NrfBleDfu().entryPacket.hexString,
-          updateFn: (s) => NrfBleDfu().entryPacket = s.list,
+        Observer(
+          builder: (_) => DfuInputField(
+            k: 'Entry Packet',
+            v: dfu.entryPacket.hexString,
+            updateFn: (s) => dfu.entryPacket = s.list,
+          ),
         ),
-        DfuInputField(
-          k: 'Auto Entry Name',
-          v: NrfBleDfu().autoEntryDeviceName,
-          updateFn: (s) => NrfBleDfu().autoEntryDeviceName = s,
+        Observer(
+          builder: (_) => DfuInputField(
+            k: 'Auto Entry Name',
+            v: dfu.autoEntryDeviceName,
+            updateFn: (s) => dfu.autoEntryDeviceName = s,
+          ),
         ),
-        DfuInputField(
-          k: 'Auto DFU Name',
-          v: NrfBleDfu().autoDfuDeviceName,
-          updateFn: (s) => NrfBleDfu().autoDfuDeviceName = s,
+        Observer(
+          builder: (_) => DfuInputField(
+            k: 'Auto DFU Name',
+            v: dfu.autoDfuDeviceName,
+            updateFn: (s) => dfu.autoDfuDeviceName = s,
+          ),
         ),
       ],
     );
