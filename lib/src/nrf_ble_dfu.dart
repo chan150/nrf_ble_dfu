@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -30,6 +31,7 @@ class NrfBleDfu {
   final file = DfuFileState();
   final setup = DfuSetupState();
   final progress = DfuProgressState();
+  final presets = ObservableList<DfuPreset>();
 
   Future<void> initializeSharedPreference() async {
     prefs = await SharedPreferences.getInstance();
@@ -46,6 +48,25 @@ class NrfBleDfu {
         prefs.getString('autoEntryDeviceName') ?? setup.autoEntryDeviceName;
     setup.autoDfuDeviceName =
         prefs.getString('autoDfuDeviceName') ?? setup.autoDfuDeviceName;
+
+    // Load presets
+    final presetStrings = prefs.getStringList('presets') ?? [];
+    presets.clear();
+    if (presetStrings.isEmpty) {
+      for (var i = 0; i < 5; i++) {
+        presets.add(DfuPreset(
+          name: 'Preset ${i + 1}',
+          entryControlPoint: setup.entryControlPoint,
+          entryPacket: [...setup.entryPacket],
+          autoEntryDeviceName: setup.autoEntryDeviceName,
+          autoDfuDeviceName: setup.autoDfuDeviceName,
+        ));
+      }
+    } else {
+      presets.addAll(
+          presetStrings.map((e) => DfuPreset.fromJson(jsonDecode(e))));
+    }
+
     await _done();
   }
 
@@ -86,6 +107,47 @@ class NrfBleDfu {
   set autoDfuDeviceName(String value) {
     setup.autoDfuDeviceName = value;
     prefs.setString('autoDfuDeviceName', value);
+  }
+
+  //////////////////////////////////////////
+
+  void savePresets() {
+    final strings = presets.map((e) => jsonEncode(e.toJson())).toList();
+    prefs.setStringList('presets', strings);
+  }
+
+  void loadPreset(int index) {
+    if (index < 0 || index >= presets.length) return;
+    final p = presets[index];
+    entryControlPoint = p.entryControlPoint;
+    entryPacket = p.entryPacket;
+    autoEntryDeviceName = p.autoEntryDeviceName;
+    autoDfuDeviceName = p.autoDfuDeviceName;
+  }
+
+  void updatePreset(int index) {
+    if (index < 0 || index >= presets.length) return;
+    presets[index] = DfuPreset(
+      name: presets[index].name,
+      entryControlPoint: entryControlPoint,
+      entryPacket: [...entryPacket],
+      autoEntryDeviceName: autoEntryDeviceName,
+      autoDfuDeviceName: autoDfuDeviceName,
+    );
+    savePresets();
+  }
+
+  void renamePreset(int index, String name) {
+    if (index < 0 || index >= presets.length) return;
+    final p = presets[index];
+    presets[index] = DfuPreset(
+      name: name,
+      entryControlPoint: p.entryControlPoint,
+      entryPacket: p.entryPacket,
+      autoEntryDeviceName: p.autoEntryDeviceName,
+      autoDfuDeviceName: p.autoDfuDeviceName,
+    );
+    savePresets();
   }
 
   //////////////////////////////////////////
