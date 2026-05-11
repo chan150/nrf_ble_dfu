@@ -32,6 +32,7 @@ class NrfBleDfu {
   final setup = DfuSetupState();
   final progress = DfuProgressState();
   final presets = ObservableList<DfuPreset>();
+  final selectedPresetIndex = Observable<int?>(null);
 
   Future<void> initializeSharedPreference() async {
     prefs = await SharedPreferences.getInstance();
@@ -58,6 +59,10 @@ class NrfBleDfu {
               last['target_name'] ?? setup.autoEntryDeviceName;
           setup.autoDfuDeviceName =
               last['target_dfu_name'] ?? setup.autoDfuDeviceName;
+          
+          runInAction(() {
+            selectedPresetIndex.value = last['selected_index'] as int?;
+          });
         }
       } catch (e) {
         log('Error loading presets: $e');
@@ -120,9 +125,35 @@ class NrfBleDfu {
     });
   }
 
+  set entryControlPoint(String value) {
+    runInAction(() {
+      setup.entryControlPoint = value;
+      selectedPresetIndex.value = null; // Manual change clears selection
+      savePresets();
+    });
+  }
+
+  set entryPacket(List<int> value) {
+    runInAction(() {
+      setup.entryPacket.clear();
+      setup.entryPacket.addAll(value);
+      selectedPresetIndex.value = null;
+      savePresets();
+    });
+  }
+
+  set autoEntryDeviceName(String value) {
+    runInAction(() {
+      setup.autoEntryDeviceName = value;
+      selectedPresetIndex.value = null;
+      savePresets();
+    });
+  }
+
   set autoDfuDeviceName(String value) {
     runInAction(() {
       setup.autoDfuDeviceName = value;
+      selectedPresetIndex.value = null;
       savePresets();
     });
   }
@@ -136,6 +167,7 @@ class NrfBleDfu {
         'entry_pkt': entryPacket.rawHex,
         'target_name': autoEntryDeviceName,
         'target_dfu_name': autoDfuDeviceName,
+        'selected_index': selectedPresetIndex.value,
       },
       presets: presets,
     );
@@ -146,10 +178,13 @@ class NrfBleDfu {
     if (index < 0 || index >= presets.length) return;
     runInAction(() {
       final p = presets[index];
-      entryControlPoint = p.entryUuid;
-      entryPacket = p.entryPkt.fromRawHex;
-      autoEntryDeviceName = p.targetName;
-      autoDfuDeviceName = p.targetDfuName;
+      setup.entryControlPoint = p.entryUuid;
+      setup.entryPacket.clear();
+      setup.entryPacket.addAll(p.entryPkt.fromRawHex);
+      setup.autoEntryDeviceName = p.targetName;
+      setup.autoDfuDeviceName = p.targetDfuName;
+      selectedPresetIndex.value = index;
+      savePresets();
     });
   }
 

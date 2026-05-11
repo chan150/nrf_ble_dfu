@@ -19,6 +19,7 @@ class PresetSelector extends StatelessObserverWidget {
         Expanded(
           child: DropdownButton<int>(
             isExpanded: true,
+            value: dfu.selectedPresetIndex.value,
             hint: const Text('Select a preset', style: TextStyle(fontSize: 12)),
             underline: Container(), // 하단 라인 제거
             items: List.generate(dfu.presets.length, (i) {
