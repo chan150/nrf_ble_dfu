@@ -188,6 +188,54 @@ mixin _$DfuSetupState on DfuSetupStateBase, Store {
     });
   }
 
+  late final _$historyAtom =
+      Atom(name: 'DfuSetupStateBase.history', context: context);
+
+  @override
+  ObservableList<DfuHistoryEntry> get history {
+    _$historyAtom.reportRead();
+    return super.history;
+  }
+
+  @override
+  set history(ObservableList<DfuHistoryEntry> value) {
+    _$historyAtom.reportWrite(value, super.history, () {
+      super.history = value;
+    });
+  }
+
+  late final _$updatedMacsAtom =
+      Atom(name: 'DfuSetupStateBase.updatedMacs', context: context);
+
+  @override
+  ObservableSet<String> get updatedMacs {
+    _$updatedMacsAtom.reportRead();
+    return super.updatedMacs;
+  }
+
+  @override
+  set updatedMacs(ObservableSet<String> value) {
+    _$updatedMacsAtom.reportWrite(value, super.updatedMacs, () {
+      super.updatedMacs = value;
+    });
+  }
+
+  late final _$isAutoScanEnabledAtom =
+      Atom(name: 'DfuSetupStateBase.isAutoScanEnabled', context: context);
+
+  @override
+  bool get isAutoScanEnabled {
+    _$isAutoScanEnabledAtom.reportRead();
+    return super.isAutoScanEnabled;
+  }
+
+  @override
+  set isAutoScanEnabled(bool value) {
+    _$isAutoScanEnabledAtom.reportWrite(value, super.isAutoScanEnabled, () {
+      super.isAutoScanEnabled = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
@@ -201,7 +249,10 @@ enableTargetEntryProcess: ${enableTargetEntryProcess},
 enableAutoEntryProcess: ${enableAutoEntryProcess},
 enableAutoDfuProcess: ${enableAutoDfuProcess},
 autoEntryDeviceName: ${autoEntryDeviceName},
-autoDfuDeviceName: ${autoDfuDeviceName}
+autoDfuDeviceName: ${autoDfuDeviceName},
+history: ${history},
+updatedMacs: ${updatedMacs},
+isAutoScanEnabled: ${isAutoScanEnabled}
     ''';
   }
 }

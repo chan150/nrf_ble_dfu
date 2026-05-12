@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 
 class DfuPreset {
   String name;

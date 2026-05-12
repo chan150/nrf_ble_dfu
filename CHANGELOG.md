@@ -1,3 +1,11 @@
+## 0.0.22
+* Fix FilePicker usage and dependency constraints.
+* Fix analysis warnings.
+
+## 0.0.21
+* Add automated scan and update history system.
+* Implement persistent history dialog and retry logic.
+
 ## 0.0.20
 * Use `flutter_blue_plus_windows` for Windows support.
 

@@ -1,16 +1,20 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/file_picker.dart' as fp;
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:mobx/mobx.dart';
-import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'state/state.dart';
+import 'enum/enum.dart';
+import 'extension/extension.dart';
 
 export 'dart:async';
 export 'dart:io';
@@ -84,7 +88,63 @@ class NrfBleDfu {
       savePresets();
     }
 
+    loadHistory();
+
     await _done();
+  }
+
+  void loadHistory() {
+    final jsonStr = prefs.getString('dfu_history');
+    if (jsonStr != null) {
+      try {
+        final container = DfuHistoryContainer.fromJson(jsonDecode(jsonStr));
+        runInAction(() {
+          setup.history.clear();
+          setup.history.addAll(container.history);
+          setup.updatedMacs.clear();
+          setup.updatedMacs.addAll(container.history
+              .where((e) => e.status == 'success')
+              .map((e) => e.remoteId));
+        });
+      } catch (e) {
+        log('Error loading history: $e');
+      }
+    }
+  }
+
+  void saveHistory() {
+    final container = DfuHistoryContainer(history: setup.history);
+    prefs.setString('dfu_history', jsonEncode(container.toJson()));
+  }
+
+  void addHistoryEntry(
+      {required String remoteId,
+      required String deviceName,
+      required String status,
+      String? note}) {
+    runInAction(() {
+      final entry = DfuHistoryEntry(
+        remoteId: remoteId,
+        deviceName: deviceName,
+        timestamp: DateTime.now(),
+        status: status,
+        note: note,
+      );
+      setup.history.insert(0, entry);
+      if (status == 'success') {
+        setup.updatedMacs.add(remoteId);
+      }
+      saveHistory();
+    });
+  }
+
+  void retryDfu(String remoteId) {
+    runInAction(() {
+      setup.updatedMacs.remove(remoteId);
+      // Also remove from finished if it was there (for immediate UI feedback)
+      setup.autoDfuFinished.removeWhere((d) => d.remoteId.str == remoteId);
+      saveHistory();
+    });
   }
 
   Future<void> waitForCompletion() async {
@@ -99,12 +159,36 @@ class NrfBleDfu {
 
   String get entryControlPoint => setup.entryControlPoint;
 
+  set entryControlPoint(String value) {
+    runInAction(() {
+      setup.entryControlPoint = value;
+      selectedPresetIndex.value = null;
+      savePresets();
+    });
+  }
+
   List<int> get entryPacket => setup.entryPacket;
+
+  set entryPacket(List<int> value) {
+    runInAction(() {
+      setup.entryPacket.clear();
+      setup.entryPacket.addAll(value);
+      selectedPresetIndex.value = null;
+      savePresets();
+    });
+  }
 
   String get autoEntryDeviceName => setup.autoEntryDeviceName;
 
-  String get autoDfuDeviceName => setup.autoDfuDeviceName;
+  set autoEntryDeviceName(String value) {
+    runInAction(() {
+      setup.autoEntryDeviceName = value;
+      selectedPresetIndex.value = null;
+      savePresets();
+    });
+  }
 
+  String get autoDfuDeviceName => setup.autoDfuDeviceName;
 
   set autoDfuDeviceName(String value) {
     runInAction(() {
@@ -201,7 +285,7 @@ class NrfBleDfu {
   //////////////////////////////////////////
 
   Future<void> selectDfu() async {
-    final result = await FilePicker.platform.pickFiles();
+    final result = await fp.FilePicker.platform.pickFiles();
     file.path = result?.paths.singleOrNull;
     if (file.path == null) return;
     savePresets();
@@ -462,34 +546,91 @@ class NrfBleDfu {
               RegExp(autoEntryDeviceName).hasMatch(s.device.platformName))
           .map((e) => e.device)
     ]);
+
+    // Use persistent updatedMacs to filter
+    setup.autoDfuTargets
+        .removeWhere((d) => setup.updatedMacs.contains(d.remoteId.str));
     setup.autoDfuTargets.removeAll(setup.autoDfuFinished);
 
     late BluetoothDevice entry;
     while (setup.autoDfuTargets.isNotEmpty) {
       entry = setup.autoDfuTargets.first;
+      final remoteId = entry.remoteId.str;
+      final deviceName = entry.platformName;
+
       try {
         await entry.connect(license: License.free);
         await enterDfuMode(entry);
-        await for (final scanResult in FlutterBluePlus.scanResults) {
-          final dfu = scanResult
+
+        // Wait for device to reappear in DFU mode
+        BluetoothDevice? dfuDevice;
+        final timeout = DateTime.now().add(const Duration(seconds: 15));
+        while (DateTime.now().isBefore(timeout)) {
+          final results = await FlutterBluePlus.scanResults.first;
+          dfuDevice = results
               .where((s) =>
                   RegExp(autoDfuDeviceName).hasMatch(s.device.platformName))
               .singleOrNull
               ?.device;
-          if (dfu == null) continue;
-
-          await dfu.connect(license: License.free);
-          await updateFirmware(dfu);
-          break;
+          if (dfuDevice != null) break;
+          await Future.delayed(const Duration(milliseconds: 500));
         }
+
+        if (dfuDevice == null) {
+          throw Exception('DFU device not found after entry');
+        }
+
+        await dfuDevice.connect(license: License.free);
+        await updateFirmware(dfuDevice);
+
+        addHistoryEntry(
+          remoteId: remoteId,
+          deviceName: deviceName,
+          status: 'success',
+        );
       } catch (e) {
-        log(e.toString());
+        log('Auto DFU error: $e');
+        addHistoryEntry(
+          remoteId: remoteId,
+          deviceName: deviceName,
+          status: 'failed',
+          note: e.toString(),
+        );
         break;
       }
 
       setup.autoDfuTargets.remove(entry);
       setup.autoDfuFinished.add(entry);
     }
+  }
+
+  Timer? _autoScanTimer;
+
+  void toggleAutoScan(bool enable) {
+    runInAction(() {
+      setup.isAutoScanEnabled = enable;
+      if (enable) {
+        _startAutoScan();
+      } else {
+        _autoScanTimer?.cancel();
+        _autoScanTimer = null;
+      }
+    });
+  }
+
+  void _startAutoScan() {
+    _autoScanTimer?.cancel();
+    _autoScanTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      if (!setup.isAutoScanEnabled) {
+        timer.cancel();
+        return;
+      }
+      try {
+        await autoDfu();
+      } catch (e) {
+        log('Auto scan loop error: $e');
+      }
+    });
   }
 
   Future<void> refresh() async {

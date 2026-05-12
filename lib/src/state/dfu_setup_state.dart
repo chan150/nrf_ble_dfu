@@ -1,5 +1,6 @@
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:mobx/mobx.dart';
+import 'dfu_history_entry.dart';
 
 part 'dfu_setup_state.g.dart';
 
@@ -38,4 +39,13 @@ abstract class DfuSetupStateBase with Store {
 
   @observable
   String autoDfuDeviceName = 'NEUL_DFU';
+
+  @observable
+  ObservableList<DfuHistoryEntry> history = ObservableList();
+
+  @observable
+  ObservableSet<String> updatedMacs = ObservableSet();
+
+  @observable
+  bool isAutoScanEnabled = false;
 }
