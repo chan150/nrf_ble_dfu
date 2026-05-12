@@ -236,6 +236,22 @@ mixin _$DfuSetupState on DfuSetupStateBase, Store {
     });
   }
 
+  late final _$isAutoUpdateEnabledAtom =
+      Atom(name: 'DfuSetupStateBase.isAutoUpdateEnabled', context: context);
+
+  @override
+  bool get isAutoUpdateEnabled {
+    _$isAutoUpdateEnabledAtom.reportRead();
+    return super.isAutoUpdateEnabled;
+  }
+
+  @override
+  set isAutoUpdateEnabled(bool value) {
+    _$isAutoUpdateEnabledAtom.reportWrite(value, super.isAutoUpdateEnabled, () {
+      super.isAutoUpdateEnabled = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
@@ -252,7 +268,8 @@ autoEntryDeviceName: ${autoEntryDeviceName},
 autoDfuDeviceName: ${autoDfuDeviceName},
 history: ${history},
 updatedMacs: ${updatedMacs},
-isAutoScanEnabled: ${isAutoScanEnabled}
+isAutoScanEnabled: ${isAutoScanEnabled},
+isAutoUpdateEnabled: ${isAutoUpdateEnabled}
     ''';
   }
 }

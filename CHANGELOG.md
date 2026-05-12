@@ -1,3 +1,8 @@
+## 0.0.23
+* Add separate Auto Update toggle.
+* Fix FilePicker compilation error.
+* Refine auto scan and update logic.
+
 ## 0.0.22
 * Fix FilePicker usage and dependency constraints.
 * Fix analysis warnings.

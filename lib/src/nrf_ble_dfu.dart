@@ -285,7 +285,7 @@ class NrfBleDfu {
   //////////////////////////////////////////
 
   Future<void> selectDfu() async {
-    final result = await fp.FilePicker.platform.pickFiles();
+    final result = await fp.FilePicker.pickFiles();
     file.path = result?.paths.singleOrNull;
     if (file.path == null) return;
     savePresets();
@@ -552,6 +552,9 @@ class NrfBleDfu {
         .removeWhere((d) => setup.updatedMacs.contains(d.remoteId.str));
     setup.autoDfuTargets.removeAll(setup.autoDfuFinished);
 
+    // 2. Perform Update if enabled
+    if (!setup.isAutoUpdateEnabled) return;
+
     late BluetoothDevice entry;
     while (setup.autoDfuTargets.isNotEmpty) {
       entry = setup.autoDfuTargets.first;
@@ -609,19 +612,35 @@ class NrfBleDfu {
   void toggleAutoScan(bool enable) {
     runInAction(() {
       setup.isAutoScanEnabled = enable;
-      if (enable) {
-        _startAutoScan();
-      } else {
-        _autoScanTimer?.cancel();
-        _autoScanTimer = null;
-      }
+      _checkAutoScanLoop();
     });
+  }
+
+  void toggleAutoUpdate(bool enable) {
+    runInAction(() {
+      setup.isAutoUpdateEnabled = enable;
+      _checkAutoScanLoop();
+    });
+  }
+
+  void _checkAutoScanLoop() {
+    final shouldRun = setup.isAutoScanEnabled || setup.isAutoUpdateEnabled;
+    if (shouldRun) {
+      _startAutoScan();
+    } else {
+      _stopAutoScan();
+    }
+  }
+
+  void _stopAutoScan() {
+    _autoScanTimer?.cancel();
+    _autoScanTimer = null;
   }
 
   void _startAutoScan() {
     _autoScanTimer?.cancel();
     _autoScanTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-      if (!setup.isAutoScanEnabled) {
+      if (!setup.isAutoScanEnabled && !setup.isAutoUpdateEnabled) {
         timer.cancel();
         return;
       }

@@ -48,4 +48,7 @@ abstract class DfuSetupStateBase with Store {
 
   @observable
   bool isAutoScanEnabled = false;
+
+  @observable
+  bool isAutoUpdateEnabled = false;
 }

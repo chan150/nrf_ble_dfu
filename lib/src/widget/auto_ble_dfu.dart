@@ -33,6 +33,14 @@ class AutoBleDfu extends StatelessObserverWidget {
                   onChanged: (value) => NrfBleDfu().toggleAutoScan(value),
                 );
               }),
+              const SizedBox(width: 8),
+              const Text('Auto Update'),
+              Observer(builder: (context) {
+                return Switch(
+                  value: NrfBleDfu().setup.isAutoUpdateEnabled,
+                  onChanged: (value) => NrfBleDfu().toggleAutoUpdate(value),
+                );
+              }),
             ],
           ),
           const SizedBox(height: 8),
