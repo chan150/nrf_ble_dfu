@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import '../nrf_ble_dfu.dart';
+import '../database/log_entry.dart';
 
 
 class LogConsole extends StatefulWidget {
@@ -74,7 +75,7 @@ class _LogConsoleState extends State<LogConsole> {
                 final logs = dfu.setup.logs;
                 
                 // Auto scroll on new logs
-                WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+                WidgetsBinding.instance?.addPostFrameCallback((_) => _scrollToBottom());
 
                 return ListView.builder(
                   controller: _scrollController,

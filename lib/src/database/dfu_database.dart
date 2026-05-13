@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import '../state/dfu_history_entry.dart';
-import 'log_entry.dart';
+import '../nrf_ble_dfu.dart';
+import '../database/log_entry.dart';
 
 class DfuDatabase {
   static final DfuDatabase _instance = DfuDatabase._internal();
@@ -14,6 +17,7 @@ class DfuDatabase {
   Future<Database> get database async {
     if (_db != null) return _db!;
     _db = await _initDb();
+    if (_db == null) throw Exception('Failed to initialize database');
     return _db!;
   }
 
@@ -23,7 +27,14 @@ class DfuDatabase {
       databaseFactory = databaseFactoryFfi;
     }
 
-    final dbPath = await getDatabasesPath();
+    String dbPath;
+    try {
+      dbPath = await getDatabasesPath();
+    } catch (e) {
+      // Fallback for environments where getDatabasesPath() might fail
+      final directory = await getApplicationDocumentsDirectory();
+      dbPath = directory.path;
+    }
     final path = join(dbPath, 'nrf_ble_dfu.db');
 
     return await openDatabase(
@@ -66,14 +77,17 @@ class DfuDatabase {
 
   Future<List<DfuHistoryEntry>> getHistory() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('history', orderBy: 'timestamp DESC');
-    return maps.map((m) => DfuHistoryEntry(
-      remoteId: m['remoteId'],
-      deviceName: m['deviceName'],
-      status: m['status'],
-      timestamp: DateTime.parse(m['timestamp']),
-      note: m['note'],
-    )).toList();
+    final List<Map<String, dynamic>> maps =
+        await db.query('history', orderBy: 'timestamp DESC');
+    return maps
+        .map((m) => DfuHistoryEntry(
+              remoteId: m['remoteId'],
+              deviceName: m['deviceName'],
+              status: m['status'],
+              timestamp: DateTime.parse(m['timestamp']),
+              note: m['note'],
+            ))
+        .toList();
   }
 
   Future<void> clearHistory() async {
@@ -89,11 +103,8 @@ class DfuDatabase {
 
   Future<List<LogEntry>> getLogs({int limit = 100}) async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'logs', 
-      orderBy: 'timestamp DESC', 
-      limit: limit
-    );
+    final List<Map<String, dynamic>> maps =
+        await db.query('logs', orderBy: 'timestamp DESC', limit: limit);
     return maps.map((m) => LogEntry.fromMap(m)).toList();
   }
 

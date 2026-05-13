@@ -3,7 +3,6 @@ import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NrfBleDfu().waitForCompletion();
   runApp(const MyApp());
 }
 
@@ -27,24 +26,47 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool _showLogs = true;
+
   @override
   Widget build(BuildContext context) {
-    const div = Divider(height: 0);
-    const children = [
-      DfuFileSelect(),
-      BleEntrySetup(),
-      AutoBleDfu(),
-      BleConnectedDevice(),
-      DfuProgress(),
-      BleDeviceSelect(),
-    ];
-    return SafeArea(
-      child: Scaffold(
-        body: ListView.separated(
-          itemCount: children.length,
-          separatorBuilder: (_, __) => div,
-          itemBuilder: (context, index) => children[index],
-        ),
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => setState(() => _showLogs = !_showLogs),
+        mini: true,
+        child: Icon(_showLogs ? Icons.terminal_outlined : Icons.terminal),
+      ),
+      body: Row(
+        children: [
+          // Left: Controls
+          Expanded(
+            flex: 3,
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                DfuFileSelect(),
+                const Divider(height: 32),
+                BleEntrySetup(),
+                const Divider(height: 32),
+                AutoBleDfu(),
+                const Divider(height: 32),
+                BleConnectedDevice(),
+                const Divider(height: 32),
+                DfuProgress(),
+                const Divider(height: 32),
+                BleDeviceSelect(),
+              ],
+            ),
+          ),
+          if (_showLogs) ...[
+            const VerticalDivider(width: 1),
+            // Right: Logs
+            SizedBox(
+              width: 350,
+              child: LogConsole(),
+            ),
+          ],
+        ],
       ),
     );
   }

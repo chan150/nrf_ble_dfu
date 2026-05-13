@@ -30,8 +30,14 @@ class NrfBleDfu {
   }
 
   Future<void> _init() async {
-    await initializeDatabase();
-    await initializeSharedPreference();
+    try {
+      await initializeDatabase();
+      await initializeSharedPreference();
+    } catch (e) {
+      log('Initialization error: $e', level: 'ERROR');
+      // Ensure app still starts even if DB/Prefs fail
+      await _done();
+    }
   }
 
   Future<void> initializeDatabase() async {
