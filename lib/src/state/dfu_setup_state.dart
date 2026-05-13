@@ -1,6 +1,7 @@
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'dfu_history_entry.dart';
+import '../database/log_entry.dart';
 
 part 'dfu_setup_state.g.dart';
 
@@ -42,6 +43,12 @@ abstract class DfuSetupStateBase with Store {
 
   @observable
   ObservableList<DfuHistoryEntry> history = ObservableList();
+
+  @observable
+  ObservableList<LogEntry> logs = ObservableList();
+
+  @observable
+  int maxLogs = 200;
 
   @observable
   ObservableSet<String> updatedMacs = ObservableSet();

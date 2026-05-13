@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -15,6 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'state/state.dart';
 import 'enum/enum.dart';
 import 'extension/extension.dart';
+import 'database/dfu_database.dart';
+import 'database/log_entry.dart';
 
 export 'dart:async';
 export 'dart:io';
@@ -25,8 +26,26 @@ class NrfBleDfu {
   static final _instance = NrfBleDfu._internal();
 
   NrfBleDfu._internal() {
-    initializeSharedPreference();
-    // FlutterBluePlus.setLogLevel(LogLevel.error);
+    _init();
+  }
+
+  Future<void> _init() async {
+    await initializeDatabase();
+    await initializeSharedPreference();
+  }
+
+  Future<void> initializeDatabase() async {
+    await DfuDatabase().database;
+    final history = await DfuDatabase().getHistory();
+    final logs = await DfuDatabase().getLogs();
+    runInAction(() {
+      setup.history.clear();
+      setup.history.addAll(history);
+      setup.logs.clear();
+      setup.logs.addAll(logs.reversed);
+      setup.updatedMacs.clear();
+      setup.updatedMacs.addAll(history.map((e) => e.remoteId));
+    });
   }
 
   late SharedPreferences prefs;
@@ -113,8 +132,7 @@ class NrfBleDfu {
   }
 
   void saveHistory() {
-    final container = DfuHistoryContainer(history: setup.history);
-    prefs.setString('dfu_history', jsonEncode(container.toJson()));
+    // Deprecated: history is now managed by SQLite
   }
 
   void addHistoryEntry(
@@ -134,8 +152,23 @@ class NrfBleDfu {
       if (status == 'success') {
         setup.updatedMacs.add(remoteId);
       }
-      saveHistory();
+      DfuDatabase().insertHistory(entry);
     });
+  }
+
+  void log(String message, {String level = 'INFO'}) {
+    final entry = LogEntry(
+      timestamp: DateTime.now(),
+      level: level,
+      message: message,
+    );
+    runInAction(() {
+      setup.logs.add(entry);
+      if (setup.logs.length > setup.maxLogs) {
+        setup.logs.removeAt(0);
+      }
+    });
+    DfuDatabase().insertLog(entry);
   }
 
   void retryDfu(String remoteId) {

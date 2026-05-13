@@ -204,6 +204,38 @@ mixin _$DfuSetupState on DfuSetupStateBase, Store {
     });
   }
 
+  late final _$logsAtom =
+      Atom(name: 'DfuSetupStateBase.logs', context: context);
+
+  @override
+  ObservableList<LogEntry> get logs {
+    _$logsAtom.reportRead();
+    return super.logs;
+  }
+
+  @override
+  set logs(ObservableList<LogEntry> value) {
+    _$logsAtom.reportWrite(value, super.logs, () {
+      super.logs = value;
+    });
+  }
+
+  late final _$maxLogsAtom =
+      Atom(name: 'DfuSetupStateBase.maxLogs', context: context);
+
+  @override
+  int get maxLogs {
+    _$maxLogsAtom.reportRead();
+    return super.maxLogs;
+  }
+
+  @override
+  set maxLogs(int value) {
+    _$maxLogsAtom.reportWrite(value, super.maxLogs, () {
+      super.maxLogs = value;
+    });
+  }
+
   late final _$updatedMacsAtom =
       Atom(name: 'DfuSetupStateBase.updatedMacs', context: context);
 
@@ -267,6 +299,8 @@ enableAutoDfuProcess: ${enableAutoDfuProcess},
 autoEntryDeviceName: ${autoEntryDeviceName},
 autoDfuDeviceName: ${autoDfuDeviceName},
 history: ${history},
+logs: ${logs},
+maxLogs: ${maxLogs},
 updatedMacs: ${updatedMacs},
 isAutoScanEnabled: ${isAutoScanEnabled},
 isAutoUpdateEnabled: ${isAutoUpdateEnabled}

@@ -1,3 +1,7 @@
+## 0.0.24
+* Implement SQLite for update history and logs.
+* Add Log Console UI for real-time monitoring.
+
 ## 0.0.23
 * Add separate Auto Update toggle.
 * Fix FilePicker compilation error.
