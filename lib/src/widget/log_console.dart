@@ -77,20 +77,20 @@ class _LogConsoleState extends State<LogConsole> {
                 // Auto scroll on new logs
                 WidgetsBinding.instance?.addPostFrameCallback((_) => _scrollToBottom());
 
-                return ListView.builder(
+                return SingleChildScrollView(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(8),
-                  itemCount: logs.length,
-                  itemBuilder: (context, index) {
-                    final log = logs[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: SelectableText.rich(
-                        TextSpan(
+                  child: SelectableText.rich(
+                    TextSpan(
+                      children: logs.map((log) {
+                        return TextSpan(
                           children: [
                             TextSpan(
                               text: '[${log.formattedTimestamp}] ',
-                              style: const TextStyle(color: Colors.blueGrey, fontSize: 11, fontFamily: 'monospace'),
+                              style: const TextStyle(
+                                  color: Colors.blueGrey,
+                                  fontSize: 11,
+                                  fontFamily: 'monospace'),
                             ),
                             TextSpan(
                               text: '${log.level}: ',
@@ -103,13 +103,17 @@ class _LogConsoleState extends State<LogConsole> {
                             ),
                             TextSpan(
                               text: log.message,
-                              style: const TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace'),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontFamily: 'monospace'),
                             ),
+                            const TextSpan(text: '\n'),
                           ],
-                        ),
-                      ),
-                    );
-                  },
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 );
               },
             ),

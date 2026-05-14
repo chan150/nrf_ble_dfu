@@ -62,6 +62,7 @@ class NrfBleDfu {
   final progress = DfuProgressState();
   final presets = ObservableList<DfuPreset>();
   final selectedPresetIndex = Observable<int?>(null);
+  final Map<String, DateTime> _failedCooldown = {};
 
   Future<void> initializeSharedPreference() async {
     prefs = await SharedPreferences.getInstance();
@@ -184,6 +185,16 @@ class NrfBleDfu {
       setup.autoDfuFinished.removeWhere((d) => d.remoteId.str == remoteId);
       saveHistory();
     });
+  }
+
+  Future<void> clearHistory() async {
+    await DfuDatabase().clearHistory();
+    runInAction(() {
+      setup.history.clear();
+      setup.updatedMacs.clear();
+      setup.autoDfuFinished.clear();
+    });
+    log('All history cleared.');
   }
 
   Future<void> waitForCompletion() async {
@@ -560,7 +571,16 @@ class NrfBleDfu {
 
   Future<void> enterDfuMode(BluetoothDevice device) async {
     final cp = setup.entryControlPoint;
-    final services = await device.discoverServices();
+    
+    // Retry discoverServices if it fails due to transient disconnection
+    List<BluetoothService> services;
+    try {
+      services = await device.discoverServices();
+    } catch (e) {
+      log('Discovery failed, retrying connection once...', level: 'WARNING');
+      await device.connect(license: License.free, timeout: const Duration(seconds: 3));
+      services = await device.discoverServices();
+    }
 
     for (final s in services) {
       for (final c in s.characteristics) {
@@ -570,79 +590,114 @@ class NrfBleDfu {
         }
       }
     }
-    entry.controlPoint?.write(setup.entryPacket);
+    
+    if (entry.controlPoint == null) throw Exception('Entry control point not found');
+    await entry.controlPoint!.write(setup.entryPacket);
   }
+
+  StreamSubscription<List<ScanResult>>? _scanSubscription;
+  bool _isAutoDfuRunning = false;
 
   Future<void> autoDfu() async {
     if (file.datPath == null) throw Exception('dat file not found');
     if (file.binPath == null) throw Exception('bin file not found');
-    if (!FlutterBluePlus.isScanningNow) await FlutterBluePlus.startScan();
-    if (!setup.enableTargetEntryProcess) setup.autoDfuTargets.clear();
-    final scanResults = await FlutterBluePlus.scanResults.first;
-    setup.autoDfuTargets.addAll([
-      ...scanResults
-          .where((s) =>
-              RegExp(autoEntryDeviceName).hasMatch(s.device.platformName))
-          .map((e) => e.device)
-    ]);
+    if (_isAutoDfuRunning) return;
 
-    // Use persistent updatedMacs to filter
-    setup.autoDfuTargets
-        .removeWhere((d) => setup.updatedMacs.contains(d.remoteId.str));
-    setup.autoDfuTargets.removeAll(setup.autoDfuFinished);
+    if (!FlutterBluePlus.isScanningNow) {
+      await FlutterBluePlus.startScan(
+        timeout: const Duration(seconds: 15),
+        continuousUpdates: true,
+      );
+    }
+  }
 
-    // 2. Perform Update if enabled
+  Future<void> _processAutoDfu(List<ScanResult> results) async {
+    if (_isAutoDfuRunning) return;
     if (!setup.isAutoUpdateEnabled) return;
 
-    late BluetoothDevice entry;
-    while (setup.autoDfuTargets.isNotEmpty) {
-      entry = setup.autoDfuTargets.first;
-      final remoteId = entry.remoteId.str;
-      final deviceName = entry.platformName;
+    final targets = results
+        .where((s) => RegExp(autoEntryDeviceName).hasMatch(s.device.platformName))
+        .where((s) => !setup.updatedMacs.contains(s.device.remoteId.str))
+        .where((s) => !setup.autoDfuFinished.any((d) => d.remoteId == s.device.remoteId))
+        .where((s) {
+          final cooldown = _failedCooldown[s.device.remoteId.str];
+          return cooldown == null || DateTime.now().isAfter(cooldown);
+        })
+        .map((s) => s.device)
+        .toList();
 
+    if (targets.isEmpty) return;
+
+    _isAutoDfuRunning = true;
+    final entry = targets.first;
+    final remoteId = entry.remoteId.str;
+    final deviceName = entry.platformName;
+
+    try {
+      log('Target found: $deviceName ($remoteId). Connecting...');
+      // Removed stopScan and delay to speed up connection on Windows
+      await entry.connect(license: License.free, timeout: const Duration(seconds: 3));
+      
+      // Request MTU to stabilize connection
       try {
-        await entry.connect(license: License.free);
-        await enterDfuMode(entry);
+        await entry.requestMtu(247);
+      } catch (_) {}
 
-        // Wait for device to reappear in DFU mode
-        BluetoothDevice? dfuDevice;
-        final timeout = DateTime.now().add(const Duration(seconds: 15));
-        while (DateTime.now().isBefore(timeout)) {
-          final results = await FlutterBluePlus.scanResults.first;
-          dfuDevice = results
-              .where((s) =>
-                  RegExp(autoDfuDeviceName).hasMatch(s.device.platformName))
-              .singleOrNull
-              ?.device;
-          if (dfuDevice != null) break;
-          await Future.delayed(const Duration(milliseconds: 500));
-        }
+      log('Entering DFU mode...');
+      await enterDfuMode(entry);
 
-        if (dfuDevice == null) {
-          throw Exception('DFU device not found after entry');
-        }
-
-        await dfuDevice.connect(license: License.free);
-        await updateFirmware(dfuDevice);
-
-        addHistoryEntry(
-          remoteId: remoteId,
-          deviceName: deviceName,
-          status: 'success',
-        );
-      } catch (e) {
-        log('Auto DFU error: $e');
-        addHistoryEntry(
-          remoteId: remoteId,
-          deviceName: deviceName,
-          status: 'failed',
-          note: e.toString(),
-        );
-        break;
+      // Wait for device to reappear in DFU mode
+      log('Waiting for $autoDfuDeviceName...');
+      BluetoothDevice? dfuDevice;
+      final timeout = DateTime.now().add(const Duration(seconds: 15));
+      
+      // Start scan again to find DFU device
+      await FlutterBluePlus.startScan(continuousUpdates: true);
+      
+      while (DateTime.now().isBefore(timeout)) {
+        final currentResults = await FlutterBluePlus.scanResults.first;
+        dfuDevice = currentResults
+            .where((s) => RegExp(autoDfuDeviceName).hasMatch(s.device.platformName))
+            .where((s) => s.device.remoteId == entry.remoteId || s.device.platformName == autoDfuDeviceName)
+            .singleOrNull
+            ?.device;
+        if (dfuDevice != null) break;
+        await Future.delayed(const Duration(milliseconds: 200));
       }
 
-      setup.autoDfuTargets.remove(entry);
+      if (dfuDevice == null) {
+        throw Exception('DFU device not found after entry');
+      }
+
+      log('DFU device found. Connecting for firmware update...');
+      await dfuDevice.connect(license: License.free, timeout: const Duration(seconds: 3));
+      try {
+        await dfuDevice.requestMtu(247);
+      } catch (_) {}
+      
+      await updateFirmware(dfuDevice);
+
+      addHistoryEntry(
+        remoteId: remoteId,
+        deviceName: deviceName,
+        status: 'success',
+      );
       setup.autoDfuFinished.add(entry);
+    } catch (e) {
+      log('Auto DFU error: $e', level: 'ERROR');
+      _failedCooldown[remoteId] = DateTime.now().add(const Duration(seconds: 5));
+      addHistoryEntry(
+        remoteId: remoteId,
+        deviceName: deviceName,
+        status: 'failed',
+        note: e.toString(),
+      );
+    } finally {
+      _isAutoDfuRunning = false;
+      // Resume scan if still enabled
+      if (setup.isAutoScanEnabled || setup.isAutoUpdateEnabled) {
+        _startAutoScan();
+      }
     }
   }
 
@@ -672,21 +727,46 @@ class NrfBleDfu {
   }
 
   void _stopAutoScan() {
+    _scanSubscription?.cancel();
+    _scanSubscription = null;
     _autoScanTimer?.cancel();
     _autoScanTimer = null;
   }
 
   void _startAutoScan() {
-    _autoScanTimer?.cancel();
-    _autoScanTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-      if (!setup.isAutoScanEnabled && !setup.isAutoUpdateEnabled) {
-        timer.cancel();
-        return;
-      }
-      try {
-        await autoDfu();
-      } catch (e) {
-        log('Auto scan loop error: $e');
+    _stopAutoScan();
+    if (!setup.isAutoScanEnabled && !setup.isAutoUpdateEnabled) return;
+
+    // Start aggressive scan
+    FlutterBluePlus.startScan(continuousUpdates: true);
+
+    // Reactive processing: act immediately when results change
+    _scanSubscription = FlutterBluePlus.scanResults.listen((results) {
+      runInAction(() {
+        // Update UI target list
+        final filtered = results
+            .where((s) => RegExp(autoEntryDeviceName).hasMatch(s.device.platformName))
+            .where((s) => !setup.updatedMacs.contains(s.device.remoteId.str))
+            .where((s) => !setup.autoDfuFinished.any((d) => d.remoteId == s.device.remoteId))
+            .where((s) {
+              final cooldown = _failedCooldown[s.device.remoteId.str];
+              return cooldown == null || DateTime.now().isAfter(cooldown);
+            })
+            .map((s) => s.device)
+            .toList();
+        
+        setup.autoDfuTargets.clear();
+        setup.autoDfuTargets.addAll(filtered);
+      });
+
+      // Trigger DFU processing
+      _processAutoDfu(results);
+    });
+
+    // Fallback timer to ensure scan stays alive or triggers periodically if stream is quiet
+    _autoScanTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (!FlutterBluePlus.isScanningNow) {
+        FlutterBluePlus.startScan(continuousUpdates: true);
       }
     });
   }

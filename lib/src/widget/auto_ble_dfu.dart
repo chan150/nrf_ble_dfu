@@ -12,112 +12,189 @@ class AutoBleDfu extends StatelessObserverWidget {
         .setup
         .autoDfuTargets
         .difference(NrfBleDfu().setup.autoDfuFinished);
-    
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header row: title + toggles (compact)
           Row(
             children: [
-              const Icon(Icons.auto_fix_high, color: Colors.blue),
-              const SizedBox(width: 8),
+              const Icon(Icons.auto_fix_high, color: Colors.blue, size: 16),
+              const SizedBox(width: 6),
               const Text(
-                'Auto DFU Manager',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                'Auto DFU',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
-              const Text('Auto Scan'),
+              const Text('Scan', style: TextStyle(fontSize: 12)),
               Observer(builder: (context) {
-                return Switch(
-                  value: NrfBleDfu().setup.isAutoScanEnabled,
-                  onChanged: (value) => NrfBleDfu().toggleAutoScan(value),
+                return Transform.scale(
+                  scale: 0.8,
+                  child: Switch(
+                    value: NrfBleDfu().setup.isAutoScanEnabled,
+                    onChanged: (value) => NrfBleDfu().toggleAutoScan(value),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                 );
               }),
-              const SizedBox(width: 8),
-              const Text('Auto Update'),
+              const SizedBox(width: 4),
+              const Text('Update', style: TextStyle(fontSize: 12)),
               Observer(builder: (context) {
-                return Switch(
-                  value: NrfBleDfu().setup.isAutoUpdateEnabled,
-                  onChanged: (value) => NrfBleDfu().toggleAutoUpdate(value),
+                return Transform.scale(
+                  scale: 0.8,
+                  child: Switch(
+                    value: NrfBleDfu().setup.isAutoUpdateEnabled,
+                    onChanged: (value) => NrfBleDfu().toggleAutoUpdate(value),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                 );
               }),
             ],
           ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
+          const SizedBox(height: 6),
+          // Action buttons (icon-only, compact)
+          Row(
             children: [
-              ElevatedButton.icon(
+              _CompactButton(
+                icon: Icons.play_arrow,
+                label: 'Run Once',
+                color: Colors.blue,
                 onPressed: NrfBleDfu().autoDfu,
-                icon: const Icon(Icons.play_arrow),
-                label: const Text('Run Once'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+              ),
+              const SizedBox(width: 8),
+              _CompactButton(
+                icon: Icons.refresh,
+                label: 'Refresh',
+                onPressed: NrfBleDfu().refresh,
+              ),
+              const SizedBox(width: 8),
+              _CompactButton(
+                icon: Icons.history,
+                label: 'History',
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => const DfuHistoryDialog(),
                 ),
               ),
-              OutlinedButton.icon(
-                onPressed: NrfBleDfu().refresh,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Refresh'),
-              ),
-              OutlinedButton.icon(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => const DfuHistoryDialog(),
-                  );
-                },
-                icon: const Icon(Icons.history),
-                label: const Text('History'),
-              ),
             ],
           ),
-          const SizedBox(height: 12),
+          // Waiting queue (collapsible style)
           if (diff.isNotEmpty) ...[
-            const Text('Waiting Queue:',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 4,
-              children: [
-                for (final item in diff)
-                  Chip(
-                    label: Text(
-                      '${item.platformName} [${item.remoteId}]',
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                    backgroundColor: Colors.orange.withOpacity(0.1),
-                    side: BorderSide.none,
-                    visualDensity: VisualDensity.compact,
-                  ),
-              ],
+            const SizedBox(height: 6),
+            _StatusChips(
+              label: 'Queue',
+              items: diff.map((e) => e.platformName).toList(),
+              color: Colors.orange,
             ),
-            const SizedBox(height: 8),
           ],
           if (NrfBleDfu().setup.autoDfuFinished.isNotEmpty) ...[
-            const Text('Session Finished:',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
             const SizedBox(height: 4),
-            Wrap(
-              spacing: 4,
-              children: [
-                for (final item in NrfBleDfu().setup.autoDfuFinished)
-                  Chip(
-                    label: Text(
-                      '${item.platformName} [${item.remoteId}]',
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                    backgroundColor: Colors.green.withOpacity(0.1),
-                    side: BorderSide.none,
-                    visualDensity: VisualDensity.compact,
-                  ),
-              ],
+            _StatusChips(
+              label: 'Done',
+              items: NrfBleDfu().setup.autoDfuFinished.map((e) => e.platformName).toList(),
+              color: Colors.green,
             ),
           ],
         ],
       ),
+    );
+  }
+}
+
+class _CompactButton extends StatelessWidget {
+  const _CompactButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final isFilled = color != null;
+    return SizedBox(
+      height: 32,
+      child: isFilled
+          ? ElevatedButton.icon(
+              onPressed: onPressed,
+              icon: Icon(icon, size: 14),
+              label: Text(label, style: const TextStyle(fontSize: 12)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: color,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            )
+          : OutlinedButton.icon(
+              onPressed: onPressed,
+              icon: Icon(icon, size: 14),
+              label: Text(label, style: const TextStyle(fontSize: 12)),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+    );
+  }
+}
+
+class _StatusChips extends StatelessWidget {
+  const _StatusChips({
+    required this.label,
+    required this.items,
+    required this.color,
+  });
+
+  final String label;
+  final List<String> items;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Wrap(
+            spacing: 4,
+            runSpacing: 2,
+            children: items
+                .map((name) => Chip(
+                      label: Text(name, style: const TextStyle(fontSize: 10)),
+                      backgroundColor: color.withOpacity(0.08),
+                      side: BorderSide.none,
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                    ))
+                .toList(),
+          ),
+        ),
+      ],
     );
   }
 }

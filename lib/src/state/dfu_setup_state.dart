@@ -58,4 +58,12 @@ abstract class DfuSetupStateBase with Store {
 
   @observable
   bool isAutoUpdateEnabled = false;
+
+  @computed
+  List<DfuHistoryEntry> get successHistory =>
+      history.where((e) => e.status == 'success').toList();
+
+  @computed
+  List<DfuHistoryEntry> get failureHistory =>
+      history.where((e) => e.status == 'failed').toList();
 }
