@@ -1,13 +1,21 @@
-import 'package:mobx/mobx.dart';
+import 'package:flutter/foundation.dart';
 
-part 'dfu_progress_state.g.dart';
-
-class DfuProgressState = DfuProgressStateBase with _$DfuProgressState;
-
-abstract class DfuProgressStateBase with Store {
-  @observable
+class DfuProgressState extends ChangeNotifier {
   int? fileSize;
-
-  @observable
   int? completedSize;
+
+  void update({
+    int? fileSize,
+    int? completedSize,
+  }) {
+    this.fileSize = fileSize ?? this.fileSize;
+    this.completedSize = completedSize ?? this.completedSize;
+    notifyListeners();
+  }
+
+  void reset() {
+    fileSize = null;
+    completedSize = null;
+    notifyListeners();
+  }
 }

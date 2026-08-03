@@ -1,5 +1,3 @@
-// ignore: lines_longer_than_80_chars
-
 enum NrfDfuObjType {
   invalid(description: 'NRF_DFU_OBJ_TYPE_INVALID'),
   command(description: 'NRF_DFU_OBJ_TYPE_COMMAND'),
@@ -26,15 +24,12 @@ enum NrfDfuTransferType {
 enum NrfDfuOp {
   protocolVersion(code: 0x00, description: 'NRF_DFU_OP_PROTOCOL_VERSION'),
   objectCreate(code: 0x01, description: 'NRF_DFU_OP_OBJECT_CREATE'),
-  receiptNotifSet(
-      code: 0x02, description: 'NRF_DFU_OP_RECEIPT_NOTIF_SET'),
+  receiptNotifSet(code: 0x02, description: 'NRF_DFU_OP_RECEIPT_NOTIF_SET'),
   crcGet(code: 0x03, description: 'NRF_DFU_OP_CRC_GET'),
-  objectExecute(
-      code: 0x04, description: 'NRF_DFU_OP_OBJECT_EXECUTE'),
+  objectExecute(code: 0x04, description: 'NRF_DFU_OP_OBJECT_EXECUTE'),
   objectSelect(code: 0x06, description: 'NRF_DFU_OP_OBJECT_SELECT'),
   mtuGet(code: 0x07, description: 'NRF_DFU_OP_MTU_GET'),
-  objectWrite(
-      code: 0x08, description: 'NRF_DFU_OP_OBJECT_WRITE'),
+  objectWrite(code: 0x08, description: 'NRF_DFU_OP_OBJECT_WRITE'),
   ping(code: 0x09, description: 'NRF_DFU_OP_PING'),
   hardwareVersion(code: 0x0a, description: 'NRF_DFU_OP_HARDWARE_VERSION'),
   firmwareVersion(code: 0x0b, description: 'NRF_DFU_OP_FIRMWARE_VERSION'),

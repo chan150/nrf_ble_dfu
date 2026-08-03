@@ -1,32 +1,35 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:mobx/mobx.dart';
 
-part 'ble_device_state.g.dart';
-
-class BleDeviceState = BleDeviceStateBase with _$BleDeviceState;
-
-abstract class BleDeviceStateBase with Store {
-  @observable
+class BleDeviceState extends ChangeNotifier {
   BluetoothDevice? device;
-
-  @observable
   BluetoothCharacteristic? controlPoint;
-
-  @observable
   BluetoothCharacteristic? dataPoint;
-
-  @observable
   bool isConnected = false;
-
-  @observable
   bool isTimeout = false;
 
-  @action
+  void update({
+    BluetoothDevice? device,
+    BluetoothCharacteristic? controlPoint,
+    BluetoothCharacteristic? dataPoint,
+    bool? isConnected,
+    bool? isTimeout,
+  }) {
+    this.device = device ?? this.device;
+    this.controlPoint = controlPoint ?? this.controlPoint;
+    this.dataPoint = dataPoint ?? this.dataPoint;
+    this.isConnected = isConnected ?? this.isConnected;
+    this.isTimeout = isTimeout ?? this.isTimeout;
+    notifyListeners();
+  }
+
   void reset() {
     device?.disconnect();
     device = null;
     controlPoint = null;
+    dataPoint = null;
     isConnected = false;
     isTimeout = false;
+    notifyListeners();
   }
 }

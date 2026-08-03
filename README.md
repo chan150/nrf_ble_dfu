@@ -1,28 +1,40 @@
-## NRF BLE DFU
-![Example](https://github.com/chan150/nrf_ble_dfu/blob/master/doc/fin.png)
+# NRF BLE DFU (Pure Dart Core)
 
-The Nordic DFU over BLE library helps enable firmware updates of BLE-connected devices over Bluetooth Low Energy (BLE) in a universal way across different platforms like Windows, Android, iOS, Linux and macOS.
+Nordic BLE DFU (Device Firmware Update) protocol implementation in pure Dart. This is a platform-agnostic core library containing only DFU transception logic, protocol states, and abstract Bluetooth low energy interfaces.
 
-It provides an implementation of the Nordic DFU protocol which allows performing firmware updates and installing new firmware binaries on BLE peripherals compatible with this protocol. The library handles the low-level BLE communication and data transfer needed for the firmware update process.
+If you are developing a Flutter application and need ready-to-use UI widgets, state-managed components, SQLite logs/history databases, and automated updates, please use [nrf_ble_dfu_ui](packages/nrf_ble_dfu_ui/README.md).
 
-Developers can use this library to add over-the-air firmware updating capabilities to their BLE applications and devices in a platform-independent manner. The same application code for initiating and performing a DFU process can work across multiple operating systems without changes.
+## Installation
 
-This makes it very convenient for developers to roll out firmware updates to devices already in the field just by having them connect over BLE. End users also get an easy way to update devices without needing special tools or cables.
+Add `nrf_ble_dfu` to your `pubspec.yaml`:
+```yaml
+dependencies:
+  nrf_ble_dfu: ^1.0.0
+```
 
-The Nordic DFU over BLE library abstracts away the differences in BLE implementations and provides a common API for firmware updates, enabling seamless development of DFU-capable products for all major platforms.
+## Decoupled Architecture
 
-## Example
-[example/lib/main.dart](https://github.com/chan150/nrf_ble_dfu/blob/master/example/lib/main.dart)
+The repository is structured as a multi-package workspace:
+- **`nrf_ble_dfu` (Root)**: The core Dart package, containing the protocol transception, state machines, and interfaces.
+- **`nrf_ble_dfu_ui` (`packages/nrf_ble_dfu_ui`)**: The Flutter UI widget wrapper, implementing the SQLite database logger and SharedPreferences preset management.
+
+---
+
+## Example (Flutter UI Integration)
+Make sure to initialize the library with the Flutter UI package at app startup:
 ```dart
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
+import 'package:nrf_ble_dfu_ui/nrf_ble_dfu_ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NrfBleDfu().waitForCompletion();
+  
+  // Required: Bind the Flutter Bluetooth Low Energy adapters and UI managers
+  await initNrfBleDfuForFlutter();
+  
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -30,39 +42,30 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      debugShowCheckedModeBanner: false,
       home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
   Widget build(BuildContext context) {
-    const div = Divider(height: 0);
-    return SafeArea(
-      child: Scaffold(
-        body: ListView(
-          children: const [
-            DfuFileSelect(),
-            div,
-            BleEntrySetup(),
-            div,
-            AutoBleDfu(),
-            div,
-            BleConnectedDevice(),
-            DfuProgress(),
-            div,
-            BleDeviceSelect(),
-          ],
-        ),
+    return Scaffold(
+      body: ListView(
+        children: const [
+          DfuFileSelect(),
+          Divider(),
+          BleEntrySetup(),
+          Divider(),
+          AutoBleDfu(),
+          Divider(),
+          BleConnectedDevice(),
+          DfuProgress(),
+          Divider(),
+          BleDeviceSelect(),
+        ],
       ),
     );
   }

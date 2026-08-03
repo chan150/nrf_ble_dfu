@@ -1,4 +1,3 @@
-
 class DfuPreset {
   String name;
   String entryUuid;

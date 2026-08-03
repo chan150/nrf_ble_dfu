@@ -1,3 +1,8 @@
+## 1.0.0
+* **Breaking Change**: Restructured project into a multi-package repository.
+* **Breaking Change**: The root package `nrf_ble_dfu` is now a pure Dart core package (no longer depends on Flutter SDK).
+* **Breaking Change**: Relocated all UI widgets, FBP adapters, SQLite persistence, and SharedPreferences storage to the new Flutter package `packages/nrf_ble_dfu_ui`.
+
 ## 0.0.24
 * Implement SQLite for update history and logs.
 * Add Log Console UI for real-time monitoring.

@@ -1,69 +1,38 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:mobx/mobx.dart';
 import 'dfu_history_entry.dart';
-import '../database/log_entry.dart';
+import 'log_entry.dart';
 
-part 'dfu_setup_state.g.dart';
-
-class DfuSetupState = DfuSetupStateBase with _$DfuSetupState;
-
-abstract class DfuSetupStateBase with Store {
-  @observable
-  ObservableList<int> entryPacket = ObservableList.of([0x4E, 0x45, 0x01, 0xFA]);
-
-  @observable
+class DfuSetupState extends ChangeNotifier {
+  List<int> entryPacket = [0x4E, 0x45, 0x01, 0xFA];
   String entryControlPoint = '00002cf0-0000-1000-8000-00805f9b34fb';
-
-  @observable
   String dfuControlPoint = '8ec90001-f315-4f60-9fb8-838830daea50';
-
-  @observable
   String dfuDataPoint = '8ec90002-f315-4f60-9fb8-838830daea50';
 
-  @observable
-  ObservableSet<BluetoothDevice> autoDfuTargets = ObservableSet();
+  Set<BluetoothDevice> autoDfuTargets = {};
+  Set<BluetoothDevice> autoDfuFinished = {};
 
-  @observable
-  ObservableSet<BluetoothDevice> autoDfuFinished = ObservableSet();
-
-  @observable
   bool enableTargetEntryProcess = true;
-
-  @observable
   bool enableAutoEntryProcess = true;
-
-  @observable
   bool enableAutoDfuProcess = true;
 
-  @observable
-  String autoEntryDeviceName = 'NLBD';
-
-  @observable
+  String autoEntryDeviceName = 'NEUL';
   String autoDfuDeviceName = 'NEUL_DFU';
 
-  @observable
-  ObservableList<DfuHistoryEntry> history = ObservableList();
-
-  @observable
-  ObservableList<LogEntry> logs = ObservableList();
-
-  @observable
+  List<DfuHistoryEntry> history = [];
+  List<LogEntry> logs = [];
   int maxLogs = 200;
 
-  @observable
-  ObservableSet<String> updatedMacs = ObservableSet();
+  Set<String> updatedMacs = {};
 
-  @observable
   bool isAutoScanEnabled = false;
-
-  @observable
   bool isAutoUpdateEnabled = false;
 
-  @computed
   List<DfuHistoryEntry> get successHistory =>
       history.where((e) => e.status == 'success').toList();
 
-  @computed
   List<DfuHistoryEntry> get failureHistory =>
       history.where((e) => e.status == 'failed').toList();
+
+  void notify() => notifyListeners();
 }
