@@ -14,7 +14,7 @@ class DfuFileSelect extends StatelessWidget {
     final dfu = NrfBleDfu();
 
     return ListenableBuilder(
-      listenable: dfu.file,
+      listenable: listenableOf(dfu.file),
       builder: (context, _) {
         return InkWell(
           onTap: () async {

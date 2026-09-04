@@ -27,12 +27,12 @@ class BleConnectedDevice extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    onPressed: () => NrfBleDfu().enterDfuMode(item),
+                    onPressed: () => NrfBleDfu().enterDfuMode(FbpDevice(item)),
                     tooltip: 'Enter DFU mode',
                     icon: const Icon(Icons.published_with_changes_sharp),
                   ),
                   IconButton(
-                    onPressed: () => NrfBleDfu().updateFirmware(item),
+                    onPressed: () => NrfBleDfu().updateFirmware(FbpDevice(item)),
                     tooltip: 'Update firmware',
                     icon: const Icon(Icons.system_update_alt),
                   ),

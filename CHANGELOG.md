@@ -1,7 +1,11 @@
 ## 2.0.0
-* **Breaking Change**: The core depends on the Flutter SDK again and talks to Bluetooth through `flutter_blue_plus` directly. The abstract transport of 1.0.0 (`DfuBleAdapter`, `DfuBleDevice`, `DfuBleCharacteristic`) and the `DfuStorageAdapter` / `DfuPathAdapter` / `DfuDatabaseAdapter` ports are gone, so `initialize()` no longer takes adapters.
-* **Breaking Change**: State objects are `ChangeNotifier`s instead of mobx stores, and the generated `*.g.dart` files are removed.
-* **Breaking Change**: Automatic scanning and unattended updating moved to `nrf_ble_dfu_ui` as `AutoDfuController`. `autoDfu`, `refresh`, `toggleAutoScan` and `toggleAutoUpdate` are no longer on `NrfBleDfu`, which now acts only on a device it is handed. The device-name matching, retry cooldown and already-updated checks went with them, since those are product policy rather than protocol.
+Still a pure Dart core, but a much smaller one than 1.0.0, and the ports have
+changed shape.
+
+* **Breaking Change**: Bluetooth arrives through two interfaces, `DfuDevice` and `DfuCharacteristic`, replacing 1.0.0's `DfuBleAdapter` / `DfuBleDevice` / `DfuBleService` / `DfuBleCharacteristic` / `DfuScanResult`. Pass a `DfuDevice` to `updateFirmware` and `enterDfuMode`. `nrf_ble_dfu_ui` implements both over flutter_blue_plus as `FbpDevice` and `FbpCharacteristic`.
+* **Breaking Change**: Scanning is gone from the core, along with the `DfuBleAdapter` that served it. Finding a device is the caller's job; `nrf_ble_dfu_ui` does it in `AutoDfuController`, which also owns `autoDfuTargets`, `autoDfuFinished` and `retryDfu`.
+* **Breaking Change**: `initialize()` takes no arguments. The `DfuStorageAdapter`, `DfuPathAdapter` and `DfuDatabaseAdapter` ports are gone; preset storage and the history database live in `nrf_ble_dfu_ui`, which drives them off the existing `onLog`, `onHistory` and `onHistoryClear` streams.
+* **Breaking Change**: State objects extend `DfuListenable` instead of being mobx stores, so there is no codegen and no `*.g.dart`. Wrap one in `listenableOf()` from `nrf_ble_dfu_ui` to feed a `ListenableBuilder`.
 * Packet writes are sized from the negotiated ATT MTU rather than a fixed 20 bytes.
 * Writes are paced by packet receipt notifications, and every receipt is checked against both the acknowledged offset and the CRC.
 * Fixed `dfuCrc32` returning a negative value, which had made any CRC comparison impossible.

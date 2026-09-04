@@ -168,9 +168,9 @@ class TargetChecker extends StatelessWidget {
   Widget build(BuildContext context) {
     final dfu = NrfBleDfu();
     return ListenableBuilder(
-      listenable: dfu.setup,
+      listenable: listenableOf(dfu.setup),
       builder: (context, _) {
-        final targets = dfu.setup.autoDfuTargets;
+        final targets = AutoDfuController().autoDfuTargets;
         final id = item.device.remoteId.str;
         final isTarget = targets.map((e) => e.remoteId.str).contains(id);
 
@@ -203,9 +203,9 @@ class CompleteChecker extends StatelessWidget {
   Widget build(BuildContext context) {
     final dfu = NrfBleDfu();
     return ListenableBuilder(
-      listenable: dfu.setup,
+      listenable: listenableOf(dfu.setup),
       builder: (context, _) {
-        final completed = dfu.setup.autoDfuFinished;
+        final completed = AutoDfuController().autoDfuFinished;
         final id = item.device.remoteId.str;
         final isComplete = completed.map((e) => e.remoteId.str).contains(id);
 

@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
+import 'notifier.dart';
 
-class DfuFileState extends ChangeNotifier {
+class DfuFileState extends DfuListenable {
   String? path;
   String? outputPath;
   String? binPath;

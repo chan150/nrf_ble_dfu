@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
+import 'package:nrf_ble_dfu_ui/nrf_ble_dfu_ui.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -225,7 +225,7 @@ class _DfuCoreScreenState extends State<DfuCoreScreen> {
                                           timeout: const Duration(seconds: 5),
                                         );
                                         _dfu.log('Entering DFU mode...');
-                                        await _dfu.enterDfuMode(item.device);
+                                        await _dfu.enterDfuMode(FbpDevice(item.device));
                                       } catch (e) {
                                         _dfu.log(
                                           'Failed to enter DFU mode: $e',
@@ -246,7 +246,7 @@ class _DfuCoreScreenState extends State<DfuCoreScreen> {
                                           timeout: const Duration(seconds: 5),
                                         );
                                         _dfu.log('Starting firmware update...');
-                                        await _dfu.updateFirmware(item.device);
+                                        await _dfu.updateFirmware(FbpDevice(item.device));
                                       } catch (e) {
                                         _dfu.log(
                                           'DFU Update failed: $e',
@@ -269,7 +269,7 @@ class _DfuCoreScreenState extends State<DfuCoreScreen> {
 
                 // 3. Progress Card
                 ListenableBuilder(
-                  listenable: _dfu.progress,
+                  listenable: listenableOf(_dfu.progress),
                   builder: (context, _) {
                     final fileSize = _dfu.progress.fileSize;
                     final completedSize = _dfu.progress.completedSize;
@@ -328,7 +328,7 @@ class _DfuCoreScreenState extends State<DfuCoreScreen> {
                   ),
                   Expanded(
                     child: ListenableBuilder(
-                      listenable: _dfu.setup,
+                      listenable: listenableOf(_dfu.setup),
                       builder: (context, _) {
                         final logs = _dfu.setup.logs;
                         WidgetsBinding.instance.addPostFrameCallback(

@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
+import 'notifier.dart';
 
-class DfuProgressState extends ChangeNotifier {
+class DfuProgressState extends DfuListenable {
   int? fileSize;
   int? completedSize;
 

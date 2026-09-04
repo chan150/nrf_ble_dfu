@@ -1,17 +1,17 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import '../ble.dart';
+import 'notifier.dart';
 
-class BleDeviceState extends ChangeNotifier {
-  BluetoothDevice? device;
-  BluetoothCharacteristic? controlPoint;
-  BluetoothCharacteristic? dataPoint;
+class BleDeviceState extends DfuListenable {
+  DfuDevice? device;
+  DfuCharacteristic? controlPoint;
+  DfuCharacteristic? dataPoint;
   bool isConnected = false;
   bool isTimeout = false;
 
   void update({
-    BluetoothDevice? device,
-    BluetoothCharacteristic? controlPoint,
-    BluetoothCharacteristic? dataPoint,
+    DfuDevice? device,
+    DfuCharacteristic? controlPoint,
+    DfuCharacteristic? dataPoint,
     bool? isConnected,
     bool? isTimeout,
   }) {

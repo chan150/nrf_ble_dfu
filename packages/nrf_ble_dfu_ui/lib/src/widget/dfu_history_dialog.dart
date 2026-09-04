@@ -147,7 +147,7 @@ class _HistoryList extends StatelessWidget {
   Widget build(BuildContext context) {
     final dfu = NrfBleDfu();
     return ListenableBuilder(
-      listenable: dfu.setup,
+      listenable: listenableOf(dfu.setup),
       builder: (context, _) {
         final history =
             isSuccessView ? dfu.setup.successHistory : dfu.setup.failureHistory;
@@ -267,7 +267,7 @@ class _HistoryList extends StatelessWidget {
                   if (!isSuccess)
                     TextButton(
                       onPressed: () {
-                        dfu.retryDfu(entry.remoteId);
+                        AutoDfuController().retryDfu(entry.remoteId);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content:

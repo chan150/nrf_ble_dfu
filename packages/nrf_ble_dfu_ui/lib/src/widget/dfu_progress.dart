@@ -8,7 +8,7 @@ class DfuProgress extends StatelessWidget {
   Widget build(BuildContext context) {
     final dfu = NrfBleDfu();
     return ListenableBuilder(
-      listenable: dfu.progress,
+      listenable: listenableOf(dfu.progress),
       builder: (context, _) {
         if (dfu.progress.fileSize == null) return const SizedBox();
         if (dfu.progress.completedSize == null) return const SizedBox();

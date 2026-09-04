@@ -4,9 +4,9 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:path/path.dart';
 
+import 'ble.dart';
 import 'state/state.dart';
 import 'enum/enum.dart';
 import 'extension/extension.dart';
@@ -132,16 +132,9 @@ class NrfBleDfu {
     _logStreamController.add(entry);
   }
 
-  void retryDfu(String remoteId) {
-    setup.updatedMacs.remove(remoteId);
-    setup.autoDfuFinished.removeWhere((d) => d.remoteId.str == remoteId);
-    setup.notify();
-  }
-
   Future<void> clearHistory() async {
     setup.history.clear();
     setup.updatedMacs.clear();
-    setup.autoDfuFinished.clear();
     setup.notify();
     _historyClearStreamController.add(null);
     log('All history cleared.');
@@ -276,8 +269,8 @@ class NrfBleDfu {
   Future<void> _transferObject({
     required int type,
     required Uint8List buffer,
-    required BluetoothCharacteristic controlPoint,
-    required BluetoothCharacteristic dataPoint,
+    required DfuCharacteristic controlPoint,
+    required DfuCharacteristic dataPoint,
   }) async {
     late int maxSize;
     late int offset;
@@ -299,7 +292,7 @@ class NrfBleDfu {
     Future<void> writeBatch() async {
       // A write-without-response carries ATT_MTU - 3 bytes. mtuNow reports 23
       // until a larger MTU is negotiated, which floors this at 20.
-      final chunk = math.max(20, dataPoint.device.mtuNow - 3);
+      final chunk = math.max(20, dataPoint.mtu - 3);
       final limit = prn > 0 ? prn : 1 << 30;
       var packets = 0;
       while (written < data.length && packets < limit) {
@@ -316,7 +309,7 @@ class NrfBleDfu {
 
     progress.reset();
 
-    await for (final event in controlPoint.lastValueStream) {
+    await for (final event in controlPoint.values) {
       if (event.elementAtOrNull(0) == NrfDfuOp.response.code) {
         log(event.hexString);
       }
@@ -423,7 +416,7 @@ class NrfBleDfu {
 
 
 
-  Future<void> updateFirmware(BluetoothDevice device) async {
+  Future<void> updateFirmware(DfuDevice device) async {
     final datPath = file.datPath;
     final binPath = file.binPath;
     if (datPath == null || binPath == null) {
@@ -433,18 +426,12 @@ class NrfBleDfu {
     final dat = File(datPath).readAsBytesSync();
     final bin = File(binPath).readAsBytesSync();
 
-    final services = await device.discoverServices();
-
-    for (final s in services) {
-      for (final c in s.characteristics) {
-        if (c.uuid.toString().toLowerCase() ==
-            setup.dfuControlPoint.toLowerCase()) {
-          dfu.update(controlPoint: c);
-        }
-        if (c.uuid.toString().toLowerCase() ==
-            setup.dfuDataPoint.toLowerCase()) {
-          dfu.update(dataPoint: c);
-        }
+    for (final c in await device.discoverCharacteristics()) {
+      if (c.uuid.toLowerCase() == setup.dfuControlPoint.toLowerCase()) {
+        dfu.update(controlPoint: c);
+      }
+      if (c.uuid.toLowerCase() == setup.dfuDataPoint.toLowerCase()) {
+        dfu.update(dataPoint: c);
       }
     }
 
@@ -454,7 +441,7 @@ class NrfBleDfu {
     if (controlPoint == null) throw Exception('Control point not found');
     if (dataPoint == null) throw Exception('Data point not found');
 
-    await controlPoint.setNotifyValue(true);
+    await controlPoint.setNotify(true);
 
     try {
       await _transferObject(
@@ -491,26 +478,23 @@ class NrfBleDfu {
     }
   }
 
-  Future<void> enterDfuMode(BluetoothDevice device) async {
+  Future<void> enterDfuMode(DfuDevice device) async {
     final cp = setup.entryControlPoint;
 
-    List<BluetoothService> services;
+    List<DfuCharacteristic> characteristics;
     try {
-      services = await device.discoverServices();
+      characteristics = await device.discoverCharacteristics();
     } catch (e) {
       log('Discovery failed, retrying connection once...', level: 'WARNING');
-      await device.connect(
-          license: License.nonprofit, timeout: const Duration(seconds: 3));
-      services = await device.discoverServices();
+      await device.connect(timeout: const Duration(seconds: 3));
+      characteristics = await device.discoverCharacteristics();
     }
 
     entry.update(controlPoint: null);
-    for (final s in services) {
-      for (final c in s.characteristics) {
-        if (c.uuid.toString().toLowerCase() == cp.toLowerCase()) {
-          entry.update(controlPoint: c);
-          break;
-        }
+    for (final c in characteristics) {
+      if (c.uuid.toLowerCase() == cp.toLowerCase()) {
+        entry.update(controlPoint: c);
+        break;
       }
     }
 

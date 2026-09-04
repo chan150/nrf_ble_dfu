@@ -8,7 +8,7 @@ class BleEntrySetup extends StatelessWidget {
   Widget build(BuildContext context) {
     final dfu = NrfBleDfu();
     return ListenableBuilder(
-      listenable: dfu.setup,
+      listenable: listenableOf(dfu.setup),
       builder: (context, _) {
         return Column(
           mainAxisSize: MainAxisSize.min,

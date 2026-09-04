@@ -68,7 +68,7 @@ class _LogConsoleState extends State<LogConsole> {
           ),
           Expanded(
             child: ListenableBuilder(
-              listenable: dfu.setup,
+              listenable: listenableOf(dfu.setup),
               builder: (context, _) {
                 final logs = dfu.setup.logs;
 

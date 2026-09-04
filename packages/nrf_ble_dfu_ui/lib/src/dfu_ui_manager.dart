@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
+import 'auto_dfu_controller.dart';
 import 'database/dfu_database.dart';
 
 class DfuUiManager {
@@ -97,6 +98,7 @@ class DfuUiManager {
 
     // 4. Auto-save presets on setup changes
     NrfBleDfu().setup.addListener(savePresets);
+    AutoDfuController().listenForHistoryClear();
   }
 
   void savePresets() {

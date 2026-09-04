@@ -36,6 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   nrf_ble_dfu:
     path: ../
+  # A Flutter app on a pure Dart core needs the adapters: FbpDevice supplies
+  # the Bluetooth, listenableOf makes the core's state rebuildable.
+  nrf_ble_dfu_ui:
+    path: ../packages/nrf_ble_dfu_ui
   flutter_blue_plus: ^2.3.9
   file_picker: ^11.0.2
   path_provider: ^2.1.5

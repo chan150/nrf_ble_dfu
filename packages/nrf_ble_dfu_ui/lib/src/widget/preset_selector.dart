@@ -9,7 +9,7 @@ class PresetSelector extends StatelessWidget {
     final dfu = NrfBleDfu();
 
     return ListenableBuilder(
-      listenable: dfu.setup,
+      listenable: listenableOf(dfu.setup),
       builder: (context, _) {
         final storedIdx = dfu.selectedPresetIndex;
         final selectedIdx = (storedIdx != null &&

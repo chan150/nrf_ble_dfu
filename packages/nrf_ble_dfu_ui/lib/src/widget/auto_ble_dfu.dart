@@ -9,10 +9,10 @@ class AutoBleDfu extends StatelessWidget {
     final dfu = NrfBleDfu();
 
     return ListenableBuilder(
-      listenable: dfu.setup,
+      listenable: listenableOf(dfu.setup),
       builder: (context, _) {
         final diff =
-            dfu.setup.autoDfuTargets.difference(dfu.setup.autoDfuFinished);
+            AutoDfuController().autoDfuTargets.difference(AutoDfuController().autoDfuFinished);
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
@@ -86,11 +86,11 @@ class AutoBleDfu extends StatelessWidget {
                   color: Colors.orange,
                 ),
               ],
-              if (dfu.setup.autoDfuFinished.isNotEmpty) ...[
+              if (AutoDfuController().autoDfuFinished.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 _StatusChips(
                   label: 'Done',
-                  items: dfu.setup.autoDfuFinished
+                  items: AutoDfuController().autoDfuFinished
                       .map((e) => e.platformName)
                       .toList(),
                   color: Colors.green,

@@ -2,6 +2,8 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 import 'package:path/path.dart';
 
+import 'fbp_adapters.dart';
+
 /// Scans for devices and flashes them without being asked to.
 ///
 /// This is app policy, not protocol: which advertised names count as targets,
@@ -14,6 +16,32 @@ class AutoDfuController {
   AutoDfuController._internal();
 
   final _dfu = NrfBleDfu();
+
+  /// Devices currently worth flashing, and ones already done.
+  ///
+  /// These followed the scanning out of the core: they only ever described
+  /// what the automatic pass had seen, and typing them as BluetoothDevice was
+  /// the last thing tying the state classes to a Bluetooth stack.
+  final Set<BluetoothDevice> autoDfuTargets = {};
+  final Set<BluetoothDevice> autoDfuFinished = {};
+
+  StreamSubscription<void>? _historyClearSubscription;
+
+  /// Clearing the history means nothing has been flashed yet, so forget which
+  /// devices were finished. The core announces it on a stream it already had.
+  void listenForHistoryClear() {
+    _historyClearSubscription ??= _dfu.onHistoryClear.listen((_) {
+      autoDfuFinished.clear();
+      _dfu.setup.notify();
+    });
+  }
+
+  /// Lets a device be flashed again after it was marked done.
+  void retryDfu(String remoteId) {
+    _dfu.setup.updatedMacs.remove(remoteId);
+    autoDfuFinished.removeWhere((d) => d.remoteId.str == remoteId);
+    _dfu.setup.notify();
+  }
 
   StreamSubscription<List<ScanResult>>? _scanSubscription;
   bool _isAutoDfuRunning = false;
@@ -54,7 +82,7 @@ class AutoDfuController {
       final isDfu = RegExp(_dfu.autoDfuDeviceName).hasMatch(name);
       return (isApp || isDfu) &&
           !_isDuplicate(s.device.platformName, s.device.remoteId.str) &&
-          !_dfu.setup.autoDfuFinished
+          !autoDfuFinished
               .any((d) => d.remoteId.str == s.device.remoteId.str);
     }).where((s) {
       final cooldown = _failedCooldown[s.device.remoteId.str];
@@ -84,7 +112,7 @@ class AutoDfuController {
         } catch (_) {}
 
         _dfu.log('Entering DFU mode...');
-        await _dfu.enterDfuMode(device);
+        await _dfu.enterDfuMode(FbpDevice(device));
 
         _dfu.log('Waiting for $_dfu.autoDfuDeviceName...');
         BluetoothDevice? dfuDevice;
@@ -117,7 +145,7 @@ class AutoDfuController {
           await dfuDevice.requestMtu(247);
         } catch (_) {}
 
-        await _dfu.updateFirmware(dfuDevice);
+        await _dfu.updateFirmware(FbpDevice(dfuDevice));
       } else {
         _dfu.log('Target already in DFU mode: $deviceName ($remoteId). Connecting for update...');
         await device.connect(
@@ -126,7 +154,7 @@ class AutoDfuController {
           await device.requestMtu(247);
         } catch (_) {}
 
-        await _dfu.updateFirmware(device);
+        await _dfu.updateFirmware(FbpDevice(device));
       }
 
       _dfu.addHistoryEntry(
@@ -134,7 +162,7 @@ class AutoDfuController {
         deviceName: deviceName,
         status: 'success',
       );
-      _dfu.setup.autoDfuFinished.add(device);
+      autoDfuFinished.add(device);
       _dfu.setup.notify();
     } catch (e) {
       _dfu.log('Auto DFU error: $e', level: 'ERROR');
@@ -177,7 +205,7 @@ class AutoDfuController {
           })
           .where((s) =>
               !_isDuplicate(s.device.platformName, s.device.remoteId.str))
-          .where((s) => !_dfu.setup.autoDfuFinished
+          .where((s) => !autoDfuFinished
               .any((d) => d.remoteId.str == s.device.remoteId.str))
           .where((s) {
             final cooldown = _failedCooldown[s.device.remoteId.str];
@@ -186,8 +214,8 @@ class AutoDfuController {
           .map((s) => s.device)
           .toList();
 
-      _dfu.setup.autoDfuTargets.clear();
-      _dfu.setup.autoDfuTargets.addAll(filtered);
+      autoDfuTargets.clear();
+      autoDfuTargets.addAll(filtered);
       _dfu.setup.notify();
 
       if (_dfu.setup.isAutoUpdateEnabled) {
@@ -224,8 +252,8 @@ class AutoDfuController {
   }
 
   Future<void> refresh() async {
-    _dfu.setup.autoDfuTargets.clear();
-    _dfu.setup.autoDfuFinished.clear();
+    autoDfuTargets.clear();
+    autoDfuFinished.clear();
     _dfu.setup.notify();
     await FlutterBluePlus.stopScan();
     await FlutterBluePlus.startScan();

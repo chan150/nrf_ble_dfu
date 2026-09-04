@@ -1,9 +1,7 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
   group('NrfBleDfu Core Tests', () {
     late NrfBleDfu dfu;
 

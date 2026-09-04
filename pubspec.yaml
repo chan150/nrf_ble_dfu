@@ -1,23 +1,16 @@
 name: nrf_ble_dfu
-description: Core Nordic BLE DFU protocol implementation for Flutter. Helps enable firmware updates of BLE devices over Bluetooth Low Energy.
+description: Core Nordic BLE DFU protocol in pure Dart. Transport-agnostic; supply a DfuDevice.
 version: 2.0.0
 repository: https://github.com/chan150/nrf_ble_dfu
 homepage: https://github.com/chan150/nrf_ble_dfu
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
-  flutter: '>=3.7.0'
 
 dependencies:
-  flutter:
-    sdk: flutter
-  flutter_blue_plus:
-  flutter_blue_plus_winrt:
   archive:
   path:
   intl:
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  lints: ^3.0.0
+  test: ^1.24.0

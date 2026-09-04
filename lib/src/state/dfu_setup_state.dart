@@ -1,16 +1,12 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'notifier.dart';
 import 'dfu_history_entry.dart';
 import 'log_entry.dart';
 
-class DfuSetupState extends ChangeNotifier {
+class DfuSetupState extends DfuListenable {
   List<int> entryPacket = [0x4E, 0x45, 0x01, 0xFA];
   String entryControlPoint = '00002cf0-0000-1000-8000-00805f9b34fb';
   String dfuControlPoint = '8ec90001-f315-4f60-9fb8-838830daea50';
   String dfuDataPoint = '8ec90002-f315-4f60-9fb8-838830daea50';
-
-  Set<BluetoothDevice> autoDfuTargets = {};
-  Set<BluetoothDevice> autoDfuFinished = {};
 
   bool enableTargetEntryProcess = true;
   bool enableAutoEntryProcess = true;
