@@ -14,6 +14,22 @@ import 'extension/extension.dart';
 export 'dart:async';
 export 'dart:io';
 
+/// CRC-32 (ISO-HDLC) over [buffer], as the DFU bootloader computes it.
+///
+/// The mask matters: Dart ints are 64-bit, so a bare `~crc` comes back
+/// negative and never equals the unsigned value read off the wire.
+int dfuCrc32(List<int> buffer) {
+  const crc32Poly = 0xEDB88320;
+  int crc = 0xFFFFFFFF;
+  for (int i = 0; i < buffer.length; i++) {
+    crc ^= buffer[i];
+    for (int j = 0; j < 8; j++) {
+      crc = (crc & 1) == 1 ? (crc >> 1) ^ crc32Poly : crc >> 1;
+    }
+  }
+  return ~crc & 0xFFFFFFFF;
+}
+
 class NrfBleDfu {
   factory NrfBleDfu() => _instance;
 
@@ -50,6 +66,14 @@ class NrfBleDfu {
   final file = DfuFileState();
   final setup = DfuSetupState();
   final progress = DfuProgressState();
+
+  /// Packets the bootloader accepts before it must answer with a CRC receipt.
+  ///
+  /// This is flow control: at 0 we write as fast as the link accepts and a
+  /// bootloader that cannot drain its buffer in time drops packets silently.
+  /// 12 is what nrfutil defaults to. Setting it to 0 restores the old
+  /// unthrottled behaviour, which also gives up the per-batch CRC checkpoint.
+  int packetReceiptNotification = 12;
 
   final List<DfuPreset> presets = [];
   int? selectedPresetIndex;
@@ -271,13 +295,36 @@ class NrfBleDfu {
     late int offset;
     late int crc;
 
-    late int from;
-    late int to;
     late List<int> data;
 
-    bool isPrepared = false;
     bool isSelectCommand = true;
     int step = 0;
+    int written = 0;
+    int objectStart = 0;
+
+    final prn = packetReceiptNotification;
+
+    // Write at most [prn] packets, then stop and let the bootloader catch up.
+    // It answers a full batch with a CRC receipt of its own; a short batch —
+    // the tail of an object — never triggers one, so ask explicitly and the
+    // loop always has something to wait on.
+    Future<void> writeBatch() async {
+      // A write-without-response carries ATT_MTU - 3 bytes. mtuNow reports 23
+      // until a larger MTU is negotiated, which floors this at 20.
+      final chunk = math.max(20, dataPoint.device.mtuNow - 3);
+      final limit = prn > 0 ? prn : 1 << 30;
+      var packets = 0;
+      while (written < data.length && packets < limit) {
+        final end = math.min(written + chunk, data.length);
+        await dataPoint.write(data.sublist(written, end),
+            withoutResponse: true);
+        written = end;
+        packets++;
+      }
+      if (packets < limit) {
+        await controlPoint.write([NrfDfuOp.crcGet.code]);
+      }
+    }
 
     progress.reset();
 
@@ -288,12 +335,22 @@ class NrfBleDfu {
 
       if (isSelectCommand) {
         isSelectCommand = false;
-        await controlPoint.write([NrfDfuOp.objectSelect.code, type]);
+        await controlPoint.write([
+          NrfDfuOp.receiptNotifSet.code,
+          prn & 0xFF,
+          (prn >> 8) & 0xFF,
+        ]);
         continue;
       }
 
       if (event.elementAtOrNull(0) != NrfDfuOp.response.code) {
         log('Not response packet: $event');
+        continue;
+      }
+
+      if (event.elementAtOrNull(1) == NrfDfuOp.receiptNotifSet.code &&
+          event.elementAtOrNull(2) == NrfDfuResult.success.code) {
+        await controlPoint.write([NrfDfuOp.objectSelect.code, type]);
         continue;
       }
 
@@ -304,41 +361,26 @@ class NrfBleDfu {
         offset = event.getInt32(7);
         crc = event.getInt32(11);
 
-        from = step * maxSize;
-        to = math.min((step + 1) * maxSize, buffer.length);
-        data = buffer.sublist(from, to);
+        // Only the total is known here; receipts drive the completed count,
+        // and it is cumulative across objects, so do not zero it per object.
+        progress.update(fileSize: buffer.length);
 
-        progress.update(
-          fileSize: buffer.length,
-          completedSize: 0,
-        );
-
-        final sizePacket = data.length.toBytes;
+        final from = step * maxSize;
+        final to = math.min((step + 1) * maxSize, buffer.length);
         await controlPoint
-            .write([NrfDfuOp.objectCreate.code, type, ...sizePacket]);
+            .write([NrfDfuOp.objectCreate.code, type, ...(to - from).toBytes]);
         continue;
       }
 
       if (event.elementAtOrNull(0) == NrfDfuOp.response.code &&
           event.elementAtOrNull(1) == NrfDfuOp.objectCreate.code &&
           event.elementAtOrNull(2) == NrfDfuResult.success.code) {
-        from = step * maxSize;
-        to = math.min((step + 1) * maxSize, buffer.length);
+        final from = step * maxSize;
+        final to = math.min((step + 1) * maxSize, buffer.length);
         data = buffer.sublist(from, to);
-        // A write-without-response carries ATT_MTU - 3 bytes. mtuNow reports
-        // 23 until a larger MTU is negotiated, so this floors at the 20 that
-        // was previously hardcoded.
-        // ponytail: no PRN flow control, so the bootloader is never told to
-        // pause; it just has to drain its buffer as fast as we fill it. If a
-        // device drops packets at full MTU, send NrfDfuOp.receiptNotifSet and
-        // checkpoint on the CRC_GET that already runs after this loop.
-        final chunk = math.max(20, dataPoint.device.mtuNow - 3);
-        for (var i = 0; i < data.length; i += chunk) {
-          final packet = data.sublist(i, math.min(i + chunk, data.length));
-          await dataPoint.write(packet, withoutResponse: true);
-        }
-        await controlPoint.write([NrfDfuOp.crcGet.code]);
-        isPrepared = true;
+        objectStart = from;
+        written = 0;
+        await writeBatch();
         continue;
       }
 
@@ -348,21 +390,36 @@ class NrfBleDfu {
         offset = event.getInt32(3);
         crc = event.getInt32(7);
 
-        log((_crc32(buffer.sublist(0, offset)), offset, crc).toString());
+        // The CRC alone cannot catch a dropped tail: a short prefix of what we
+        // sent still hashes correctly. The offset is what reveals loss.
+        final sent = objectStart + written;
+        if (offset != sent) {
+          throw Exception('Device acknowledged $offset of $sent bytes, so '
+              'packets were dropped; lower packetReceiptNotification');
+        }
 
-        if (isPrepared) {
+        final expected = dfuCrc32(buffer.sublist(0, offset));
+        if (crc != expected) {
+          // Stop rather than execute an object the device did not receive
+          // intact. Recovering would mean aborting and recreating the object,
+          // which is worth adding only once a device is seen to need it.
+          throw Exception(
+              'CRC mismatch at offset $offset: device $crc, expected $expected');
+        }
+
+        progress.update(completedSize: offset);
+
+        if (written < data.length) {
+          await writeBatch();
+        } else {
           await controlPoint.write([NrfDfuOp.objectExecute.code]);
         }
-        isPrepared = false;
         continue;
       }
 
       if (event.elementAtOrNull(0) == NrfDfuOp.response.code &&
           event.elementAtOrNull(1) == NrfDfuOp.objectExecute.code &&
           event.elementAtOrNull(2) == NrfDfuResult.success.code) {
-        final current = progress.completedSize ?? 0;
-        progress.update(completedSize: current + data.length);
-
         if (step + 1 < buffer.length / maxSize) {
           await controlPoint.write([NrfDfuOp.objectSelect.code, type]);
           step++;
@@ -376,21 +433,7 @@ class NrfBleDfu {
     }
   }
 
-  int _crc32(List<int> buffer) {
-    const crc32Poly = 0xEDB88320;
-    int crc = 0xFFFFFFFF;
-    for (int i = 0; i < buffer.length; i++) {
-      crc ^= buffer[i];
-      for (int j = 0; j < 8; j++) {
-        if ((crc & 1) == 1) {
-          crc = (crc >> 1) ^ crc32Poly;
-        } else {
-          crc >>= 1;
-        }
-      }
-    }
-    return ~crc;
-  }
+
 
   Future<void> updateFirmware(BluetoothDevice device) async {
     final datPath = file.datPath;
