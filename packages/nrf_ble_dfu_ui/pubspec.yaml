@@ -1,5 +1,5 @@
 name: nrf_ble_dfu_ui
-description: Flutter UI widgets, SQLite database persistence, and SharedPreferences presets wrapper for the nrf_ble_dfu pure Dart core.
+description: Flutter UI widgets, SQLite database persistence, and SharedPreferences presets wrapper for the nrf_ble_dfu core.
 version: 0.0.1
 publish_to: none
 

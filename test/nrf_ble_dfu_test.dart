@@ -4,7 +4,7 @@ import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('NrfBleDfu Pure Dart Core Tests', () {
+  group('NrfBleDfu Core Tests', () {
     late NrfBleDfu dfu;
 
     setUp(() {

@@ -1,6 +1,8 @@
-# NRF BLE DFU (Pure Dart Core)
+# NRF BLE DFU (Core)
 
-Nordic BLE DFU (Device Firmware Update) protocol implementation in pure Dart. This is a platform-agnostic core library containing only DFU transception logic, protocol states, and abstract Bluetooth low energy interfaces.
+Nordic BLE DFU (Device Firmware Update) protocol implementation for Flutter. This is the core library: the DFU transception logic, the protocol state machines, and the Bluetooth transport, built on `flutter_blue_plus`.
+
+> Version 1.0.0 was a pure Dart core that reached Bluetooth through injected adapters. 2.0.0 drops those ports and depends on Flutter and `flutter_blue_plus` directly, so upgrading from 1.0.0 means removing the adapters passed to `initialize()`.
 
 If you are developing a Flutter application and need ready-to-use UI widgets, state-managed components, SQLite logs/history databases, and automated updates, please use [nrf_ble_dfu_ui](packages/nrf_ble_dfu_ui/README.md).
 
@@ -9,13 +11,13 @@ If you are developing a Flutter application and need ready-to-use UI widgets, st
 Add `nrf_ble_dfu` to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  nrf_ble_dfu: ^1.0.0
+  nrf_ble_dfu: ^2.0.0
 ```
 
 ## Decoupled Architecture
 
 The repository is structured as a multi-package workspace:
-- **`nrf_ble_dfu` (Root)**: The core Dart package, containing the protocol transception, state machines, and interfaces.
+- **`nrf_ble_dfu` (Root)**: The core package, containing the protocol transception and the state machines.
 - **`nrf_ble_dfu_ui` (`packages/nrf_ble_dfu_ui`)**: The Flutter UI widget wrapper, implementing the SQLite database logger and SharedPreferences preset management.
 
 ---

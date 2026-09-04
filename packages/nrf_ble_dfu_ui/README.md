@@ -1,6 +1,6 @@
 # NRF BLE DFU UI Package
 
-A Flutter package providing ready-to-use widgets, SQLite persistence (for update history and real-time logs), and SharedPreferences preset management, designed as a wrapper around the pure Dart core library `nrf_ble_dfu`.
+A Flutter package providing ready-to-use widgets, SQLite persistence (for update history and real-time logs), and SharedPreferences preset management, designed as a wrapper around the core library `nrf_ble_dfu`.
 
 ## Features
 - **Flutter UI Widgets**: Select device, select firmware files, preset configuration list, automatic scan/update controls, real-time log terminal, and update history.
