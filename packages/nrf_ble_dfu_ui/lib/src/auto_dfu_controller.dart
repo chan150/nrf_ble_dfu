@@ -2,6 +2,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 import 'package:path/path.dart';
 
+import 'dfu_advertisement.dart';
 import 'fbp_adapters.dart';
 
 /// Scans for devices and flashes them without being asked to.
@@ -114,7 +115,7 @@ class AutoDfuController {
         _dfu.log('Entering DFU mode...');
         await _dfu.enterDfuMode(FbpDevice(device));
 
-        _dfu.log('Waiting for $_dfu.autoDfuDeviceName...');
+        _dfu.log('Waiting for the bootloader to advertise...');
         BluetoothDevice? dfuDevice;
         final timeout = DateTime.now().add(const Duration(seconds: 15));
 
@@ -122,14 +123,15 @@ class AutoDfuController {
 
         while (DateTime.now().isBefore(timeout)) {
           final currentResults = await FlutterBluePlus.scanResults.first;
-          dfuDevice = currentResults
-              .where((s) =>
-                  RegExp(_dfu.autoDfuDeviceName).hasMatch(s.device.platformName))
-              .where((s) =>
-                  s.device.remoteId.str == device.remoteId.str ||
-                  s.device.platformName == _dfu.autoDfuDeviceName)
-              .firstOrNull
-              ?.device;
+          // Advertising the DFU service is what identifies a bootloader, not
+          // its name. A device that reboots into DFU also shifts its address,
+          // which is why matching on the application's address alone used to
+          // miss it and the name was doing the work.
+          dfuDevice = findNordicBootloader(
+            currentResults,
+            device.remoteId.str,
+            nameFallback: _dfu.autoDfuDeviceName,
+          )?.device;
           if (dfuDevice != null) break;
           await Future.delayed(const Duration(milliseconds: 200));
         }
