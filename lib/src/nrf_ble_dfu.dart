@@ -325,9 +325,16 @@ class NrfBleDfu {
         from = step * maxSize;
         to = math.min((step + 1) * maxSize, buffer.length);
         data = buffer.sublist(from, to);
-        for (var i = 0; i < data.length / 20; i++) {
-          final packet =
-              data.sublist(i * 20, math.min((i + 1) * 20, data.length));
+        // A write-without-response carries ATT_MTU - 3 bytes. mtuNow reports
+        // 23 until a larger MTU is negotiated, so this floors at the 20 that
+        // was previously hardcoded.
+        // ponytail: no PRN flow control, so the bootloader is never told to
+        // pause; it just has to drain its buffer as fast as we fill it. If a
+        // device drops packets at full MTU, send NrfDfuOp.receiptNotifSet and
+        // checkpoint on the CRC_GET that already runs after this loop.
+        final chunk = math.max(20, dataPoint.device.mtuNow - 3);
+        for (var i = 0; i < data.length; i += chunk) {
+          final packet = data.sublist(i, math.min(i + chunk, data.length));
           await dataPoint.write(packet, withoutResponse: true);
         }
         await controlPoint.write([NrfDfuOp.crcGet.code]);
