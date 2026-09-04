@@ -309,6 +309,11 @@ class NrfBleDfu {
 
     progress.reset();
 
+    // The two numbers that decide how the transfer behaves on the wire, so a
+    // bench run can be read back afterwards rather than inferred.
+    log('Transfer type $type: ${buffer.length} bytes, MTU ${dataPoint.mtu}, '
+        'receipt every ${prn == 0 ? 'never (unthrottled)' : '$prn packets'}');
+
     await for (final event in controlPoint.values) {
       if (event.elementAtOrNull(0) == NrfDfuOp.response.code) {
         log(event.hexString);
