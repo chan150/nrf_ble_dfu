@@ -1,33 +1,25 @@
+import 'package:dfu_service_uuids/dfu_service_uuids.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 /// The service a Nordic Secure DFU bootloader advertises.
 ///
-/// Nordic's assigned 16-bit UUID. A device advertising this is sitting in its
-/// bootloader waiting for an image, whatever it calls itself.
-final nordicDfuService = Guid.parse('FE59')!;
+/// A device advertising this is sitting in its bootloader waiting for an
+/// image, whatever it calls itself. The uuid itself comes from
+/// dfu_service_uuids, which both protocol families share.
+final nordicDfuService = Guid.parse(DfuProtocol.nordic.serviceUuid)!;
 
 /// The service an MCUmgr device advertises, which is how a Zephyr target is
 /// told apart from a Nordic one before either is connected to.
-final zephyrSmpService = Guid.parse('8D53DC1D-1DB7-4CD3-868B-8A527460AA84')!;
-
-/// Which update protocol a device speaks.
-enum DfuProtocol { nordic, zephyr }
+final zephyrSmpService = Guid.parse(DfuProtocol.zephyr.serviceUuid)!;
 
 /// The protocol [result] advertises, or null if it advertises neither.
-///
-/// Guid compares by its 128-bit form, so a 16-bit UUID off the wire matches
-/// the long form and there is no string munging to get wrong.
-DfuProtocol? dfuProtocolOf(ScanResult result) {
-  final advertised = result.advertisementData.serviceUuids;
-  if (advertised.contains(nordicDfuService)) return DfuProtocol.nordic;
-  if (advertised.contains(zephyrSmpService)) return DfuProtocol.zephyr;
-  return null;
-}
+DfuProtocol? dfuProtocolOf(ScanResult result) =>
+    protocolOf(result.advertisementData.serviceUuids.map((g) => g.str));
 
 /// Whether [result] is a Nordic bootloader, by what it advertises rather than
 /// by what it is called.
 bool isNordicBootloader(ScanResult result) =>
-    result.advertisementData.serviceUuids.contains(nordicDfuService);
+    dfuProtocolOf(result) == DfuProtocol.nordic;
 
 /// The address a Nordic bootloader is expected to advertise with, given the
 /// address the application was using.

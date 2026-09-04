@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   nrf_ble_dfu:
     path: ../../
+  dfu_service_uuids:
+    path: ../dfu_service_uuids
   flutter_blue_plus: ^2.3.9
   flutter_blue_plus_winrt: 
   permission_handler:
