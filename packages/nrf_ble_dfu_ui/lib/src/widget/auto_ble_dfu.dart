@@ -34,7 +34,7 @@ class AutoBleDfu extends StatelessWidget {
                     scale: 0.8,
                     child: Switch(
                       value: dfu.setup.isAutoScanEnabled,
-                      onChanged: (value) => dfu.toggleAutoScan(value),
+                      onChanged: (value) => AutoDfuController().toggleAutoScan(value),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ),
@@ -44,7 +44,7 @@ class AutoBleDfu extends StatelessWidget {
                     scale: 0.8,
                     child: Switch(
                       value: dfu.setup.isAutoUpdateEnabled,
-                      onChanged: (value) => dfu.toggleAutoUpdate(value),
+                      onChanged: (value) => AutoDfuController().toggleAutoUpdate(value),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ),
@@ -58,13 +58,13 @@ class AutoBleDfu extends StatelessWidget {
                     icon: Icons.play_arrow,
                     label: 'Run Once',
                     color: Colors.blue,
-                    onPressed: dfu.autoDfu,
+                    onPressed: AutoDfuController().autoDfu,
                   ),
                   const SizedBox(width: 8),
                   _CompactButton(
                     icon: Icons.refresh,
                     label: 'Refresh',
-                    onPressed: dfu.refresh,
+                    onPressed: AutoDfuController().refresh,
                   ),
                   const SizedBox(width: 8),
                   _CompactButton(
