@@ -16,7 +16,6 @@ dependencies:
     path: ../dfu_service_uuids
   flutter_blue_plus: ^2.3.9
   flutter_blue_plus_winrt: 
-  permission_handler:
   file_picker: ^11.0.0
   archive: 
   path_provider:
