@@ -15,9 +15,12 @@ dependencies:
   dfu_service_uuids:
     path: ../dfu_service_uuids
   flutter_blue_plus: ^2.3.9
+  # Nothing imports flutter_blue_plus_winrt or sqflite below. Both are
+  # platform implementations, registered by being depended on rather than by
+  # being called: dropping them as unused takes Bluetooth off Windows and the
+  # history database off Android.
   flutter_blue_plus_winrt: 
   file_picker: ^11.0.0
-  archive: 
   path_provider:
   path:
   shared_preferences:
