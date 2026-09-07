@@ -33,3 +33,8 @@ pubspec.lock
 /.flutter-plugins-dependencies
 /example/devtools_options.yaml
 /example/.android/
+
+# Written by melos bootstrap, once it started managing the packages inside
+# this repository. Machine-generated and per-checkout, the same reason the
+# mono repository ignores it.
+pubspec_overrides.yaml
