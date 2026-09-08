@@ -61,8 +61,19 @@ class AutoDfuController {
   }
 
   Future<void> autoDfu() async {
-    if (_dfu.file.datPath == null) throw Exception('dat file not found');
-    if (_dfu.file.binPath == null) throw Exception('bin file not found');
+    // The button hands this straight to onPressed, so a throw here has
+    // nowhere to land and surfaces as an unhandled exception instead of
+    // reaching the operator. Say what is missing in the log they are already
+    // watching, and do nothing.
+    final missing = [
+      if (_dfu.file.datPath == null) 'init packet (.dat)',
+      if (_dfu.file.binPath == null) 'image (.bin)',
+    ];
+    if (missing.isNotEmpty) {
+      _dfu.log('Select a firmware package first: no ${missing.join(' and ')}.',
+          level: 'WARN');
+      return;
+    }
     if (_isAutoDfuRunning) return;
 
     if (!FlutterBluePlus.isScanningNow) {
