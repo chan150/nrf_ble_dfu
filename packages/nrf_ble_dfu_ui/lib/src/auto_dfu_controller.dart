@@ -268,7 +268,14 @@ class AutoDfuController {
     autoDfuTargets.clear();
     autoDfuFinished.clear();
     _dfu.setup.notify();
-    await FlutterBluePlus.stopScan();
-    await FlutterBluePlus.startScan();
+    // Same reason as autoDfu: this is handed straight to a button, so a
+    // refused scan has to be reported rather than thrown into the gesture
+    // handler. The adapter being off is the ordinary case here.
+    try {
+      await FlutterBluePlus.stopScan();
+      await FlutterBluePlus.startScan();
+    } catch (e) {
+      _dfu.log('Could not restart the scan: $e', level: 'WARN');
+    }
   }
 }
