@@ -22,16 +22,26 @@ class SqfliteDfuDatabase {
   }
 
   Future<Database> _initDb() async {
-    if (Platform.isWindows || Platform.isLinux) {
+    final ffi = Platform.isWindows || Platform.isLinux;
+    if (ffi) {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
     }
 
     String dbPath;
     try {
-      dbPath = await getDatabasesPath();
+      // Under the ffi factory getDatabasesPath() answers with a path relative
+      // to the working directory, so the database follows whatever launched
+      // the app instead of staying with it: run from a shell it lands in the
+      // project, run from a shortcut it lands beside the executable, and an
+      // installed build cannot write there at all. It does not throw, so the
+      // fallback below never covered this. Mobile is unaffected, where the
+      // platform answers with its own per-app directory.
+      dbPath = ffi
+          ? (await getApplicationSupportDirectory()).path
+          : await getDatabasesPath();
     } catch (e) {
-      // Fallback for environments where getDatabasesPath() might fail
+      // Fallback for environments where neither is available.
       final directory = await getApplicationDocumentsDirectory();
       dbPath = directory.path;
     }
