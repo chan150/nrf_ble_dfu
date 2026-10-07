@@ -5,7 +5,27 @@ A Flutter package providing ready-to-use widgets, SQLite persistence (for update
 ## Features
 - **Flutter UI Widgets**: Select device, select firmware files, preset configuration list, automatic scan/update controls, real-time log terminal, and update history.
 - **Robust Persistence**: Logs and history are saved inside local SQLite storage automatically. Custom DFU presets are persisted via SharedPreferences.
-- **Platform Agnostic Adapters**: Adapts `flutter_blue_plus` to the core's abstract BLE interfaces.
+- **Transport Adapters**: Adapts `flutter_blue_plus` to both of the core's transport seams: `FbpDevice` / `FbpCharacteristic` for Nordic Secure DFU, `SmpManager` for MCUmgr SMP (Zephyr / MCUboot).
+- **Advertisement Matching**: Tells the two protocols apart from a scan result, so one scanner can feed either updater.
+
+## Layout
+
+```
+lib/
+  nrf_ble_dfu_ui.dart         single export
+  src/
+    fbp_adapters.dart         FbpDevice / FbpCharacteristic: DfuDevice over flutter_blue_plus (Nordic)
+    smp_manager.dart          SmpManager: SmpTransport over flutter_blue_plus (Zephyr SMP, CBOR framing)
+    dfu_advertisement.dart    nordicDfuService / zephyrSmpService, advertisesSmp, smpFirst, findNordicBootloader
+    dfu_ui_manager.dart       DfuUiManager: wires the core to logs, history and presets
+    auto_dfu_controller.dart  scan-and-update automation
+    database/                 SQLite logger and history
+    widget/                   device, firmware, preset, log and history widgets
+test/                         advertisement matching and widget tests
+example/                      sample app
+```
+
+Both protocol cores come from `nrf_ble_dfu`; this package adds nothing protocol-specific beyond the two adapters.
 
 ## Installation
 
