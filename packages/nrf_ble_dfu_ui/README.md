@@ -2,6 +2,33 @@
 
 A Flutter package providing ready-to-use widgets, SQLite persistence (for update history and real-time logs), and SharedPreferences preset management, designed as a wrapper around the core library `nrf_ble_dfu`.
 
+## Quick start
+
+One call flashes a device over BLE, whichever protocol it speaks:
+
+```dart
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:nrf_ble_dfu_ui/nrf_ble_dfu_ui.dart';
+
+// Pick a scan result. dfuProtocolOf(result) says which protocol it
+// advertises; smpFirst / findNordicBootloader help choose one.
+final ScanResult target = FlutterBluePlus.lastScanResults.first;
+final bytes = await File(path).readAsBytes(); // .zip (Nordic) or .bin (Zephyr)
+
+await flashOverBle(
+  target,
+  bytes,
+  onProgress: (f) => print('${(f * 100).floor()}%'),
+  onLog: print,
+);
+```
+
+For Nordic it enters the bootloader and rescans for it when needed; for
+Zephyr it uploads, confirms and resets. Pass `protocol:` when the device does
+not advertise its service, and `confirm: false` for a test boot that MCUboot
+reverts unless you confirm after reboot. Everything below is the lower-level
+pieces this call is built from.
+
 ## Features
 - **Flutter UI Widgets**: Select device, select firmware files, preset configuration list, automatic scan/update controls, real-time log terminal, and update history.
 - **Robust Persistence**: Logs and history are saved inside local SQLite storage automatically. Custom DFU presets are persisted via SharedPreferences.
@@ -14,6 +41,7 @@ A Flutter package providing ready-to-use widgets, SQLite persistence (for update
 lib/
   nrf_ble_dfu_ui.dart         single export
   src/
+    flash_over_ble.dart       flashOverBle: scan result + bytes -> device running the new firmware
     fbp_adapters.dart         FbpDevice / FbpCharacteristic: DfuDevice over flutter_blue_plus (Nordic)
     smp_manager.dart          SmpManager: SmpTransport over flutter_blue_plus (Zephyr SMP, CBOR framing)
     dfu_advertisement.dart    nordicDfuService / zephyrSmpService, advertisesSmp, smpFirst, findNordicBootloader
