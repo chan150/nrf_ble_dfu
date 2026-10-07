@@ -1,4 +1,4 @@
-import 'package:dfu_service_uuids/dfu_service_uuids.dart';
+import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 import 'package:test/test.dart';
 
 void main() {

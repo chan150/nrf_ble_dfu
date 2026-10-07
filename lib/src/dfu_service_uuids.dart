@@ -5,7 +5,7 @@
 /// protocol families can share it without either dragging the other's
 /// packages along. Callers hand it the uuids their scanner reported; adapting
 /// a platform type to a string is the caller's job.
-library dfu_service_uuids;
+library;
 
 /// A firmware-update protocol, identified by the service it advertises.
 enum DfuProtocol {

@@ -1,11 +1,11 @@
-import 'package:dfu_service_uuids/dfu_service_uuids.dart';
+import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 /// The service a Nordic Secure DFU bootloader advertises.
 ///
 /// A device advertising this is sitting in its bootloader waiting for an
 /// image, whatever it calls itself. The uuid itself comes from
-/// dfu_service_uuids, which both protocol families share.
+/// nrf_ble_dfu (DfuProtocol), which both protocol families share.
 final nordicDfuService = Guid.parse(DfuProtocol.nordic.serviceUuid)!;
 
 /// The service an MCUmgr device advertises, which is how a Zephyr target is
@@ -77,4 +77,24 @@ ScanResult? findNordicBootloader(
     }
   }
   return null;
+}
+
+/// Whether [result] advertises MCUmgr, and so can be flashed over SMP.
+bool advertisesSmp(ScanResult result) =>
+    dfuProtocolOf(result) == DfuProtocol.zephyr;
+
+/// Orders [results] so the devices that can actually be flashed over SMP come
+/// first.
+///
+/// Sorted rather than filtered on purpose: a build that only exposes the SMP
+/// service after connecting still needs to be reachable, and hiding it would
+/// leave no way in. Ties keep the order the scanner reported.
+List<ScanResult> smpFirst(Iterable<ScanResult> results) {
+  final ordered = results.toList();
+  // Partitioning rather than List.sort, which is not stable, so the scanner's
+  // own ordering survives inside each group.
+  return [
+    ...ordered.where(advertisesSmp),
+    ...ordered.where((r) => !advertisesSmp(r)),
+  ];
 }

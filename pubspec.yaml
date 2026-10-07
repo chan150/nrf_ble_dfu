@@ -1,5 +1,5 @@
 name: nrf_ble_dfu
-description: Core Nordic BLE DFU protocol in pure Dart. Transport-agnostic; supply a DfuDevice.
+description: Nordic Secure DFU and Zephyr MCUmgr SMP firmware-update protocols in pure Dart. Transport-agnostic; supply a DfuDevice or an SmpTransport.
 version: 2.0.0
 repository: https://github.com/chan150/nrf_ble_dfu
 homepage: https://github.com/chan150/nrf_ble_dfu
@@ -15,3 +15,6 @@ dependencies:
 dev_dependencies:
   test: ^1.24.0
   lints: ^3.0.0
+  # Only to check that smpFrameOverhead really covers the envelope a transport
+  # puts around a chunk; the core itself never encodes CBOR.
+  cbor:
