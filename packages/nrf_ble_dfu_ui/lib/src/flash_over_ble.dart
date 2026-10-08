@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
@@ -121,23 +122,14 @@ Future<void> _flashZephyr(
   final transport = SmpManager(target.device, onLog: onLog);
   await transport.connect();
   try {
-    final updater = SmpFirmwareUpdater(transport, confirm: confirm, onLog: onLog);
+    final updater = SmpFirmwareUpdater(transport, onLog: onLog);
     await updater.flash(firmware, onProgress: onProgress);
-    if (!confirm) {
-      // Pending-only upload: mark the new slot for a test boot. Read the hash
-      // back rather than computing it, since the device is the authority on
-      // what landed.
-      final images = await updater.manager.listImages();
-      final staged = images.where((i) => !i.active).toList();
-      if (staged.isEmpty) throw StateError('No staged image after upload');
-      await updater.manager.testImage(staged.first.hash);
-    }
+    // The upload command has no confirm flag; marking is a separate state
+    // write, checked against the hash in the file.
+    await updater.manager
+        .markUploaded(Uint8List.fromList(firmware), confirm: confirm);
     onLog?.call('Resetting into the new image');
-    try {
-      await updater.manager.reset();
-    } catch (_) {
-      // The device drops the link as it reboots; that is the expected end.
-    }
+    await updater.manager.reset();
   } finally {
     await transport.disconnect();
   }

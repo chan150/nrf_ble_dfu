@@ -78,16 +78,11 @@ class NordicFirmwareUpdater implements FirmwareUpdater {
 class SmpFirmwareUpdater implements FirmwareUpdater {
   SmpFirmwareUpdater(
     this.transport, {
-    this.confirm = false,
     void Function(String message)? onLog,
   }) : manager = SmpDfuManager(transport, onLog: onLog);
 
   final SmpTransport transport;
   final SmpDfuManager manager;
-
-  /// Whether the image is marked confirmed as it is written, so the device
-  /// keeps it after the first boot without a separate confirm.
-  final bool confirm;
 
   @override
   DfuProtocol get protocol => DfuProtocol.zephyr;
@@ -99,7 +94,6 @@ class SmpFirmwareUpdater implements FirmwareUpdater {
   }) =>
       manager.uploadImage(
         firmware is Uint8List ? firmware : Uint8List.fromList(firmware),
-        confirm: confirm,
         onProgress: onProgress,
       );
 }
