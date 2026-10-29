@@ -1,0 +1,21 @@
+name: dart_dfu
+description: Command line firmware updater built on the pure Dart nrf_ble_dfu core, which speaks both Nordic DFU and MCUmgr SMP.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  args: ^2.4.0
+  # Both protocol cores live in one pure Dart package, which is what lets one
+  # tool drive either. It sits in a sibling repository, so it is resolved the
+  # way every other package in the mono repository resolves a sibling: by
+  # path, relative to a checkout of it.
+  nrf_ble_dfu:
+    path: ../../
+
+dev_dependencies:
+  test: ^1.24.0
+  # Only to build the .zip package the Nordic updater test flashes.
+  archive:
