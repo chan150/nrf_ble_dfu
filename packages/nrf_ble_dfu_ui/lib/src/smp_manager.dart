@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_blue_rs/flutter_blue_plus.dart';
 import 'package:convert/convert.dart';
 import 'package:cbor/cbor.dart' as cbor_pkg;
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
@@ -34,7 +34,7 @@ class SmpManager implements SmpTransport {
   int get mtu => device.mtuNow;
 
   Future<void> connect() async {
-    await device.connect(license: License.free);
+    await device.connect();
     
     // Request MTU increase only on Android. Windows/iOS handle this at the OS level.
     if (Platform.isAndroid) {

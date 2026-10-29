@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_blue_rs/flutter_blue_plus.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 
 import 'dfu_advertisement.dart';

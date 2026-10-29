@@ -1,4 +1,4 @@
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_blue_rs/flutter_blue_plus.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 import 'package:path/path.dart';
 
@@ -116,8 +116,7 @@ class AutoDfuController {
     try {
       if (!isAlreadyInDfu) {
         _dfu.log('Target found: $deviceName ($remoteId). Connecting...');
-        await device.connect(
-            license: License.nonprofit, timeout: const Duration(seconds: 3));
+        await device.connect(timeout: const Duration(seconds: 3));
 
         try {
           await device.requestMtu(247);
@@ -152,8 +151,7 @@ class AutoDfuController {
         }
 
         _dfu.log('DFU device found. Connecting for firmware update...');
-        await dfuDevice.connect(
-            license: License.nonprofit, timeout: const Duration(seconds: 3));
+        await dfuDevice.connect(timeout: const Duration(seconds: 3));
         try {
           await dfuDevice.requestMtu(247);
         } catch (_) {}
@@ -161,8 +159,7 @@ class AutoDfuController {
         await _dfu.updateFirmware(FbpDevice(dfuDevice));
       } else {
         _dfu.log('Target already in DFU mode: $deviceName ($remoteId). Connecting for update...');
-        await device.connect(
-            license: License.nonprofit, timeout: const Duration(seconds: 3));
+        await device.connect(timeout: const Duration(seconds: 3));
         try {
           await device.requestMtu(247);
         } catch (_) {}

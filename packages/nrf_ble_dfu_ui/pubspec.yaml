@@ -12,15 +12,14 @@ dependencies:
     sdk: flutter
   nrf_ble_dfu:
     path: ../../
-  flutter_blue_plus: ^2.3.9
+  # BLE through one Rust core (replaces flutter_blue_plus and its license).
+  flutter_blue_rs: ^0.1.0
   # SMP framing for the Zephyr transport (SmpManager).
   cbor:
   convert:
-  # Nothing imports flutter_blue_plus_winrt or sqflite below. Both are
-  # platform implementations, registered by being depended on rather than by
-  # being called: dropping them as unused takes Bluetooth off Windows and the
-  # history database off Android.
-  flutter_blue_plus_winrt: 
+  # Nothing imports sqflite below. It is a platform implementation, registered
+  # by being depended on rather than by being called: dropping it as unused
+  # takes the history database off Android.
   file_picker: ^11.0.0
   path_provider:
   path:

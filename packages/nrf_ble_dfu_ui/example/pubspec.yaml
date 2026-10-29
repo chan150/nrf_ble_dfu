@@ -13,6 +13,11 @@ dependencies:
   nrf_ble_dfu_ui:
     path: ../
 
+# flutter_blue_rs is not on pub.dev; take the mono repository checkout.
+dependency_overrides:
+  flutter_blue_rs:
+    path: ../../../../flutter_blue_rs
+
 flutter:
   uses-material-design: true
 

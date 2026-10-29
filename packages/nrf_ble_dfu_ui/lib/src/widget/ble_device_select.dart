@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_blue_rs/flutter_blue_plus.dart';
 import 'package:nrf_ble_dfu_ui/nrf_ble_dfu_ui.dart';
 
 class BleDeviceSelect extends StatefulWidget {
@@ -137,7 +137,7 @@ class _BleDeviceSelectState extends State<BleDeviceSelect> {
                       CompleteChecker(item: item),
                       IconButton(
                         onPressed: () =>
-                            item.device.connect(license: License.nonprofit),
+                            item.device.connect(),
                         tooltip: 'Connect',
                         icon: const Icon(Icons.bluetooth, size: 20),
                       ),

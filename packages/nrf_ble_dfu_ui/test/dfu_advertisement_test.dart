@@ -1,4 +1,4 @@
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_blue_rs/flutter_blue_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nrf_ble_dfu_ui/nrf_ble_dfu_ui.dart';
 
