@@ -7,7 +7,7 @@ export 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 export 'src/widget/widget.dart';
 export 'src/dfu_advertisement.dart';
 export 'src/fbp_adapters.dart';
-export 'src/smp_manager.dart';
+export 'package:nrf_ble_dfu_smp/nrf_ble_dfu_smp.dart';
 export 'src/flash_over_ble.dart';
 export 'src/dfu_ui_manager.dart';
 export 'src/auto_dfu_controller.dart';

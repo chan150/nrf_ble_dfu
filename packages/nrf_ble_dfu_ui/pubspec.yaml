@@ -14,9 +14,9 @@ dependencies:
     path: ../../
   # BLE through one Rust core (replaces flutter_blue_plus and its license).
   flutter_blue_rs: ^0.1.0
-  # SMP framing for the Zephyr transport (SmpManager).
-  cbor:
-  convert:
+  # SmpManager, the Zephyr transport (kept apart so apps need not take sqflite).
+  nrf_ble_dfu_smp:
+    path: ../nrf_ble_dfu_smp
   # Nothing imports sqflite below. It is a platform implementation, registered
   # by being depended on rather than by being called: dropping it as unused
   # takes the history database off Android.

@@ -1,13 +1,11 @@
-import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_blue_rs/flutter_blue_plus.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
+import 'package:nrf_ble_dfu_smp/nrf_ble_dfu_smp.dart';
 
 import 'dfu_advertisement.dart';
 import 'fbp_adapters.dart';
-import 'smp_manager.dart';
 
 /// Flashes [firmware] onto the device behind [target], whichever protocol it
 /// speaks, and leaves it booting the new image.
@@ -122,14 +120,15 @@ Future<void> _flashZephyr(
   final transport = SmpManager(target.device, onLog: onLog);
   await transport.connect();
   try {
-    final updater = SmpFirmwareUpdater(transport, onLog: onLog);
-    await updater.flash(firmware, onProgress: onProgress);
+    final image = Uint8List.fromList(firmware);
+    final manager = SmpDfuManager(transport, onLog: onLog);
+    // The transport's own upload keeps several frames in flight.
+    await transport.uploadImage(image, onProgress: onProgress);
     // The upload command has no confirm flag; marking is a separate state
     // write, checked against the hash in the file.
-    await updater.manager
-        .markUploaded(Uint8List.fromList(firmware), confirm: confirm);
+    await manager.markUploaded(image, confirm: confirm);
     onLog?.call('Resetting into the new image');
-    await updater.manager.reset();
+    await manager.reset();
   } finally {
     await transport.disconnect();
   }

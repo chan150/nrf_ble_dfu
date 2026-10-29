@@ -1,0 +1,22 @@
+name: nrf_ble_dfu_smp
+description: SmpTransport over flutter_blue_rs for the nrf_ble_dfu core's Zephyr MCUmgr SMP DFU. Split from nrf_ble_dfu_ui so apps can flash without its SQLite history and widgets.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.7.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  nrf_ble_dfu:
+    path: ../../
+  flutter_blue_rs: ^0.1.0
+  # SMP framing.
+  cbor:
+  convert:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

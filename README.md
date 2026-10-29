@@ -33,15 +33,15 @@ test/                         protocol tests, no Bluetooth needed
 packages/nrf_ble_dfu_ui/      Flutter layer on flutter_blue_plus
   lib/src/
     fbp_adapters.dart         FbpDevice / FbpCharacteristic (DfuDevice over flutter_blue_plus)
-    smp_manager.dart          SmpManager (SmpTransport over flutter_blue_plus)
     dfu_advertisement.dart    which scan results are flashable, per protocol
     dfu_ui_manager.dart, auto_dfu_controller.dart, widget/, database/
+packages/nrf_ble_dfu_smp/     SmpManager (SmpTransport over flutter_blue_rs), no SQLite or widgets
 ```
 
 - **`nrf_ble_dfu` (root)**: the pure Dart cores and the two interfaces Bluetooth arrives through. Nothing here opens a connection.
-- **`nrf_ble_dfu_ui`**: the flutter_blue_plus adapters for both protocols, plus UI widgets, the SQLite history database and SharedPreferences presets.
-
-Consumers that drive both protocols without Flutter (a CLI, loopback tests) live in the sibling `nrf_ble_dfu_zephyr` repository.
+- **`nrf_ble_dfu_smp`**: `SmpManager` alone, with a pipelined upload, for apps that flash Zephyr devices without the UI layer's SQLite.
+- **`nrf_ble_dfu_ui`**: the flutter_blue_plus adapters for both protocols (re-exporting `nrf_ble_dfu_smp`), plus UI widgets, the SQLite history database and SharedPreferences presets.
+- **`dart_dfu`**: a command-line updater for both protocols without Flutter, with loopback devices that the tests drive.
 
 ---
 
