@@ -5,6 +5,10 @@ import 'package:convert/convert.dart';
 import 'package:cbor/cbor.dart' as cbor_pkg;
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 
+// The core comes along: inside a git dependency it is pinned to this commit,
+// so an app taking it from here need not (and cannot) name its own ref.
+export 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
+
 /// Carries SMP over a flutter_blue_rs connection (its FlutterBluePlus API).
 class SmpManager implements SmpTransport {
   static final String smpServiceUuid = DfuProtocol.zephyr.serviceUuid;

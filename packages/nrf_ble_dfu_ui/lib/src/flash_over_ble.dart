@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:flutter_blue_rs/flutter_blue_plus.dart';
-import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 import 'package:nrf_ble_dfu_smp/nrf_ble_dfu_smp.dart';
 
 import 'dfu_advertisement.dart';

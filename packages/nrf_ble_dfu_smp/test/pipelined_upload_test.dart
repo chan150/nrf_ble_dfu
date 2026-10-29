@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:nrf_ble_dfu_smp/nrf_ble_dfu_smp.dart';
