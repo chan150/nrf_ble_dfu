@@ -1,7 +1,29 @@
-Copyright 2024 Himchan Park
+Himchan Park License
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Copyright (c) 2024-2026 Himchan Park
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+Permission is hereby granted, free of charge, to any person or organization obtaining a copy of this software and associated documentation files (the "Software") to:
+
+(a) use the Software, including for commercial purposes, only as a separate library on which an application depends, obtained as a whole package from a source authorized by the copyright holder, and make the copies of that whole package needed to develop, build and test such an application;
+(b) modify the Software's own files to fix defects or to adapt it to a build environment, provided that the modified files remain part of the Software's package and are not used outside it; and
+(c) distribute the Software only in compiled or binary form, and only as an integrated part of such an application,
+
+subject to the following conditions:
+
+1. The above copyright notice and this license shall be included in every application that contains the Software, for example in its open-source or license notices.
+
+2. No copying of source code. No one may copy, paste, extract, translate into another programming language, port, or otherwise reproduce any source code of the Software, in whole or in part, into any other software, file or codebase, create any work derived from it other than as permitted in (b), or use it as training data for any machine-learning model that generates code. Keeping the Software as an intact, separate package is the only permitted way to use its source code.
+
+3. No redistribution of source code. No one may publish, distribute, sublicense, sell, rent or lend the Software or any modified version of it in source form, or offer it, in any form, as a library, SDK, plugin or package of their own.
+
+4. No reverse engineering. Under no circumstances may any person reverse engineer, decompile, disassemble, or otherwise attempt to derive source code, algorithms, or internal structure from any compiled or binary form of the Software, including native libraries, executables, and any other artifact built from its Rust code, nor permit or assist any third party to do so. This condition applies regardless of purpose, including interoperability, error correction, security research, and education, and binds every recipient of the Software, including recipients of modified or redistributed copies. Every copy or portion of the Software that you distribute must carry this condition unchanged.
+
+5. Any breach of any condition of this license immediately and automatically terminates all rights granted by this license.
+
+All rights not expressly granted by this license are reserved by the copyright holder.
+
+Third-party components included in the Software remain governed by their own licenses; this license does not restrict any right those licenses grant.
+
+If any provision of this license is held unenforceable, it shall be enforced to the maximum extent permitted, and the remaining provisions remain in full force.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
