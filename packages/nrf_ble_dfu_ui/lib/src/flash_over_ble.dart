@@ -133,8 +133,8 @@ Future<void> _flashZephyr(
   }
 }
 
-/// flutter_blue_plus only negotiates on Android; elsewhere the OS has already
-/// picked the MTU and asking throws.
+/// The flutter_blue_plus shim (flutter_blue_rs) only negotiates on Android;
+/// elsewhere the OS has already picked the MTU and asking throws.
 Future<void> _requestMtu(BluetoothDevice device) async {
   if (Platform.isAndroid) await device.requestMtu(247);
 }

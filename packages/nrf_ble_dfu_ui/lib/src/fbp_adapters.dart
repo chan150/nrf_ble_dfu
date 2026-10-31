@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_rs/flutter_blue_plus.dart';
 import 'package:nrf_ble_dfu/nrf_ble_dfu.dart';
 
-/// Implements the core's [DfuDevice] with flutter_blue_plus.
+/// Implements the core's [DfuDevice] with flutter_blue_rs, through its
+/// flutter_blue_plus API shim (not the flutter_blue_plus package).
 class FbpDevice implements DfuDevice {
   FbpDevice(this.device);
 
@@ -39,7 +40,8 @@ class FbpDevice implements DfuDevice {
   int get hashCode => device.remoteId.hashCode;
 }
 
-/// Implements the core's [DfuCharacteristic] with flutter_blue_plus.
+/// Implements the core's [DfuCharacteristic] with flutter_blue_rs, through its
+/// flutter_blue_plus API shim (not the flutter_blue_plus package).
 class FbpCharacteristic implements DfuCharacteristic {
   FbpCharacteristic(this.characteristic);
 

@@ -7,7 +7,8 @@ A Flutter package providing ready-to-use widgets, SQLite persistence (for update
 One call flashes a device over BLE, whichever protocol it speaks:
 
 ```dart
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+// flutter_blue_rs's flutter_blue_plus API shim, not the flutter_blue_plus package.
+import 'package:flutter_blue_rs/flutter_blue_plus.dart';
 import 'package:nrf_ble_dfu_ui/nrf_ble_dfu_ui.dart';
 
 // Pick a scan result. dfuProtocolOf(result) says which protocol it
@@ -32,7 +33,7 @@ pieces this call is built from.
 ## Features
 - **Flutter UI Widgets**: Select device, select firmware files, preset configuration list, automatic scan/update controls, real-time log terminal, and update history.
 - **Robust Persistence**: Logs and history are saved inside local SQLite storage automatically. Custom DFU presets are persisted via SharedPreferences.
-- **Transport Adapters**: Adapts `flutter_blue_plus` to both of the core's transport seams: `FbpDevice` / `FbpCharacteristic` for Nordic Secure DFU, `SmpManager` for MCUmgr SMP (Zephyr / MCUboot), re-exported from `nrf_ble_dfu_smp`.
+- **Transport Adapters**: Adapts `flutter_blue_rs` (through its `flutter_blue_plus.dart` API shim; the flutter_blue_plus package itself is not used) to both of the core's transport seams: `FbpDevice` / `FbpCharacteristic` for Nordic Secure DFU, `SmpManager` for MCUmgr SMP (Zephyr / MCUboot), re-exported from `nrf_ble_dfu_smp`.
 - **Advertisement Matching**: Tells the two protocols apart from a scan result, so one scanner can feed either updater.
 
 ## Layout
@@ -42,7 +43,7 @@ lib/
   nrf_ble_dfu_ui.dart         single export
   src/
     flash_over_ble.dart       flashOverBle: scan result + bytes -> device running the new firmware
-    fbp_adapters.dart         FbpDevice / FbpCharacteristic: DfuDevice over flutter_blue_plus (Nordic)
+    fbp_adapters.dart         FbpDevice / FbpCharacteristic: DfuDevice over flutter_blue_rs (Nordic)
     dfu_advertisement.dart    nordicDfuService / zephyrSmpService, advertisesSmp, smpFirst, findNordicBootloader
     dfu_ui_manager.dart       DfuUiManager: wires the core to logs, history and presets
     auto_dfu_controller.dart  scan-and-update automation
