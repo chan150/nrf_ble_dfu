@@ -39,7 +39,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Row(
         children: [
-          // Left: Controls
           Expanded(
             flex: 3,
             child: ListView(
@@ -61,7 +60,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           if (_showLogs) ...[
             const VerticalDivider(width: 1),
-            // Right: Logs
             const SizedBox(
               width: 350,
               child: LogConsole(),

@@ -19,10 +19,6 @@ class AutoDfuController {
   final _dfu = NrfBleDfu();
 
   /// Devices currently worth flashing, and ones already done.
-  ///
-  /// These followed the scanning out of the core: they only ever described
-  /// what the automatic pass had seen, and typing them as BluetoothDevice was
-  /// the last thing tying the state classes to a Bluetooth stack.
   final Set<BluetoothDevice> autoDfuTargets = {};
   final Set<BluetoothDevice> autoDfuFinished = {};
 
@@ -50,6 +46,17 @@ class AutoDfuController {
 
   final Map<String, DateTime> _failedCooldown = {};
 
+  bool _isTarget(ScanResult s) {
+    final name = s.device.platformName;
+    final id = s.device.remoteId.str;
+    final cooldown = _failedCooldown[id];
+    return (RegExp(_dfu.autoEntryDeviceName).hasMatch(name) ||
+            RegExp(_dfu.autoDfuDeviceName).hasMatch(name)) &&
+        !_isDuplicate(name, id) &&
+        !autoDfuFinished.any((d) => d.remoteId.str == id) &&
+        (cooldown == null || DateTime.now().isAfter(cooldown));
+  }
+
   bool _isDuplicate(String name, String remoteId) {
     final fwName = _dfu.file.path != null ? basename(_dfu.file.path!) : '';
     final serial = _dfu.serialNumberOf(name);
@@ -61,10 +68,8 @@ class AutoDfuController {
   }
 
   Future<void> autoDfu() async {
-    // The button hands this straight to onPressed, so a throw here has
-    // nowhere to land and surfaces as an unhandled exception instead of
-    // reaching the operator. Say what is missing in the log they are already
-    // watching, and do nothing.
+    // Handed straight to onPressed, where a throw goes unhandled: log what
+    // is missing instead.
     final missing = [
       if (_dfu.file.datPath == null) 'init packet (.dat)',
       if (_dfu.file.binPath == null) 'image (.bin)',
@@ -88,18 +93,7 @@ class AutoDfuController {
     if (_isAutoDfuRunning) return;
     if (!_dfu.setup.isAutoUpdateEnabled) return;
 
-    final candidates = results.where((s) {
-      final name = s.device.platformName;
-      final isApp = RegExp(_dfu.autoEntryDeviceName).hasMatch(name);
-      final isDfu = RegExp(_dfu.autoDfuDeviceName).hasMatch(name);
-      return (isApp || isDfu) &&
-          !_isDuplicate(s.device.platformName, s.device.remoteId.str) &&
-          !autoDfuFinished
-              .any((d) => d.remoteId.str == s.device.remoteId.str);
-    }).where((s) {
-      final cooldown = _failedCooldown[s.device.remoteId.str];
-      return cooldown == null || DateTime.now().isAfter(cooldown);
-    }).toList();
+    final candidates = results.where(_isTarget).toList();
 
     if (candidates.isEmpty) return;
 
@@ -133,10 +127,8 @@ class AutoDfuController {
 
         while (DateTime.now().isBefore(timeout)) {
           final currentResults = await FlutterBluePlus.scanResults.first;
-          // Advertising the DFU service is what identifies a bootloader, not
-          // its name. A device that reboots into DFU also shifts its address,
-          // which is why matching on the application's address alone used to
-          // miss it and the name was doing the work.
+          // The advertised DFU service identifies a bootloader, not its name;
+          // its address may also have shifted on reboot.
           dfuDevice = findNordicBootloader(
             currentResults,
             device.remoteId.str,
@@ -206,23 +198,7 @@ class AutoDfuController {
     FlutterBluePlus.startScan(continuousUpdates: true);
 
     _scanSubscription = FlutterBluePlus.scanResults.listen((results) {
-      final filtered = results
-          .where((s) {
-            final name = s.device.platformName;
-            final isApp = RegExp(_dfu.autoEntryDeviceName).hasMatch(name);
-            final isDfu = RegExp(_dfu.autoDfuDeviceName).hasMatch(name);
-            return (isApp || isDfu);
-          })
-          .where((s) =>
-              !_isDuplicate(s.device.platformName, s.device.remoteId.str))
-          .where((s) => !autoDfuFinished
-              .any((d) => d.remoteId.str == s.device.remoteId.str))
-          .where((s) {
-            final cooldown = _failedCooldown[s.device.remoteId.str];
-            return cooldown == null || DateTime.now().isAfter(cooldown);
-          })
-          .map((s) => s.device)
-          .toList();
+      final filtered = results.where(_isTarget).map((s) => s.device).toList();
 
       autoDfuTargets.clear();
       autoDfuTargets.addAll(filtered);
@@ -265,9 +241,8 @@ class AutoDfuController {
     autoDfuTargets.clear();
     autoDfuFinished.clear();
     _dfu.setup.notify();
-    // Same reason as autoDfu: this is handed straight to a button, so a
-    // refused scan has to be reported rather than thrown into the gesture
-    // handler. The adapter being off is the ordinary case here.
+    // Handed straight to a button too: report a refused scan (usually the
+    // adapter being off) rather than throw.
     try {
       await FlutterBluePlus.stopScan();
       await FlutterBluePlus.startScan();

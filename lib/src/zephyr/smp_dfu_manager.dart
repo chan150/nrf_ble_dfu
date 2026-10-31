@@ -135,10 +135,8 @@ String _hex(List<int> bytes) =>
 class SmpDfuManager {
   final SmpTransport transport;
 
-  /// Where diagnostics go, if anywhere.
-  ///
-  /// A library has no business writing to stdout: doing so corrupts the
-  /// output of any tool built on it. Silent unless a caller asks for these.
+  /// Where diagnostics go; null keeps the library silent (never stdout, which
+  /// would corrupt the output of tools built on it).
   final void Function(String message)? onLog;
 
   SmpDfuManager(this.transport, {this.onLog});

@@ -24,11 +24,8 @@ class SmpManager implements SmpTransport {
   int _sequence = 0;
   StreamSubscription? _connectionSubscription;
 
-  /// Where diagnostics go, if anywhere.
-  ///
-  /// A library has no business writing to stdout: it corrupts the output of
-  /// any tool built on it, and in an app it goes to a console nobody is
-  /// looking at. Silent unless a caller asks for these.
+  /// Where diagnostics go; null keeps the library silent (never stdout, which
+  /// would corrupt the output of tools built on it).
   final void Function(String message)? onLog;
 
   SmpManager(this.device, {this.onLog});
@@ -65,7 +62,7 @@ class SmpManager implements SmpTransport {
 
   Future<void> connect() async {
     // On Android the core also asks for the largest MTU; the device answers
-    // with what it can take. (It used to be lowered to 251 right after.)
+    // with what it can take.
     await device.connect();
 
     if (Platform.isAndroid) {
@@ -118,7 +115,6 @@ class SmpManager implements SmpTransport {
     }
     onLog?.call("MTU ${device.mtuNow}, mcumgr buffers $_bufCount x $_bufSize -> frames up to ${mtu - 4} bytes");
 
-    // Monitor for disconnection
     _connectionSubscription = device.connectionState.listen((state) {
       if (state == BluetoothConnectionState.disconnected) {
         _handleDisconnection();
@@ -152,7 +148,6 @@ class SmpManager implements SmpTransport {
         final header = SmpHeader.fromBytes(fullResponse);
         final payloadPart = fullResponse.sublist(SmpHeader.headerLength);
 
-        // Advance buffer
         _responseBuffer = _responseBuffer.sublist(_expectedLength);
         _expectedLength = -1;
 
@@ -169,7 +164,7 @@ class SmpManager implements SmpTransport {
           onLog?.call("Error decoding SMP response: $e");
         }
       } else {
-        break; // Wait for more data
+        break;
       }
     }
   }
@@ -211,8 +206,8 @@ class SmpManager implements SmpTransport {
 
     Uint8List payloadBytes;
     if (payload.isEmpty) {
-      // For Read operations (op 0), some devices prefer 0 bytes.
-      // For others (Write), 0xa0 is standard.
+      // Some devices want no bytes for an empty read; a write carries an
+      // empty CBOR map (0xa0).
       if (op == SmpOp.read) {
         payloadBytes = Uint8List(0);
       } else {
@@ -251,7 +246,6 @@ class SmpManager implements SmpTransport {
       if (packet.length <= device.mtuNow - 3 && _smpCharacteristic!.properties.writeWithoutResponse) {
         await _smpCharacteristic!.write(packet, withoutResponse: true);
       } else {
-        // Prepare/Execute Write for packets > MTU
         await _smpCharacteristic!.write(packet, allowLongWrite: true);
       }
     } catch (e) {

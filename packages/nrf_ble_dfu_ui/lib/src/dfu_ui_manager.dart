@@ -17,7 +17,6 @@ class DfuUiManager {
     _prefs = await SharedPreferences.getInstance();
     await _db.initialize();
 
-    // 1. Restore history and logs from SQLite
     final history = await _db.getHistory();
     final logs = await _db.getLogs();
 
@@ -30,7 +29,6 @@ class DfuUiManager {
     setup.updatedMacs.addAll(history.map((e) => e.remoteId));
     setup.notify();
 
-    // 2. Restore presets from SharedPreferences
     final jsonStr = _prefs.getString('dfu_presets');
     if (jsonStr != null) {
       try {
@@ -54,9 +52,7 @@ class DfuUiManager {
         }
         setup.notify();
 
-        // Recover firmware path if exists asynchronously
-        final lastUsedMap = container.lastUsed;
-        final fwPath = lastUsedMap['firmware_path'] as String?;
+        final fwPath = last['firmware_path'] as String?;
         if (fwPath != null && File(fwPath).existsSync()) {
           final tempDir = await getTemporaryDirectory();
           final bytes = File(fwPath).readAsBytesSync();
@@ -79,7 +75,6 @@ class DfuUiManager {
       savePresets();
     }
 
-    // 3. Listen to core events to persist logs and history
     NrfBleDfu().onLog.listen((entry) {
       _db.insertLog(entry);
     });
@@ -96,7 +91,6 @@ class DfuUiManager {
       _db.clearHistory();
     });
 
-    // 4. Auto-save presets on setup changes
     NrfBleDfu().setup.addListener(savePresets);
     AutoDfuController().listenForHistoryClear();
   }

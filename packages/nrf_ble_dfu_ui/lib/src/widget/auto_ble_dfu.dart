@@ -19,7 +19,6 @@ class AutoBleDfu extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header row: title + toggles (compact)
               Row(
                 children: [
                   const Icon(Icons.auto_fix_high, color: Colors.blue, size: 16),
@@ -51,7 +50,6 @@ class AutoBleDfu extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 6),
-              // Action buttons (icon-only, compact)
               Row(
                 children: [
                   _CompactButton(
@@ -77,7 +75,6 @@ class AutoBleDfu extends StatelessWidget {
                   ),
                 ],
               ),
-              // Waiting queue (collapsible style)
               if (diff.isNotEmpty) ...[
                 const SizedBox(height: 6),
                 _StatusChips(

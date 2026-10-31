@@ -152,7 +152,6 @@ class _HistoryList extends StatelessWidget {
         final history =
             isSuccessView ? dfu.setup.successHistory : dfu.setup.failureHistory;
 
-        // Apply search filter
         final filteredHistory = history.where((entry) {
           if (searchQuery.isEmpty) return true;
           final query = searchQuery.toLowerCase();

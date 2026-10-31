@@ -72,7 +72,6 @@ class _LogConsoleState extends State<LogConsole> {
               builder: (context, _) {
                 final logs = dfu.setup.logs;
 
-                // Auto scroll on new logs
                 WidgetsBinding.instance
                     .addPostFrameCallback((_) => _scrollToBottom());
 

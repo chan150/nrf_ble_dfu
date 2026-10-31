@@ -30,14 +30,8 @@ Future<void> main(List<String> args) async {
   }
 }
 
-// ---------------------------------------------------------------------------
-// The two protocols reach different bootloaders and share no wire format, so
-// each keeps its own commands. What is deliberately the same across them: the
-// command shape, the name of the verb that flashes, how progress is rendered,
-// where diagnostics go, and the single function where a transport gets wired
-// up. A verb only one protocol has is simply absent from the other rather than
-// faked.
-// ---------------------------------------------------------------------------
+// Each protocol keeps its own commands but the same shape, flash verb,
+// progress and logging. A verb only one protocol has is absent, not faked.
 
 class NordicCommand extends Command<void> {
   NordicCommand() {
@@ -63,8 +57,6 @@ class ZephyrCommand extends Command<void> {
   @override
   final description = 'Zephyr and MCUboot devices, over MCUmgr SMP.';
 }
-
-// --- Nordic ----------------------------------------------------------------
 
 class NordicEnterCommand extends Command<void> {
   @override
@@ -102,8 +94,6 @@ class NordicUploadCommand extends Command<void> {
     progress.finish('Flashed ${file.path}.');
   }
 }
-
-// --- Zephyr ----------------------------------------------------------------
 
 class ZephyrListCommand extends Command<void> {
   @override
@@ -170,8 +160,6 @@ class ZephyrResetCommand extends Command<void> {
   }
 }
 
-// --- Wiring ----------------------------------------------------------------
-
 /// Resolves the link to a Nordic bootloader.
 ///
 /// This and [openZephyrTransport] are the only two places that know hardware
@@ -182,17 +170,12 @@ DfuDevice openNordicDevice(ArgResults? globals) =>
         ? LoopbackBootloader()
         : _notWired('DfuDevice', 'openNordicDevice');
 
-/// Resolves the link to a Zephyr device.
-///
-/// This and [openNordicDevice] are the only two places that know hardware
-/// exists. Implement the interface, return it from here, and nothing above
-/// these lines changes.
+/// Resolves the link to a Zephyr device; see [openNordicDevice].
 SmpTransport openZephyrTransport(ArgResults? globals) =>
     globals?['loopback'] == true
         ? LoopbackTransport()
         : _notWired('SmpTransport', 'openZephyrTransport');
 
-/// The one message both raise, shared so the two cannot drift apart.
 Never _notWired(String type, String function) => throw StateError(
       'No transport is wired up yet. Pass --loopback to run against an '
       'in-memory device, or implement $type for your hardware and return it '

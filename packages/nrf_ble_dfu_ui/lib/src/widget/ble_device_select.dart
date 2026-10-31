@@ -37,7 +37,6 @@ class _BleDeviceSelectState extends State<BleDeviceSelect> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Filter Bar
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -74,7 +73,6 @@ class _BleDeviceSelectState extends State<BleDeviceSelect> {
           builder: (context, snapshot) {
             var list = snapshot.data ?? [];
 
-            // Apply Filters
             list = list.where((item) {
               final name = item.device.platformName;
               final addr = item.device.remoteId.str;
@@ -89,7 +87,6 @@ class _BleDeviceSelectState extends State<BleDeviceSelect> {
               return true;
             }).toList();
 
-            // Sort by RSSI
             list.sort((a, b) => b.rssi.compareTo(a.rssi));
 
             if (list.isEmpty) {

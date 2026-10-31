@@ -14,10 +14,8 @@ class BleEntrySetup extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top: Preset Management (Dropdown Row)
             const PresetSelector(),
             const Divider(),
-            // Bottom: Configuration Inputs
             DfuInputField(
               k: 'Entry UUID',
               v: dfu.entryControlPoint,

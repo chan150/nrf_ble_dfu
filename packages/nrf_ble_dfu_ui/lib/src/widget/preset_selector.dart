@@ -28,7 +28,7 @@ class PresetSelector extends StatelessWidget {
                 value: selectedIdx,
                 hint: const Text('Select a preset',
                     style: TextStyle(fontSize: 12)),
-                underline: Container(), // Removes underline
+                underline: Container(),
                 items: List.generate(dfu.presets.length, (i) {
                   return DropdownMenuItem(
                     value: i,
@@ -44,7 +44,6 @@ class PresetSelector extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
-            // Action Menu for managing presets
             PopupMenuButton<String>(
               icon: const Icon(Icons.menu, size: 20),
               tooltip: 'Preset Menu',

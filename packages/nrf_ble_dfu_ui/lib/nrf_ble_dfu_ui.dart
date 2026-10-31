@@ -13,9 +13,7 @@ export 'src/dfu_ui_manager.dart';
 export 'src/auto_dfu_controller.dart';
 
 Future<void> initNrfBleDfuForFlutter() async {
-  // 1. Initialize the Core package
   NrfBleDfu().initialize();
 
-  // 2. Initialize the UI preference/persistence manager
   await DfuUiManager().initialize();
 }

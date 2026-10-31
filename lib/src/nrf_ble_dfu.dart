@@ -39,7 +39,6 @@ class NrfBleDfu {
 
   bool _isInitialized = false;
 
-  // Stream controllers to emit events to external subscribers (e.g. UI/Storage packages)
   final _logStreamController = StreamController<LogEntry>.broadcast();
   Stream<LogEntry> get onLog => _logStreamController.stream;
 
@@ -71,8 +70,8 @@ class NrfBleDfu {
   ///
   /// This is flow control: at 0 we write as fast as the link accepts and a
   /// bootloader that cannot drain its buffer in time drops packets silently.
-  /// 12 is what nrfutil defaults to. Setting it to 0 restores the old
-  /// unthrottled behaviour, which also gives up the per-batch CRC checkpoint.
+  /// 12 is what nrfutil defaults to. 0 disables throttling and with it the
+  /// per-batch CRC checkpoint.
   int packetReceiptNotification = 12;
 
   final List<DfuPreset> presets = [];
@@ -309,8 +308,6 @@ class NrfBleDfu {
 
     progress.reset();
 
-    // The two numbers that decide how the transfer behaves on the wire, so a
-    // bench run can be read back afterwards rather than inferred.
     log('Transfer type $type: ${buffer.length} bytes, MTU ${dataPoint.mtu}, '
         'receipt every ${prn == 0 ? 'never (unthrottled)' : '$prn packets'}');
 
@@ -386,9 +383,7 @@ class NrfBleDfu {
 
         final expected = dfuCrc32(buffer.sublist(0, offset));
         if (crc != expected) {
-          // Stop rather than execute an object the device did not receive
-          // intact. Recovering would mean aborting and recreating the object,
-          // which is worth adding only once a device is seen to need it.
+          // Never execute an object the device did not receive intact.
           throw Exception(
               'CRC mismatch at offset $offset: device $crc, expected $expected');
         }
@@ -418,8 +413,6 @@ class NrfBleDfu {
       throw Exception('Unhandled packet: $event');
     }
   }
-
-
 
   Future<void> updateFirmware(DfuDevice device) async {
     final datPath = file.datPath;

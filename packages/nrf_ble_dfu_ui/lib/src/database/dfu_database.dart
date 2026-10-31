@@ -30,13 +30,9 @@ class SqfliteDfuDatabase {
 
     String dbPath;
     try {
-      // Under the ffi factory getDatabasesPath() answers with a path relative
-      // to the working directory, so the database follows whatever launched
-      // the app instead of staying with it: run from a shell it lands in the
-      // project, run from a shortcut it lands beside the executable, and an
-      // installed build cannot write there at all. It does not throw, so the
-      // fallback below never covered this. Mobile is unaffected, where the
-      // platform answers with its own per-app directory.
+      // Under ffi, getDatabasesPath() is relative to the working directory
+      // (and does not throw), so the database would follow whatever launched
+      // the app; an installed build cannot even write there.
       dbPath = ffi
           ? (await getApplicationSupportDirectory()).path
           : await getDatabasesPath();
@@ -54,51 +50,36 @@ class SqfliteDfuDatabase {
         if (oldVersion < 2) {
           await db.execute('DROP TABLE IF EXISTS history');
           await db.execute('DROP TABLE IF EXISTS logs');
-          await db.execute('''
-            CREATE TABLE history (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              remoteId TEXT,
-              deviceName TEXT,
-              status TEXT,
-              timestamp TEXT,
-              note TEXT,
-              firmwareName TEXT,
-              serialNumber TEXT
-            )
-          ''');
-          await db.execute('''
-            CREATE TABLE logs (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              timestamp TEXT,
-              level TEXT,
-              message TEXT
-            )
-          ''');
+          await _createTables(db);
         }
       },
       onCreate: (db, version) async {
-        await db.execute('''
-          CREATE TABLE history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            remoteId TEXT,
-            deviceName TEXT,
-            status TEXT,
-            timestamp TEXT,
-            note TEXT,
-            firmwareName TEXT,
-            serialNumber TEXT
-          )
-        ''');
-        await db.execute('''
-          CREATE TABLE logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT,
-            level TEXT,
-            message TEXT
-          )
-        ''');
+        await _createTables(db);
       },
     );
+  }
+
+  Future<void> _createTables(Database db) async {
+    await db.execute('''
+      CREATE TABLE history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        remoteId TEXT,
+        deviceName TEXT,
+        status TEXT,
+        timestamp TEXT,
+        note TEXT,
+        firmwareName TEXT,
+        serialNumber TEXT
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT,
+        level TEXT,
+        message TEXT
+      )
+    ''');
   }
 
   Future<void> insertHistory(DfuHistoryEntry entry) async {
