@@ -25,7 +25,6 @@ dependencies:
   path:
   shared_preferences:
   intl:
-  sqflite:
   sqflite_common_ffi:
 
 dev_dependencies:
